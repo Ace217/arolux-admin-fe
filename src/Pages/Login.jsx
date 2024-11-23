@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import BoxComponent from './Components/Box';
-import TypographyComponent from './Components/Typography';
-import InputComponent from './Components/InputComponent';
-import ButtonComponent from './Components/Button';
+import BoxComponent from '../Components/Box';
+import TypographyComponent from '../Components/Typography';
+import InputComponent from '../Components/InputComponent';
+import ButtonComponent from '../Components/Button';
 
 export default function Login() {
   const navigate = useNavigate(); 
