@@ -1,0 +1,25 @@
+:root {
+    --primary: #000;
+    --hover:#D7C3F1;
+    --secondary: #E5E5E5;
+    --paragraph:#616B7E;
+    --success: #28a745;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --info:#17a2b8;
+    --light: #f8f9fa;
+    --dark:#343a40;
+    --facebook:#385898;
+    --main: sans-serif; 
+  }
+  
+  @font-face {
+    font-family: 'Sans-serif';
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  body {
+    font-family: sans-serif;
+  }
+  
