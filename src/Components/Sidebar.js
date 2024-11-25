@@ -36,7 +36,7 @@ export default function Sidebar() {
     navigate("/vehicles");
   };
   const handleConfig = () => {
-    navigate("/config");
+    navigate("/configurations");
   };
   const handleAdmin = () => {
     navigate("/admin");
