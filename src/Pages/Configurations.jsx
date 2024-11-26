@@ -13,11 +13,11 @@ export default function Configurations() {
   ]);
 
   const headings = [
-    { field: 'key', headerName: 'Key', width: 100 },
+    { field: 'key', headerName: 'Key', width: 400 },
     {
       field: 'value',
       headerName: 'Value',
-      width: 150,
+      width: 400,
     },
   ];
   const icons = {

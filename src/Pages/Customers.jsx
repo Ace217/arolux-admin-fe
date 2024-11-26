@@ -8,6 +8,7 @@ import Confirm from '../Components/Confirm';
 import { useNavigate } from 'react-router-dom';
 import Table from '../Components/Table';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import Find from '../Components/Find';
 
 export default function Customers() {
@@ -55,6 +56,7 @@ export default function Customers() {
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon />,
+    details:<VisibilityIcon/>
   };
 
   const handleToggleClick = (id, currentStatus) => {
@@ -95,7 +97,7 @@ export default function Customers() {
             >
               Customer Management
             </TypographyComponent>
-            <ButtonComponent
+            {/* <ButtonComponent
               variant="contained"
               backgroundColor="var(--primary)"
               sx={{ color: "var(--light)", padding: "10px 20px" }}
@@ -103,7 +105,7 @@ export default function Customers() {
               title="Add Customer"
             >
               + Add Customer
-            </ButtonComponent>
+            </ButtonComponent> */}
           </BoxComponent>
           <Find placeholder="Search a Customer by ID" label="Status" status={status} />
           <Table

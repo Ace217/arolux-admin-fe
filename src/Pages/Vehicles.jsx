@@ -8,6 +8,7 @@ import Confirm from '../Components/Confirm';
 import { useNavigate } from 'react-router-dom';
 import Table from '../Components/Table';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import Find from '../Components/Find';
 
 export default function Vehicles() {
@@ -55,6 +56,7 @@ export default function Vehicles() {
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon  />,
+    details:<VisibilityIcon/>
   };
 
   const handleToggleClick = (id, currentStatus) => {

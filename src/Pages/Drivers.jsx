@@ -8,6 +8,7 @@ import Confirm from '../Components/Confirm';
 import { useNavigate } from 'react-router-dom';
 import Table from '../Components/Table';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import Find from '../Components/Find';
 
 export default function Drivers() {
@@ -16,12 +17,12 @@ export default function Drivers() {
   const [confirmMessage, setConfirmMessage] = useState('');
   const [selectedNewsId, setSelectedNewsId] = useState(null);
 
-  const handleAddNews = () => {
-    navigate('', { state: { title: 'Add Driver' } });
+  const handleAddDriver = () => {
+    navigate('/driver-form', { state: { title: 'Add Driver' } });
   };
 
-  const handleEditNews = () => {
-    navigate('', { state: { title: 'Update Driver' } });
+  const handleEditDriver = () => {
+    navigate('/driver-form', { state: { title: 'Update Driver' } });
   };
 
   const status = [
@@ -46,15 +47,12 @@ export default function Drivers() {
     { field: 'Add text here', headerName: 'Add text here', width: 200 },
     { field: 'Add text here', headerName: 'Add text here', width: 150 },
     { field: 'Add text here', headerName: 'Add text here', width: 150 },
-    {
-      field: 'Status',
-      headerName: 'Status',
-      renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
-    },
+    
   ];
 
   const icons = {
-    edit: <ModeEditOutlineOutlinedIcon />,
+    edit: <ModeEditOutlineOutlinedIcon onClick={handleEditDriver}/>,
+    details:<VisibilityIcon/>
   };
 
   const handleToggleClick = (id, currentStatus) => {
@@ -99,7 +97,7 @@ export default function Drivers() {
               variant="contained"
               backgroundColor="var(--primary)"
               sx={{ color: "var(--light)", padding: "10px 20px" }}
-              onClick={handleAddNews}
+              onClick={handleAddDriver}
               title="Add Driver"
             >
               + Add Driver

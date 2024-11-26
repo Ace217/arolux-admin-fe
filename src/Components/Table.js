@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import Switch from '@mui/material/Switch';
+import * as React from "react";
+import { DataGrid } from "@mui/x-data-grid";
+import Paper from "@mui/material/Paper";
+import IconButton from "@mui/material/IconButton";
+import Switch from "@mui/material/Switch";
 
 export default function Table({ rows, headings, icons, onStatusChange }) {
   // Create columns based on headings prop
@@ -12,17 +12,17 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
     width: heading.width || 150,
     sortable: heading.sortable || false,
     renderCell: heading.renderCell || undefined,
-    headerClassName: 'center-header', // Add class for header styling
-    cellClassName: 'center-cell', // Add class for cell styling
+    headerClassName: "center-header", // Add class for header styling
+    cellClassName: "center-cell", // Add class for cell styling
   }));
 
   // Add edit and key columns with icons
   columns.push({
-    field: 'Edit',
-    headerName: '',
+    field: "Edit",
+    headerName: "",
     width: 50,
     renderCell: () => (
-      <IconButton aria-label="edit" sx={{ color: 'var(--primary)' }}>
+      <IconButton aria-label="edit" sx={{ color: "var(--primary)" }}>
         {icons.edit}
       </IconButton>
     ),
@@ -30,11 +30,22 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
   });
 
   columns.push({
-    field: 'Key',
-    headerName: '',
+    field: "Details",
+    headerName: "",
     width: 50,
     renderCell: () => (
-      <IconButton aria-label="key" sx={{ color: 'var(--primary)' }}>
+      <IconButton aria-label="key" sx={{ color: "var(--primary)" }}>
+        {icons.details}
+      </IconButton>
+    ),
+    sortable: false,
+  });
+  columns.push({
+    field: "Key",
+    headerName: "",
+    width: 50,
+    renderCell: () => (
+      <IconButton aria-label="key" sx={{ color: "var(--primary)" }}>
         {icons.key}
       </IconButton>
     ),
@@ -42,17 +53,17 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
   });
 
   columns.push({
-    field: 'Actions',
-    headerName: 'Actions',
+    field: "Actions",
+    headerName: "Actions",
     width: 150,
     renderCell: (params) => (
       <Switch
-      checked={params.row.Status === 'Active'}
-      onChange={() => onStatusChange(params.row.id)}
-      style={{
-        color: 'var(--primary)', // Default thumb color when unchecked
-      }}
-    />
+        checked={params.row.Status === "Active"}
+        onChange={() => onStatusChange(params.row.id)}
+        style={{
+          color: "var(--primary)", // Default thumb color when unchecked
+        }}
+      />
     ),
     sortable: false,
   });
@@ -60,7 +71,7 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
   const paginationModel = { page: 0, pageSize: 5 };
 
   return (
-    <Paper sx={{ height: 400, width: '100%' }}>
+    <Paper sx={{ height: 400, width: "100%" }}>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -68,15 +79,15 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
         pageSizeOptions={[5, 10]}
         sx={{
           border: 0,
-          '& .MuiDataGrid-columnHeaderTitle': {
-            fontWeight: 'bold',
+          "& .MuiDataGrid-columnHeaderTitle": {
+            fontWeight: "bold",
           },
-          '& .center-header': {
-            justifyContent: 'center', // Center the header text
-            display: 'flex',
+          "& .center-header": {
+            justifyContent: "center", // Center the header text
+            display: "flex",
           },
-          '& .center-cell': {
-            padding: '5px', // Apply padding
+          "& .center-cell": {
+            padding: "5px", // Apply padding
           },
         }}
       />

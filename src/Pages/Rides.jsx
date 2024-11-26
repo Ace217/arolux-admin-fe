@@ -8,6 +8,7 @@ import Confirm from '../Components/Confirm';
 import { useNavigate } from 'react-router-dom';
 import Table from '../Components/Table';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import Find from '../Components/Find';
 
 export default function Rides() {
@@ -16,13 +17,13 @@ export default function Rides() {
   const [confirmMessage, setConfirmMessage] = useState('');
   const [selectedNewsId, setSelectedNewsId] = useState(null);
 
-  const handleAddNews = () => {
-    navigate('', { state: { title: 'Add Ride' } });
-  };
+  // const handleAddNews = () => {
+  //   navigate('', { state: { title: 'Add Ride' } });
+  // };
 
-  const handleEditNews = () => {
-    navigate('', { state: { title: 'Update Ride' } });
-  };
+  // const handleEditNews = () => {
+  //   navigate('', { state: { title: 'Update Ride' } });
+  // };
 
   const status = [
     { value: 1, label: "All" },
@@ -55,6 +56,7 @@ export default function Rides() {
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon />,
+    details:<VisibilityIcon/>
   };
 
   const handleToggleClick = (id, currentStatus) => {
@@ -95,7 +97,7 @@ export default function Rides() {
             >
               Ride Management
             </TypographyComponent>
-            <ButtonComponent
+            {/* <ButtonComponent
               variant="contained"
               backgroundColor="var(--primary)"
               sx={{ color: "var(--light)", padding: "10px 20px" }}
@@ -103,7 +105,7 @@ export default function Rides() {
               title="Add News"
             >
               + Add Ride
-            </ButtonComponent>
+            </ButtonComponent> */}
           </BoxComponent>
           <Find placeholder="Search a ride by ID" label="Status" status={status} />
           <Table

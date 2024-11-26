@@ -93,6 +93,7 @@ export default function Admin() {
     {
       field: 'Status',
       headerName: 'Status',
+      width:'100',
       renderCell: (params) => (
         <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>
           {params.value}
