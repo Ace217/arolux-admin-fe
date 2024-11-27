@@ -41,7 +41,7 @@ export default function Vehicles() {
     {
       field: 'coverImage',
       headerName: 'Cover Image',
-      width: 150,
+      width: 100,
       renderCell: (params) => <img src={params.row.coverImage} alt="Cover" style={{ width: '80px', height: '40px' }} />,
     },
     { field: 'Add text here', headerName: 'Add text here', width: 200 },
@@ -50,12 +50,13 @@ export default function Vehicles() {
     {
       field: 'Status',
       headerName: 'Status',
+      width:'100',
       renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
     },
   ];
 
   const icons = {
-    edit: <ModeEditOutlineOutlinedIcon  />,
+    edit: <ModeEditOutlineOutlinedIcon/>,
     details:<VisibilityIcon/>
   };
 

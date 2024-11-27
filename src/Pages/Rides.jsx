@@ -17,13 +17,7 @@ export default function Rides() {
   const [confirmMessage, setConfirmMessage] = useState('');
   const [selectedNewsId, setSelectedNewsId] = useState(null);
 
-  // const handleAddNews = () => {
-  //   navigate('', { state: { title: 'Add Ride' } });
-  // };
 
-  // const handleEditNews = () => {
-  //   navigate('', { state: { title: 'Update Ride' } });
-  // };
 
   const status = [
     { value: 1, label: "All" },
@@ -32,27 +26,34 @@ export default function Rides() {
   ];
 
   const [rows, setRows] = useState([
-    { id: 1, coverImage: 'Images/logo.png', Status: 'Active' },
-    { id: 2, coverImage: 'Images/logo.png', Status: 'Active' },
+    { id: 1, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
+    { id: 2, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Inactive' },
+    { id: 3, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
 ]);
 
   const headings = [
-    { field: 'id', headerName: 'Ride ID', width: 100 },
+    { field: 'id', headerName: 'ID', width: 50 },
     {
       field: 'coverImage',
       headerName: 'Cover Image',
-      width: 150,
+      width: 100,
       renderCell: (params) => <img src={params.row.coverImage} alt="Cover" style={{ width: '80px', height: '40px' }} />,
     },
-    { field: 'Add text here', headerName: 'Add text here', width: 200 },
-    { field: 'Add text here', headerName: 'Add text here', width: 150 },
-    { field: 'Add text here', headerName: 'Add text here', width: 150 },
+    { field: 'name', headerName: 'Name', width: 100 },
+    { field: 'CNIC', headerName: 'CNIC', width: 110 },
+    { field: 'Email', headerName: 'E-mail', width: 110 },
+    { field: 'Phone', headerName: 'Phone', width: 100 },
+    { field: 'vehicle', headerName: 'Vehicle No', width: 100 },
+    { field: 'city', headerName: 'City', width: 100 },
     {
       field: 'Status',
       headerName: 'Status',
+      width:'100',
       renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
     },
   ];
+
+
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon />,
@@ -97,15 +98,7 @@ export default function Rides() {
             >
               Ride Management
             </TypographyComponent>
-            {/* <ButtonComponent
-              variant="contained"
-              backgroundColor="var(--primary)"
-              sx={{ color: "var(--light)", padding: "10px 20px" }}
-              onClick={handleAddNews}
-              title="Add News"
-            >
-              + Add Ride
-            </ButtonComponent> */}
+           
           </BoxComponent>
           <Find placeholder="Search a ride by ID" label="Status" status={status} />
           <Table

@@ -10,6 +10,7 @@ import Customers from './Pages/Customers';
 import Drivers from './Pages/Drivers';
 import Configurations from './Pages/Configurations';
 import DriverForm from './Components/DriverForm';
+import Details from './Components/Details';
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="drivers" element={<Drivers/>} />
           <Route path="configurations" element={<Configurations/>} />
           <Route path="driver-form" element={<DriverForm/>} />
+          <Route path="detail" element={<Details/>} />
         </Routes>
     </Router>
   );

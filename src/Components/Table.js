@@ -55,7 +55,7 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
   columns.push({
     field: "Actions",
     headerName: "Actions",
-    width: 150,
+    width: 100,
     renderCell: (params) => (
       <Switch
         checked={params.row.Status === "Active"}

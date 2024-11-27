@@ -32,22 +32,31 @@ export default function Drivers() {
   ];
 
   const [rows, setRows] = useState([
-    { id: 1, coverImage: 'Images/logo.png', Status: 'Active' },
-    { id: 2, coverImage: 'Images/logo.png', Status: 'Active' },
+    { id: 1, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
+    { id: 2, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
+    { id: 3, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
 ]);
 
   const headings = [
-    { field: 'id', headerName: 'Driver ID', width: 100 },
+    { field: 'id', headerName: 'ID', width: 50 },
     {
       field: 'coverImage',
       headerName: 'Cover Image',
-      width: 150,
+      width: 100,
       renderCell: (params) => <img src={params.row.coverImage} alt="Cover" style={{ width: '80px', height: '40px' }} />,
     },
-    { field: 'Add text here', headerName: 'Add text here', width: 200 },
-    { field: 'Add text here', headerName: 'Add text here', width: 150 },
-    { field: 'Add text here', headerName: 'Add text here', width: 150 },
-    
+    { field: 'name', headerName: 'Name', width: 100 },
+    { field: 'CNIC', headerName: 'CNIC', width: 110 },
+    { field: 'Email', headerName: 'E-mail', width: 110 },
+    { field: 'Phone', headerName: 'Phone', width: 100 },
+    { field: 'vehicle', headerName: 'Vehicle No', width: 100 },
+    { field: 'city', headerName: 'City', width: 100 },
+    {
+      field: 'Status',
+      headerName: 'Status',
+      width:'100',
+      renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
+    },
   ];
 
   const icons = {
