@@ -5,17 +5,25 @@ import Head from '../Components/Head';
 import TypographyComponent from '../Components/Typography';
 import ButtonComponent from '../Components/Button';
 import Confirm from '../Components/Confirm';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';  // Import useNavigate
 import Table from '../Components/Table';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Find from '../Components/Find';
 
 export default function Drivers() {
-  const navigate = useNavigate();
+  const navigate = useNavigate();  // For navigation
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState('');
   const [selectedNewsId, setSelectedNewsId] = useState(null);
+
+  const handleViewDetails = (Id) => {
+    // Find the driver from the list using the driver ID
+    const driver = rows.find((row) => row.id === Id);
+    if(driver){
+      navigate('/details', { state: { driver } });
+    }
+  };
 
   const handleAddDriver = () => {
     navigate('/driver-form', { state: { title: 'Add Driver' } });
@@ -33,9 +41,9 @@ export default function Drivers() {
 
   const [rows, setRows] = useState([
     { id: 1, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-    { id: 2, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-    { id: 3, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-]);
+    { id: 2, coverImage: 'Images/logo.png', name:'Ali', CNIC:'9876543210', Email:'ali@example.com', Phone:'9876543210', vehicle:"RIM 5678", city:'Islamabad', Status: 'Inactive' },
+    { id: 3, coverImage: 'Images/logo.png', name:'Sara', CNIC:'1234532543', Email:'sara@example.com', Phone:'2345678901', vehicle:"RIM 9876", city:'Lahore', Status: 'Active' },
+  ]);
 
   const headings = [
     { field: 'id', headerName: 'ID', width: 50 },
@@ -54,22 +62,21 @@ export default function Drivers() {
     {
       field: 'Status',
       headerName: 'Status',
-      width:'100',
+      width: 100,
       renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
     },
   ];
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon onClick={handleEditDriver}/>,
-    details:<VisibilityIcon/>
+    details:<VisibilityIcon onClick={handleViewDetails} />,
   };
-
   const handleToggleClick = (id, currentStatus) => {
     setSelectedNewsId(id);
     setConfirmMessage(
       currentStatus === 'Active'
-        ? 'Are you sure you want to remove this driver?'
-        : 'Are you sure you want to add this driver?'
+        ? 'Are you sure you want to remove this Driver?'
+        : 'Are you sure you want to add this Driver?'
     );
     setShowConfirm(true);
   };

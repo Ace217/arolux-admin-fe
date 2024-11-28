@@ -40,31 +40,21 @@ export default function Details(props) {
           <DetailComponent title="Name" details={props.name} />
           <DetailComponent title="CNIC" details={props.CNIC} />
           <DetailComponent title="E-mail" details={props.Email} />
-          <DetailComponent title="Contact Number" details={props.phone} />
+          <DetailComponent title="Contact Number" details={props.Phone} />
           <DetailComponent title="Vehicle Number" details={props.vehicle} />
           <DetailComponent title="City" details={props.city} />
-          {/* <TypographyComponent
-      fontSize='20px'
-      fontWeight='600'
-      color='var(--primary)'
-      fontFamily='var(--main)'
-      >Image</TypographyComponent> */}
           <BoxComponent
             width="100%"
             height="40vh"
             display="flex"
             justifyContent="center"
             alignItems="center"
-            overflow="hidden"
+            marginTop="20px"
           >
             <img
-              src={props.image}
-              alt="image"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
+              src={props.coverImage}
+              alt="Cover"
+              style={{ width: "150px", height: "100px" }}
             />
           </BoxComponent>
         </BoxComponent>

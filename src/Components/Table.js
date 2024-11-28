@@ -94,3 +94,4 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
     </Paper>
   );
 }
+ 

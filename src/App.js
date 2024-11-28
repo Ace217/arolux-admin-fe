@@ -26,7 +26,7 @@ function App() {
           <Route path="drivers" element={<Drivers/>} />
           <Route path="configurations" element={<Configurations/>} />
           <Route path="driver-form" element={<DriverForm/>} />
-          <Route path="detail" element={<Details/>} />
+          <Route path="details" element={<Details/>} />
         </Routes>
     </Router>
   );
