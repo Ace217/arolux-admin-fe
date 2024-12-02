@@ -32,8 +32,8 @@ export default function Sidebar() {
   const handleCustomers = () => {
     navigate("/customers");
   };
-  const handleVehicles = () => {
-    navigate("/vehicles");
+  const handleCategory = () => {
+    navigate("/vehicle-categories");
   };
   const handleConfig = () => {
     navigate("/configurations");
@@ -85,16 +85,16 @@ export default function Sidebar() {
           active={isActive("/customers")} // Pass the active state
         />
         <MenuOption
-          onClick={handleVehicles}
+          onClick={handleCategory}
           icon={CommuteOutlinedIcon }
           label="Vehicles"
-          active={isActive("/vehicles")} // Pass the active state
+          active={isActive("/vehicle-categories")} // Pass the active state
         />
         <MenuOption
           onClick={handleConfig}
           icon={SettingsSuggestOutlinedIcon}
           label="Configurations"
-          active={isActive("/config")} // Pass the active state
+          active={isActive("/configurations")} // Pass the active state
         />
         <MenuOption
           onClick={handleAdmin}

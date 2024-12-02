@@ -4,9 +4,14 @@ import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import Switch from "@mui/material/Switch";
 
-export default function Table({ rows, headings, icons, onStatusChange }) {
-  // Create columns based on headings prop
-  const columns = headings.map((heading, index) => ({
+export default function Table({
+  rows, // The data to be displayed
+  headings, // Column headers and definitions
+  icons, // Icons for edit, details, etc.
+  onStatusChange, // Function to handle status changes
+}) {
+  // Create columns based on the headings prop
+  const columns = headings.map((heading) => ({
     field: heading.field,
     headerName: heading.headerName,
     width: heading.width || 150,
@@ -16,7 +21,7 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
     cellClassName: "center-cell", // Add class for cell styling
   }));
 
-  // Add edit and key columns with icons
+  // Add edit, details, and key columns with icons
   columns.push({
     field: "Edit",
     headerName: "",
@@ -34,12 +39,13 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
     headerName: "",
     width: 50,
     renderCell: () => (
-      <IconButton aria-label="key" sx={{ color: "var(--primary)" }}>
+      <IconButton aria-label="details" sx={{ color: "var(--primary)" }}>
         {icons.details}
       </IconButton>
     ),
     sortable: false,
   });
+
   columns.push({
     field: "Key",
     headerName: "",
@@ -73,10 +79,10 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
   return (
     <Paper sx={{ height: 400, width: "100%" }}>
       <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 10]}
+        rows={rows} // The rows passed as a prop (filtered or unfiltered)
+        columns={columns} // The columns based on headings
+        initialState={{ pagination: { paginationModel } }} // Pagination model
+        pageSizeOptions={[5, 10]} // Pagination size options
         sx={{
           border: 0,
           "& .MuiDataGrid-columnHeaderTitle": {
@@ -87,11 +93,10 @@ export default function Table({ rows, headings, icons, onStatusChange }) {
             display: "flex",
           },
           "& .center-cell": {
-            padding: "5px", // Apply padding
+            padding: "5px", // Apply padding to cells
           },
         }}
       />
     </Paper>
   );
 }
- 
