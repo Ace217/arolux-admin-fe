@@ -8,7 +8,8 @@ export default function Table({
   rows, // The data to be displayed
   headings, // Column headers and definitions
   icons, // Icons for edit, details, etc.
-  onStatusChange, // Function to handle status changes
+  onStatusChange,
+  onDetailClick, // Function to handle status changes
 }) {
   // Create columns based on the headings prop
   const columns = headings.map((heading) => ({
@@ -38,8 +39,11 @@ export default function Table({
     field: "Details",
     headerName: "",
     width: 50,
-    renderCell: () => (
-      <IconButton aria-label="details" sx={{ color: "var(--primary)" }}>
+    renderCell: (params) => (
+      <IconButton 
+      checked={params.row.Status === "Active"}
+      onClick={() => onDetailClick(params.row.categoryName)}
+      aria-label="details" sx={{ color: "var(--primary)" }}>
         {icons.details}
       </IconButton>
     ),

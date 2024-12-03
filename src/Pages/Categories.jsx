@@ -18,7 +18,6 @@ export default function Categories() {
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
 
   const handleCategoryClick = (categoryName) => {
-    // Use category name or id to navigate
     navigate(`/vehicles?category=${categoryName}`);
   };
 
@@ -26,10 +25,12 @@ export default function Categories() {
     navigate('/category-form', { state: { title: 'Add Category' } });
   };
 
-  const handleEditCategory = () => {
-    navigate('/category-form', { state: { title: 'Update Category' } });
+  const handleEditCategory = (category) => {
+    navigate('/category-form', {
+      state: { title: 'Update Category', categoryId: category.id }
+    });
   };
-
+  
   const status = [
     { value: 1, label: "All" },
     { value: 2, label: "Active" },
@@ -65,9 +66,8 @@ export default function Categories() {
   ];
 
   const icons = {
-    edit: <ModeEditOutlineOutlinedIcon onClick={handleEditCategory} />,
-    details:
-      <VisibilityIcon onClick={handleCategoryClick} />
+    edit:<ModeEditOutlineOutlinedIcon onClick={handleEditCategory}/>,
+    details:<VisibilityIcon/>,
   };
 
   const handleToggleClick = (id, currentStatus) => {
@@ -93,7 +93,6 @@ export default function Categories() {
     setShowConfirm(false);
   };
 
-  // Ensure the return statement is inside the component function
   return (
     <BoxComponent>
       <Head />
@@ -119,7 +118,12 @@ export default function Categories() {
             rows={rows}
             headings={headings}
             icons={icons}
-            onDetailsClick={handleCategoryClick}
+            onDetailClick={(categoryName) => {
+              const currentRow = rows.find((row) => row.categoryName === categoryName);
+              if (currentRow) {
+                handleCategoryClick(categoryName, currentRow.categoryName);
+              }
+            }}
             onStatusChange={(id) => {
               const currentRow = rows.find((row) => row.id === id);
               if (currentRow) {

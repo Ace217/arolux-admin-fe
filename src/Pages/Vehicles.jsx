@@ -35,6 +35,13 @@ export default function Vehicles() {
     { id: 6, coverImage: "Images/logo.png", category: "Trip Booking", Status: "Active" },
     { id: 7, coverImage: "Images/logo.png", category: "Bike", Status: "Active" },
     { id: 8, coverImage: "Images/logo.png", category: "Bike", Status: "Active" },
+    { id: 9, coverImage: "Images/logo.png", category: "Ride", Status: "Active" },
+    { id: 10, coverImage: "Images/logo.png", category: "Ride AC", Status: "Active" },
+    { id: 11, coverImage: "Images/logo.png", category: "Ride", Status: "Active" },
+    { id: 12, coverImage: "Images/logo.png", category: "Trip Booking", Status: "Active" },
+    { id: 13, coverImage: "Images/logo.png", category: "Ride AC", Status: "Active" },
+    { id: 14, coverImage: "Images/logo.png", category: "Courier", Status: "Active" },
+    { id: 15, coverImage: "Images/logo.png", category: "Ride", Status: "Active" },
   ]);
 
   const headings = [

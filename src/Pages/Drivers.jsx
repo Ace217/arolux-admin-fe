@@ -26,11 +26,7 @@ const [selectedNewsId, setSelectedNewsId] = useState(null);
   };
 
   const handleAddDriver = () => {
-    navigate('/driver-form', { state: { title: 'Add Driver', name:"Name",  CNIC:"CNIC",
-      Email:"Email",
-      contact:"Contact Number",
-      vehicle:"Vehicle Number",
-      city:"City" } });
+    navigate('/driver-form', { state: { title: 'Add Driver'}});
   };
 
   const handleEditDriver = () => {
