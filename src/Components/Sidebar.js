@@ -8,6 +8,7 @@ import CommuteOutlinedIcon from '@mui/icons-material/CommuteOutlined';
 import SettingsSuggestOutlinedIcon from '@mui/icons-material/SettingsSuggestOutlined';
 import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
 import LogoutIcon from "@mui/icons-material/Logout";
+import PinDropOutlinedIcon from '@mui/icons-material/PinDropOutlined';
 import BoxComponent from "./Box";
 import TypographyComponent from "./Typography";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -37,6 +38,9 @@ export default function Sidebar() {
   };
   const handleConfig = () => {
     navigate("/configurations");
+  };
+  const handleLocation = () => {
+    navigate("/locations");
   };
   const handleAdmin = () => {
     navigate("/admin");
@@ -95,6 +99,12 @@ export default function Sidebar() {
           icon={SettingsSuggestOutlinedIcon}
           label="Configurations"
           active={isActive("/configurations")} // Pass the active state
+        />
+        <MenuOption
+          onClick={handleLocation}
+          icon={PinDropOutlinedIcon}
+          label="Locations"
+          active={isActive("/locations")} // Pass the active state
         />
         <MenuOption
           onClick={handleAdmin}

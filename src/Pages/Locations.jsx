@@ -3,30 +3,30 @@ import BoxComponent from '../Components/Box';
 import Sidebar from '../Components/Sidebar';
 import Head from '../Components/Head';
 import TypographyComponent from '../Components/Typography';
-import ButtonComponent from '../Components/Button';
 import Confirm from '../Components/Confirm';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import Table from '../Components/Table';
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Find from '../Components/Find';
+import ButtonComponent from '../Components/Button';
 
-export default function Drivers() {
-  const navigate = useNavigate();  // For navigation
+export default function Locations() {
+  const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState('');
-const [selectedDriverId, setSelectedDriverId] = useState(null);
+  const [selectedLocationId, setSelectedLocationId] = useState(null);
 
- const handleDetailClick = (id) => {
+  const handleDetailClick = (id) => {
     navigate(`/details?id=${id}`);
   };
 
-  const handleAddDriver = () => {
-    navigate('/driver-form', { state: { title: 'Add Driver'}});
+  const handleAddLocation = () => {
+    navigate('/location-form', { state: { title: 'Add Location'}});
   };
 
-  const handleEditDriver = () => {
-    navigate('/driver-form', { state: { title: 'Update Driver' } });
+  const handleEditLocation = () => {
+    navigate('/location-form', { state: { title: 'Update Location' } });
   };
 
   const status = [
@@ -36,43 +36,36 @@ const [selectedDriverId, setSelectedDriverId] = useState(null);
   ];
 
   const [rows, setRows] = useState([
-    { id: 1, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-    { id: 2, coverImage: 'Images/logo.png', name:'Ali', CNIC:'9876543210', Email:'ali@example.com', Phone:'9876543210', vehicle:"RIM 5678", city:'Islamabad', Status: 'Inactive' },
-    { id: 3, coverImage: 'Images/logo.png', name:'Sara', CNIC:'1234532543', Email:'sara@example.com', Phone:'2345678901', vehicle:"RIM 9876", city:'Lahore', Status: 'Active' },
+    { id: 1,  name:'Rawalpindi', add_text:'AddTextHere', add_text:'AddTextHere', add_here:'AddTextHere', Status: 'Active' },
   ]);
 
   const headings = [
     { field: 'id', headerName: 'ID', width: 50 },
-    {
-      field: 'coverImage',
-      headerName: 'Cover Image',
-      width: 100,
-      renderCell: (params) => <img src={params.row.coverImage} alt="Cover" style={{ width: '80px', height: '40px' }} />,
-    },
-    { field: 'name', headerName: 'Name', width: 100 },
-    { field: 'CNIC', headerName: 'CNIC', width: 110 },
-    { field: 'Email', headerName: 'E-mail', width: 110 },
-    { field: 'Phone', headerName: 'Phone', width: 100 },
-    { field: 'vehicle', headerName: 'Vehicle No', width: 100 },
-    { field: 'city', headerName: 'City', width: 100 },
+    { field: 'name', headerName: 'Location Name', width: 200 },
+    { field: 'add_text', headerName: 'Add-Text', width: 200 },
+    { field: 'add_text', headerName: 'Add-Text', width: 150 },
+    { field: 'add_here', headerName: 'Add-Here', width: 150 },
     {
       field: 'Status',
       headerName: 'Status',
-      width: 100,
+      width:'100',
       renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
     },
   ];
 
+
+
   const icons = {
-    edit: <ModeEditOutlineOutlinedIcon onClick={handleEditDriver}/>,
-    details:<VisibilityIcon onClick={handleDetailClick} />,
+    edit: <ModeEditOutlineOutlinedIcon onClick={handleEditLocation}/>,
+    details:<VisibilityIcon onClick={handleDetailClick} />
   };
+
   const handleToggleClick = (id, currentStatus) => {
-    setSelectedDriverId(id);
+    setSelectedLocationId(id);
     setConfirmMessage(
       currentStatus === 'Active'
-        ? 'Are you sure you want to remove this Driver?'
-        : 'Are you sure you want to add this Driver?'
+        ? 'Are you sure you want to remove this location?'
+        : 'Are you sure you want to add this location?'
     );
     setShowConfirm(true);
   };
@@ -81,7 +74,7 @@ const [selectedDriverId, setSelectedDriverId] = useState(null);
     if (confirm) {
       setRows((prevRows) =>
         prevRows.map((row) =>
-          row.id === selectedDriverId
+          row.id === selectedLocationId
             ? { ...row, Status: row.Status === 'Active' ? 'Inactive' : 'Active' }
             : row
         )
@@ -103,20 +96,19 @@ const [selectedDriverId, setSelectedDriverId] = useState(null);
               color="var(--dull)"
               fontWeight="400"
             >
-              Driver Management
+              Locations Management
             </TypographyComponent>
             <ButtonComponent
               variant="contained"
               backgroundColor="var(--primary)"
               sx={{ color: "var(--light)", padding: "10px 20px" }}
-              onClick={handleAddDriver}
-              title="Add Driver"
-            
+              onClick={handleAddLocation}
+              title="Add Location"
             >
-              + Add Driver
-            </ButtonComponent>
+              + Add Location
+              </ButtonComponent>
           </BoxComponent>
-          <Find placeholder="Search a Driver by ID" label="Status" status={status} />
+          <Find placeholder="Search a Location by Name" label="Status" status={status} />
           <Table
             rows={rows}
             headings={headings}

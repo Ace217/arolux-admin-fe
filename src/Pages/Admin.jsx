@@ -8,13 +8,20 @@ import Table from "../Components/Table";
 import Form from "../Components/Form";
 import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
 import VpnKeyOutlinedIcon from '@mui/icons-material/VpnKeyOutlined';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import Find from "../Components/Find";
-import Update from "../Components/Update"; // Import the Update component
+import Update from "../Components/Update";
+import { useNavigate } from 'react-router-dom';  // Import the Update component
 
 export default function Admin() {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("Add Sub-Admin");
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const handleDetailClick = (id) => {
+    navigate(`/details?id=${id}`);
+  };
+
   const [rows, setRows] = useState([
     { id: 1, Name: 'Snow', Role: 'Admin', Email: 'Jon@gmail.com', Phone: '0300000000', Last_Login: 'Monday', Status: 'Active' },
     { id: 2, Name: 'Lannister', Role: 'User', Email: 'Cersei@gmail.com', Phone: '0300000001', Last_Login: 'Tuesday', Status: 'Inactive' },
@@ -104,6 +111,7 @@ export default function Admin() {
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon onClick={handleEditClick} />, // You might want to pass the id
+    details:<VisibilityIcon onClick={handleDetailClick} />,
     key: <VpnKeyOutlinedIcon onClick={handleOpenUpdateModal} />, // Open update modal
   };
 
@@ -127,7 +135,13 @@ export default function Admin() {
             </ButtonComponent>
           </BoxComponent>
           <Find placeholder="Search a user by name, e-mail or phone number" label='Status' status={status} />
-          <Table rows={rows} headings={headings} icons={icons} onStatusChange={handleStatusChange} />
+          <Table rows={rows} headings={headings} icons={icons}   onDetailClick={(id) => {
+              const currentRow = rows.find((row) => row.id === id);
+              if (currentRow) {
+                handleDetailClick(id, currentRow.id);
+              }
+            }}
+            onStatusChange={handleStatusChange} />
         </BoxComponent>
       </BoxComponent>
 

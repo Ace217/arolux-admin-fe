@@ -13,6 +13,8 @@ import DriverForm from './Components/DriverForm';
 import Details from './Components/Details';
 import Categories from './Pages/Categories';
 import VehicleForm from './Components/VehicleForm';
+import Locations from './Pages/Locations';
+import LocationForm from './Components/LocationForm';
 
 
 
@@ -34,6 +36,8 @@ function App() {
           <Route path="vehicle-categories" element={<Categories/>} />
           <Route path="vehicle-form" element={<VehicleForm/>} />
           <Route path="category-form" element={<VehicleForm/>} />
+          <Route path="locations" element={<Locations/>} />
+          <Route path="location-form" element={<LocationForm/>} />
 
         </Routes>
     </Router>

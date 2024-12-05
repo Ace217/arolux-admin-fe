@@ -3,7 +3,7 @@ import BoxComponent from '../Components/Box';
 import Sidebar from '../Components/Sidebar';
 import Head from '../Components/Head';
 import TypographyComponent from '../Components/Typography';
-import ButtonComponent from '../Components/Button';
+
 import Confirm from '../Components/Confirm';
 import { useNavigate } from 'react-router-dom';
 import Table from '../Components/Table';
@@ -17,12 +17,8 @@ export default function Customers() {
   const [confirmMessage, setConfirmMessage] = useState('');
   const [selectedNewsId, setSelectedNewsId] = useState(null);
 
-  const handleAddNews = () => {
-    navigate('', { state: { title: 'Add Customer' } });
-  };
-
-  const handleEditNews = () => {
-    navigate('', { state: { title: 'Update Customer' } });
+  const handleDetailClick = (id) => {
+    navigate(`/details?id=${id}`);
   };
 
   const status = [
@@ -62,7 +58,7 @@ export default function Customers() {
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon />,
-    details:<VisibilityIcon/>
+    details:<VisibilityIcon onClick={handleDetailClick}/>
   };
 
   const handleToggleClick = (id, currentStatus) => {
@@ -118,6 +114,12 @@ export default function Customers() {
             rows={rows}
             headings={headings}
             icons={icons}
+            onDetailClick={(id) => {
+              const currentRow = rows.find((row) => row.id === id);
+              if (currentRow) {
+                handleDetailClick(id, currentRow.id);
+              }
+            }}
             onStatusChange={(id) => {
               const currentRow = rows.find((row) => row.id === id);
               if (currentRow) {

@@ -3,7 +3,6 @@ import BoxComponent from '../Components/Box';
 import Sidebar from '../Components/Sidebar';
 import Head from '../Components/Head';
 import TypographyComponent from '../Components/Typography';
-import ButtonComponent from '../Components/Button';
 import Confirm from '../Components/Confirm';
 import { useNavigate } from 'react-router-dom';
 import Table from '../Components/Table';
@@ -15,9 +14,11 @@ export default function Rides() {
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState('');
-  const [selectedNewsId, setSelectedNewsId] = useState(null);
+  const [selectedRideId, setSelectedRideId] = useState(null);
 
-
+  const handleDetailClick = (id) => {
+    navigate(`/details?id=${id}`);
+  };
 
   const status = [
     { value: 1, label: "All" },
@@ -57,11 +58,11 @@ export default function Rides() {
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon />,
-    details:<VisibilityIcon/>
+    details:<VisibilityIcon onClick={handleDetailClick} />
   };
 
   const handleToggleClick = (id, currentStatus) => {
-    setSelectedNewsId(id);
+    setSelectedRideId(id);
     setConfirmMessage(
       currentStatus === 'Active'
         ? 'Are you sure you want to remove this ride?'
@@ -74,7 +75,7 @@ export default function Rides() {
     if (confirm) {
       setRows((prevRows) =>
         prevRows.map((row) =>
-          row.id === selectedNewsId
+          row.id === selectedRideId
             ? { ...row, Status: row.Status === 'Active' ? 'Inactive' : 'Active' }
             : row
         )
@@ -105,6 +106,12 @@ export default function Rides() {
             rows={rows}
             headings={headings}
             icons={icons}
+            onDetailClick={(id) => {
+              const currentRow = rows.find((row) => row.id === id);
+              if (currentRow) {
+                handleDetailClick(id, currentRow.id);
+              }
+            }}
             onStatusChange={(id) => {
               const currentRow = rows.find((row) => row.id === id);
               if (currentRow) {

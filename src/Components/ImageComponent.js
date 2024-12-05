@@ -38,7 +38,7 @@ const ImageComponent = () => {
           "&:hover": { backgroundColor: "var(--primary)" }
         }}
       >
-        Upload Your Profile Picture
+        Upload Picture Here
         <input
           type="file"
           accept="image/*"

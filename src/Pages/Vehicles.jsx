@@ -18,7 +18,14 @@ export default function Vehicles() {
   const [confirmMessage, setConfirmMessage] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
-   // Store filtered vehicles
+  
+  const handleDetailClick = (id) => {
+    navigate(`/details?id=${id}`);
+  }; 
+  const handleVehicle = (id) => {
+    navigate(`/vehicles`);
+  }; 
+
   const handleAddVehicle = () => {
     navigate("/vehicle-form", { state: { title: "Add Vehicle" } });
   };
@@ -75,7 +82,7 @@ export default function Vehicles() {
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon onClick={handleEditVehicle} />,
-    details: <VisibilityIcon />,
+    details: <VisibilityIcon onClick={handleDetailClick}/>,
   };
 
   
@@ -134,6 +141,16 @@ export default function Vehicles() {
             <TypographyComponent fontSize="30px" fontFamily="var(--main)" color="var(--dull)" fontWeight="400">
               Vehicles
             </TypographyComponent>
+            <BoxComponent display='flex' justifyContent='space-between' gap='5px'>
+            <ButtonComponent
+              variant="contained"
+              backgroundColor="var(--primary)"
+              sx={{ color: "var(--light)", padding: "10px 20px" }}
+              onClick={handleVehicle}
+              
+            >
+              View All
+            </ButtonComponent>
             <ButtonComponent
               variant="contained"
               backgroundColor="var(--primary)"
@@ -143,12 +160,19 @@ export default function Vehicles() {
             >
               + Add Vehicle
             </ButtonComponent>
+            </BoxComponent>
           </BoxComponent>
           <Find placeholder="Search a Vehicle by ID" label="Status" status={status} />
           <Table
             rows={filteredVehicles}  // Display filtered vehicles here
             headings={headings}
             icons={icons}
+            onDetailClick={(id) => {
+              const currentRow = rows.find((row) => row.id === id);
+              if (currentRow) {
+                handleDetailClick(id, currentRow.id);
+              }
+            }}
             onStatusChange={(id) => {
               const currentRow = rows.find((row) => row.id === id);
               if (currentRow) {
