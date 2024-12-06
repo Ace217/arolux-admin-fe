@@ -10,8 +10,8 @@ export default function FiguresBox() {
     padding='20px'
     >
       <Figures title='Total Revenue Generated' numbers='$ 1221323'/>
-      <Figures title='Number of Current Rides' numbers='122'/>
       <Figures title='Number of Completed Rides' numbers='140'/>
+      <Figures title='Number of Current Rides' numbers='122'/>
     </BoxComponent>
   );
 }

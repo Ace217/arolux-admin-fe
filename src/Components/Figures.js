@@ -5,8 +5,8 @@ import TypographyComponent from './Typography';
 export default function Figures(props) {
   return (
     <BoxComponent
-    width="300px"
-    height='100px'
+    width="27%"
+    height='60px'
     padding='15px'
     borderRadius='10px'
     backgroundColor='var(--light)'
@@ -16,7 +16,7 @@ export default function Figures(props) {
      boxShadow="1px 1px 1px 2px var(--paragraph)"
     >
       <TypographyComponent
-      fontSize='22px'
+      fontSize='18px'
       fontWeight='400'
       fontFamily='var(--main)'
       textAlign='left'
@@ -27,7 +27,7 @@ export default function Figures(props) {
       justifyContent='right'
       >
       <TypographyComponent
-      fontSize='22px'
+      fontSize='18px'
       fontWeight='400'
       fontFamily='var(--main)'
       color='var(--dark)'
