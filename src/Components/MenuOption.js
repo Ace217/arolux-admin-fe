@@ -12,18 +12,35 @@ export default function MenuOption({ icon: Icon, label, onClick, active }) {
       height="5vh"
       padding="5px 10px"
       sx={{
-        backgroundColor: active ? '#FFF' : 'transparent', // Set background based on active state
+        backgroundColor: active ? 'var(--light)' : 'transparent',
         "&:hover": {
           cursor: "pointer",
-          backgroundColor: '#FFF', 
+          backgroundColor: 'var(--primary)', 
           // boxShadow:'0px 0px 1px 1px transparent'// Maintain hover color
         },
         transition: 'background-color 0.3s ease', // Smooth transition for background color
       }}
       onClick={onClick} // Add the onClick handler here
     >
-      <Icon />
-      <TypographyComponent marginLeft="15px" color="var(--dull)">
+      <Icon
+      color="var(--white)"
+      sx={{
+        color: active ? 'var(--dark)' : 'var(--white)', // Set background based on active state
+        "&:hover": {
+          cursor: "pointer",
+          color: 'var(--white)', 
+          // boxShadow:'0px 0px 1px 1px transparent'// Maintain hover color
+        },}}
+      />
+      <TypographyComponent marginLeft="15px" color="var(--white)"
+      sx={{
+        color: active ? 'var(--dark)' : 'var(--white)', // Set background based on active state
+        "&:hover": {
+          cursor: "pointer",
+          color: 'var(--white)', 
+          // boxShadow:'0px 0px 1px 1px transparent'// Maintain hover color
+        },}}
+      >
         {label}
       </TypographyComponent>
     </BoxComponent>

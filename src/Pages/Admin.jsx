@@ -116,14 +116,19 @@ export default function Admin() {
   };
 
   return (
-    <BoxComponent>
+    <BoxComponent
+    backgroundColor="var(--light)"
+    >
       <Head/>
       <BoxComponent display="flex" justifyContent="space-between">
         <Sidebar/>
         <BoxComponent width="82%" padding="20px">
           <BoxComponent display="flex" justifyContent="space-between" width="100%">
-            <TypographyComponent fontSize="30px" fontFamily="var(--main)" color="var(--dull)" fontWeight="400">
-              Admin Access
+            <TypographyComponent  fontSize="18px"
+            fontFamily="var(--main)"
+            color="var(--dark)"
+            fontWeight="400">
+              ADMIN ACCESS
             </TypographyComponent>
             <ButtonComponent
               variant="contained"

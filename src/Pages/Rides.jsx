@@ -85,19 +85,21 @@ export default function Rides() {
   };
 
   return (
-    <BoxComponent>
+    <BoxComponent
+    backgroundColor="var(--light)"
+    >
       <Head />
       <BoxComponent display="flex" justifyContent="space-between">
         <Sidebar />
         <BoxComponent display="flex" flexDirection="column" width="82%" padding="20px">
           <BoxComponent display="flex" justifyContent="space-between" width="100%">
             <TypographyComponent
-              fontSize="30px"
+              fontSize="18px"
               fontFamily="var(--main)"
-              color="var(--dull)"
+              color="var(--dark)"
               fontWeight="400"
             >
-              Ride Management
+              RIDE MANAGEMENT
             </TypographyComponent>
            
           </BoxComponent>

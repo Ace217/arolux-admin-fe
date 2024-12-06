@@ -91,19 +91,21 @@ const [selectedDriverId, setSelectedDriverId] = useState(null);
   };
 
   return (
-    <BoxComponent>
+    <BoxComponent
+    backgroundColor="var(--light)"
+    >
       <Head />
       <BoxComponent display="flex" justifyContent="space-between">
         <Sidebar />
         <BoxComponent display="flex" flexDirection="column" width="82%" padding="20px">
           <BoxComponent display="flex" justifyContent="space-between" width="100%">
             <TypographyComponent
-              fontSize="30px"
-              fontFamily="var(--main)"
-              color="var(--dull)"
-              fontWeight="400"
+               fontSize="18px"
+               fontFamily="var(--main)"
+               color="var(--dark)"
+               fontWeight="400"
             >
-              Driver Management
+              DRIVER MANAGEMENT
             </TypographyComponent>
             <ButtonComponent
               variant="contained"

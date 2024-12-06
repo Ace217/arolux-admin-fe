@@ -8,32 +8,31 @@ export default function Figures(props) {
     width="27%"
     height='60px'
     padding='15px'
-    borderRadius='10px'
-    backgroundColor='var(--light)'
+    // borderRadius='10px'
+    backgroundColor='var(--white)'
     display='flex'
     flexDirection='column'
     justifyContent='space-between'
-     boxShadow="1px 1px 1px 2px var(--paragraph)"
+     boxShadow="1px 1px 1px 1px var(--secondary)"
     >
       <TypographyComponent
-      fontSize='18px'
+      fontSize='20px'
       fontWeight='400'
       fontFamily='var(--main)'
       textAlign='left'
-      color='var(--dull)'
-      >{props.title}</TypographyComponent>
+      color='var(--dark)'
+      >{props.numbers}</TypographyComponent>
       <BoxComponent
       display='flex'
-      justifyContent='right'
+      justifyContent='left'
       >
       <TypographyComponent
-      fontSize='18px'
-      fontWeight='400'
+      fontSize='14px'
       fontFamily='var(--main)'
-      color='var(--dark)'
-      textAlign='right'
-      marginLeft='10px'
-      >{props.numbers}</TypographyComponent>
+      color='var(--paragraph)'
+      textAlign='left'
+      marginRight='10px'
+      >{props.title}</TypographyComponent>
       </BoxComponent>
     </BoxComponent>
   );

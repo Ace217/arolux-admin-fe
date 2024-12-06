@@ -53,11 +53,11 @@ export default function Sidebar() {
     <BoxComponent
       width="15%"
       height="90vh"
-      padding='10px'
+      // padding='10px'
       display="flex"
       flexDirection="column"
       justifyContent="space-between"
-      backgroundColor="var(--light)"
+      backgroundColor="var(--dark)"
     >
       <BoxComponent
       display='flex'
@@ -119,11 +119,15 @@ export default function Sidebar() {
         justifyContent="left"
         height="6vh"
         padding="5px 10px"
-        sx={{ "&:hover": { cursor: "pointer" } }}
+        sx={{ "&:hover": {
+            cursor: "pointer",
+            color: 'var(--white)',
+            backgroundColor:"var(--primary)" 
+          }}}
         onClick={handleLogout}
       >
-        <LogoutIcon />
-        <TypographyComponent marginLeft="15px" color="var(--dark)">
+        <LogoutIcon sx={{color:"var(--white)"}}/>
+        <TypographyComponent marginLeft="15px" color="var(--white)">
           Logout
         </TypographyComponent>
       </BoxComponent>
