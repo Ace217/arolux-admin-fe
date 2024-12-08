@@ -7,7 +7,7 @@ export default function Figures(props) {
     <BoxComponent
     width="27%"
     height='60px'
-    padding='15px'
+    padding='10px'
     // borderRadius='10px'
     backgroundColor='var(--white)'
     display='flex'
@@ -15,7 +15,8 @@ export default function Figures(props) {
      boxShadow="1px 1px 1px 1px var(--secondary)"
     >
       <BoxComponent
-      
+      // width="80%"
+      // border="1px solid red"
       display='flex'
     flexDirection='column'
     justifyContent='space-between'
@@ -37,10 +38,10 @@ export default function Figures(props) {
       >{props.title}</TypographyComponent> 
       </BoxComponent>
       <BoxComponent
-      width="20%"
+      width="18%"
       height="95%"
       overflow="hidden"
-      
+      // border="1px solid red"
       >
       <img 
           style={{
