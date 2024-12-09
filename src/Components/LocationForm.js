@@ -1,14 +1,20 @@
-import React from "react";
-import BoxComponent from "./Box";
-import TypographyComponent from "./Typography";
-import InputComponent from "./InputComponent";
-import ImageComponent from "./ImageComponent";
-import ButtonComponent from "./Button";
+import React, { useState } from 'react';
+import BoxComponent from './Box';
+import TypographyComponent from './Typography';
+import InputComponent from './InputComponent';
+import MapComponent from './MapComponent';
+import ButtonComponent from './Button';
 import { useLocation } from 'react-router-dom';
 
 export default function LocationForm() {
   const location = useLocation();
   const title = location.state?.title || 'Add Location';
+
+  const [boundaries, setBoundaries] = useState([]);
+
+  const handleAddBoundary = (newBoundary) => {
+    setBoundaries(newBoundary); // Save the newly drawn boundary
+  };
 
   return (
     <BoxComponent
@@ -19,22 +25,20 @@ export default function LocationForm() {
         backgroundImage: `url('Images/bg.png')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+        height: '100vh', // Ensure full viewport height
       }}
     >
-      
       <BoxComponent
         margin="50px"
         padding="30px 15px"
         borderRadius='10px'
         width="40%"
         gap='10px'
-        // height="135vh"
         display="flex"
         flexDirection="column"
         justifyContent="space-around"
         alignItems="center"
         backgroundColor='var(--light)'
-        // boxShadow='1px 1px 1px 1px var(--dull)'
       >
         <TypographyComponent
           fontSize="40px"
@@ -45,9 +49,22 @@ export default function LocationForm() {
         >
           {title}
         </TypographyComponent>
+
         <BoxComponent width='90%'>
-        <InputComponent variant="outlined" label="Name" /></BoxComponent>
-        <ImageComponent />
+          <InputComponent variant="outlined" label="Name" />
+        </BoxComponent>
+
+        <BoxComponent width='90%' height='300px' margin="20px 0"
+        // border='2px solid var(--white)'
+        >
+          <MapComponent
+            center={[30.3753, 69.3451]} // Center of Pakistan
+            zoom={6}
+            drawBoundary={true} // Enable drawing mode
+            boundaries={handleAddBoundary} // Pass boundaries to handle state update
+          />
+        </BoxComponent>
+
         <ButtonComponent
           variant="contained"
           backgroundColor="var(--primary)"

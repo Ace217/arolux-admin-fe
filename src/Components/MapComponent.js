@@ -1,46 +1,97 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Polygon } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 import BoxComponent from './Box';
 import TypographyComponent from './Typography';
-
-// Use an online car icon URL for demonstration
-const carIconUrl = 'https://img.icons8.com/ios-filled/50/000000/car.png'; // Replace this with your own car icon URL or local path
+import ButtonComponent from './Button';
 
 // Custom car icon
+const carIconUrl = 'https://img.icons8.com/ios-filled/50/000000/car.png';
 const carIcon = L.icon({
   iconUrl: carIconUrl,
-  iconSize: [32, 32], // Adjust the size of the car icon
-  iconAnchor: [16, 32], // Adjust anchor to align icon properly
-  popupAnchor: [0, -32], // Adjust popup position
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
 });
 
-const MapComponent = ({ cars, center, zoom }) => {
-  return (
-    <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
-      {/* Use OpenStreetMap tiles with English labels */}
-<TileLayer
-  url="https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=b8e68eb148ac419c913cd230a9dca1f1"
-  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-/>
+const MapComponent = ({ cars = [], center, zoom, drawBoundary, boundaries }) => {
+  const [polygonCoordinates, setPolygonCoordinates] = useState([]);
 
-      {cars.map((car) => (
-        <Marker
-          key={car.id}
-          position={car.position}
-          icon={carIcon} // Use the custom car icon here
-        >
-          <Popup>
-            <BoxComponent>
-              <strong>{car.name}</strong>
-              <TypographyComponent>Status: {car.status}</TypographyComponent>
-              <TypographyComponent>City: {car.city || 'Not Specified'}</TypographyComponent>
-            </BoxComponent>
-          </Popup>
-        </Marker>
-      ))}
+  // Map reference for controlling zoom and dragging
+  const mapRef = React.useRef(null);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      const map = mapRef.current.leafletElement;
+
+      if (drawBoundary) {
+        // Disable zooming and dragging when drawing boundary
+        map.dragging.disable();
+        map.scrollWheelZoom.disable();
+      } else {
+        // Enable zooming and dragging if not drawing
+        map.dragging.enable();
+        map.scrollWheelZoom.enable();
+      }
+    }
+  }, [drawBoundary]);
+
+  // Handle map click to add points for boundary drawing
+  const handleMapClick = (e) => {
+    if (drawBoundary) {
+      const newCoordinates = [...polygonCoordinates, e.latlng];
+      setPolygonCoordinates(newCoordinates);
+    }
+  };
+
+  // Handle boundary submission
+  const handleSubmitBoundary = () => {
+    if (polygonCoordinates.length > 2) {
+      boundaries(polygonCoordinates); // Pass the coordinates back to parent
+      setPolygonCoordinates([]); // Reset after submission
+    }
+  };
+
+  return (
+    <MapContainer
+      center={center}
+      zoom={zoom}
+      style={{ height: '100%', width: '100%' }}
+      onClick={handleMapClick}
+      ref={mapRef} // Use mapRef to control map zoom/drag behavior
+    >
+      <TileLayer
+        url="https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=b8e68eb148ac419c913cd230a9dca1f1"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      />
+
+      {/* Render markers for cars */}
+      {cars.length > 0 &&
+        cars.map((car) => (
+          <Marker key={car.id} position={car.position} icon={carIcon}>
+            <Popup>
+              <BoxComponent>
+                <strong>{car.name}</strong>
+                <TypographyComponent>Status: {car.status}</TypographyComponent>
+                <TypographyComponent>City: {car.city || 'Not Specified'}</TypographyComponent>
+              </BoxComponent>
+            </Popup>
+          </Marker>
+        ))}
+
+      {/* Render polygon if coordinates are available */}
+      {polygonCoordinates.length > 2 && <Polygon positions={polygonCoordinates} color="blue" />}
+
+      {/* Render the Submit Boundary button only if drawing mode is enabled and enough points are added */}
+      {drawBoundary && polygonCoordinates.length > 2 && (
+        <BoxComponent padding="10px">
+          <ButtonComponent onClick={handleSubmitBoundary}>
+            Submit Boundary
+          </ButtonComponent>
+        </BoxComponent>
+      )}
     </MapContainer>
   );
 };
