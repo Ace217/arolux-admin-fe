@@ -11,10 +11,17 @@ export default function LocationForm() {
   const title = location.state?.title || 'Add Location';
 
   const [boundaries, setBoundaries] = useState([]);
+  const [boundaryStatus, setBoundaryStatus] = useState(false);
 
   const handleAddBoundary = (newBoundary) => {
-    setBoundaries(newBoundary); // Save the newly drawn boundary
+    setBoundaries(newBoundary);
+    setBoundaryStatus(newBoundary.length > 2); // Check if the polygon is valid (at least 3 points)
   };
+
+  const handleSubmit = () => {
+    console.log('Submitted Boundary Coordinates:', boundaries);
+  };
+  
 
   return (
     <BoxComponent
@@ -23,55 +30,60 @@ export default function LocationForm() {
       alignItems="center"
       sx={{
         backgroundImage: `url('Images/bg.png')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        height: '100vh', // Ensure full viewport height
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
       }}
     >
       <BoxComponent
         margin="50px"
         padding="30px 15px"
-        borderRadius='10px'
-        width="40%"
-        gap='10px'
+        borderRadius="10px"
+        width="80%"
+        gap="5px"
         display="flex"
         flexDirection="column"
         justifyContent="space-around"
         alignItems="center"
-        backgroundColor='var(--light)'
+        backgroundColor="var(--light)"
       >
         <TypographyComponent
           fontSize="40px"
           color="var(--dull)"
           fontFamily="var(--main)"
           fontWeight="600"
-          marginBottom='20px'
+          marginBottom="10px"
         >
           {title}
         </TypographyComponent>
 
-        <BoxComponent width='90%'>
+        <BoxComponent width="80%">
           <InputComponent variant="outlined" label="Name" />
         </BoxComponent>
 
-        <BoxComponent width='90%' height='300px' margin="20px 0"
-        // border='2px solid var(--white)'
-        >
+        <BoxComponent width="90%" height="500px" margin="20px 0">
           <MapComponent
             center={[30.3753, 69.3451]} // Center of Pakistan
             zoom={6}
-            drawBoundary={true} // Enable drawing mode
-            boundaries={handleAddBoundary} // Pass boundaries to handle state update
+            drawBoundary={true}
+            boundaries={handleAddBoundary} // Pass the boundaries to handle state update
           />
         </BoxComponent>
+
+        {!boundaryStatus && (
+          <TypographyComponent color="red" fontSize="16px">
+            Please draw a boundary on the map.
+          </TypographyComponent>
+        )}
 
         <ButtonComponent
           variant="contained"
           backgroundColor="var(--primary)"
           sx={{
-            width: "90%",
-            padding: "10px",
+            width: '90%',
+            padding: '10px',
           }}
+          onClick={handleSubmit}
+          disabled={!boundaryStatus} // Disable button if no valid boundary is drawn
         >
           Submit
         </ButtonComponent>

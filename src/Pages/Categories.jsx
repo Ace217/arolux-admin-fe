@@ -47,20 +47,19 @@ export default function Categories() {
   ]);
 
   const headings = [
-    { field: 'id', headerName: 'ID', width: 100 },
+    { field: 'id', headerName: 'ID' },
     {
       field: 'image',
       headerName: 'Image',
       width: 100,
       renderCell: (params) => <img src={params.row.image} alt="Cover" style={{ width: '80px', height: '40px' }} />,
     },
-    { field: 'categoryName', headerName: 'Category Name', width: 200 },
-    { field: 'Add text here', headerName: 'Add text here', width: 150 },
-    { field: 'Add text here', headerName: 'Add text here', width: 150 },
+    { field: 'categoryName', headerName: 'Category Name' },
+    { field: 'Add text here', headerName: 'Add text here'  },
+    { field: 'Add text here', headerName: 'Add text here' },
     {
       field: 'Status',
       headerName: 'Status',
-      width: '100',
       renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
     },
   ];

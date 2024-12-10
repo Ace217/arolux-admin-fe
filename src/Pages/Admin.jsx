@@ -92,11 +92,11 @@ export default function Admin() {
   }, [isModalOpen]);
 
   const headings = [
-    { field: 'Name', headerName: 'Name', width:'120' },
-    { field: 'Role', headerName: 'Role', width:'120', },
-    { field: 'Email', headerName: 'Email',width:'150', },
-    { field: 'Phone', headerName: 'Phone No', type: 'number', width:'120', },
-    { field: 'Last_Login', headerName: 'Last Login',width:'120', },
+    { field: 'Name', headerName: 'Name' },
+    { field: 'Role', headerName: 'Role' },
+    { field: 'Email', headerName: 'Email' },
+    { field: 'Phone', headerName: 'Phone No', type: 'number' },
+    { field: 'Last_Login', headerName: 'Last Login'},
     {
       field: 'Status',
       headerName: 'Status',

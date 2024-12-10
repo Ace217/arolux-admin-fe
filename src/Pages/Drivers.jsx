@@ -42,23 +42,21 @@ const [selectedDriverId, setSelectedDriverId] = useState(null);
   ]);
 
   const headings = [
-    { field: 'id', headerName: 'ID', width: 50 },
+    { field: 'id', headerName: 'ID'},
     {
       field: 'coverImage',
       headerName: 'Cover Image',
-      width: 100,
       renderCell: (params) => <img src={params.row.coverImage} alt="Cover" style={{ width: '80px', height: '40px' }} />,
     },
-    { field: 'name', headerName: 'Name', width: 100 },
-    { field: 'CNIC', headerName: 'CNIC', width: 110 },
-    { field: 'Email', headerName: 'E-mail', width: 110 },
-    { field: 'Phone', headerName: 'Phone', width: 100 },
-    { field: 'vehicle', headerName: 'Vehicle No', width: 100 },
-    { field: 'city', headerName: 'City', width: 100 },
+    { field: 'name', headerName: 'Name' },
+    { field: 'CNIC', headerName: 'CNIC' },
+    { field: 'Email', headerName: 'E-mail' },
+    { field: 'Phone', headerName: 'Phone' },
+    { field: 'vehicle', headerName: 'Vehicle No' },
+    { field: 'city', headerName: 'City' },
     {
       field: 'Status',
       headerName: 'Status',
-      width: 100,
       renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
     },
   ];

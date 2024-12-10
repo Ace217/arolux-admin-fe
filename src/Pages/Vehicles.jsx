@@ -52,11 +52,10 @@ export default function Vehicles() {
   ]);
 
   const headings = [
-    { field: "id", headerName: "Vehicle ID", width: 100 },
+    { field: "id", headerName: "Vehicle ID" },
     {
       field: "coverImage",
       headerName: "Cover Image",
-      width: 100,
       renderCell: (params) => (
         <img
           src={params.row.coverImage}
@@ -65,13 +64,12 @@ export default function Vehicles() {
         />
       ),
     },
-    { field: "category", headerName: "Category", width: 200 },
-    { field: "Add text here", headerName: "Add text here", width: 150 },
-    { field: "Add text here", headerName: "Add text here", width: 150 },
+    { field: "category", headerName: "Category" },
+    { field: "Add text here", headerName: "Add text here" },
+    { field: "Add text here", headerName: "Add text here" },
     {
       field: "Status",
       headerName: "Status",
-      width: "100",
       renderCell: (params) => (
         <span style={{ color: params.value === "Active" ? "green" : "red" }}>
           {params.value}

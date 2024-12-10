@@ -15,7 +15,7 @@ export default function Table({
   const columns = headings.map((heading) => ({
     field: heading.field,
     headerName: heading.headerName,
-    width: heading.width || 150,
+    flex: heading.flex || 1, // Use flex instead of fixed width
     sortable: heading.sortable || false,
     renderCell: heading.renderCell || undefined,
     headerClassName: "center-header", // Add class for header styling
@@ -26,7 +26,7 @@ export default function Table({
   columns.push({
     field: "Edit",
     headerName: "",
-    width: 50,
+    flex: 0.5, // Smaller flex for icons
     renderCell: () => (
       <IconButton aria-label="edit" sx={{ color: "var(--primary)" }}>
         {icons.edit}
@@ -38,12 +38,14 @@ export default function Table({
   columns.push({
     field: "Details",
     headerName: "",
-    width: 50,
+    flex: 0.5, // Smaller flex for icons
     renderCell: (params) => (
-      <IconButton 
-      checked={params.row.Status === "Active"}
-      onClick={() => onDetailClick(params.row.categoryName)}
-      aria-label="details" sx={{ color: "var(--primary)" }}>
+      <IconButton
+        checked={params.row.Status === "Active"}
+        onClick={() => onDetailClick(params.row.categoryName)}
+        aria-label="details"
+        sx={{ color: "var(--primary)" }}
+      >
         {icons.details}
       </IconButton>
     ),
@@ -53,7 +55,7 @@ export default function Table({
   columns.push({
     field: "Key",
     headerName: "",
-    width: 50,
+    flex: 0.5, // Smaller flex for icons
     renderCell: () => (
       <IconButton aria-label="key" sx={{ color: "var(--primary)" }}>
         {icons.key}
@@ -65,7 +67,7 @@ export default function Table({
   columns.push({
     field: "Actions",
     headerName: "Actions",
-    width: 100,
+    flex: 1, // Standard flex for the switch
     renderCell: (params) => (
       <Switch
         checked={params.row.Status === "Active"}
@@ -100,6 +102,8 @@ export default function Table({
             padding: "5px", // Apply padding to cells
           },
         }}
+        disableColumnMenu // Optional: Hide the column menu for a cleaner look
+        autoHeight // Automatically adjusts height to content
       />
     </Paper>
   );

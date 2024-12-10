@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css'; // Import leaflet-draw styles
+import 'leaflet-draw'; // Ensure leaflet-draw is correctly imported
 
 import BoxComponent from './Box';
 import TypographyComponent from './Typography';
 import ButtonComponent from './Button';
 
-// Custom car icon
-const carIconUrl = 'https://img.icons8.com/ios-filled/50/000000/car.png';
+const carIconUrl = 'Images/cars.png';
 const carIcon = L.icon({
   iconUrl: carIconUrl,
   iconSize: [32, 32],
@@ -18,49 +19,56 @@ const carIcon = L.icon({
 
 const MapComponent = ({ cars = [], center, zoom, drawBoundary, boundaries }) => {
   const [polygonCoordinates, setPolygonCoordinates] = useState([]);
-
-  // Map reference for controlling zoom and dragging
-  const mapRef = React.useRef(null);
+  const [mapInstance, setMapInstance] = useState(null); // State to hold the map instance for control
+  const [drawingActive, setDrawingActive] = useState(false);
 
   useEffect(() => {
-    if (mapRef.current) {
-      const map = mapRef.current.leafletElement;
+    if (mapInstance) {
+      // Create a feature group for the drawn items
+      const drawnItems = new L.FeatureGroup();
+      mapInstance.addLayer(drawnItems);
 
-      if (drawBoundary) {
-        // Disable zooming and dragging when drawing boundary
-        map.dragging.disable();
-        map.scrollWheelZoom.disable();
-      } else {
-        // Enable zooming and dragging if not drawing
-        map.dragging.enable();
-        map.scrollWheelZoom.enable();
-      }
-    }
-  }, [drawBoundary]);
+      // Initialize Leaflet Draw
+      const drawControl = new L.Control.Draw({
+        draw: {
+          polygon: {
+            allowIntersection: false, // Prevent self-intersecting polygons
+            showArea: true, // Show area of the polygon
+          },
+          rectangle: false,
+          circle: false,
+          marker: false,
+        },
+        edit: {
+          featureGroup: drawnItems,
+        },
+      });
 
-  // Handle map click to add points for boundary drawing
-  const handleMapClick = (e) => {
-    if (drawBoundary) {
-      const newCoordinates = [...polygonCoordinates, e.latlng];
-      setPolygonCoordinates(newCoordinates);
-    }
-  };
+      mapInstance.addControl(drawControl); // Add the draw control to the map
 
-  // Handle boundary submission
-  const handleSubmitBoundary = () => {
-    if (polygonCoordinates.length > 2) {
-      boundaries(polygonCoordinates); // Pass the coordinates back to parent
-      setPolygonCoordinates([]); // Reset after submission
+      // Debug: Check if Leaflet Draw is being initialized
+      console.log("Leaflet Draw control initialized:", drawControl);
+
+      // Event listener for when a polygon is created
+      mapInstance.on(L.Draw.Event.CREATED, (event) => {
+        console.log('Polygon Created:', event.layer);
+        const layer = event.layer;
+        const coordinates = layer.getLatLngs()[0].map((latlng) => [latlng.lat, latlng.lng]);
+        setPolygonCoordinates(coordinates); // Update polygon coordinates state
+        if (boundaries) boundaries(coordinates); // Pass coordinates back to parent component
+      });
+
+      // Debugging: Log the map instance to check if it's initialized
+      console.log("Map instance initialized:", mapInstance);
     }
-  };
+  }, [mapInstance, drawBoundary, boundaries]);
 
   return (
     <MapContainer
       center={center}
       zoom={zoom}
       style={{ height: '100%', width: '100%' }}
-      onClick={handleMapClick}
-      ref={mapRef} // Use mapRef to control map zoom/drag behavior
+      whenCreated={setMapInstance} // Set the map instance once it's created
     >
       <TileLayer
         url="https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=b8e68eb148ac419c913cd230a9dca1f1"
@@ -83,15 +91,6 @@ const MapComponent = ({ cars = [], center, zoom, drawBoundary, boundaries }) => 
 
       {/* Render polygon if coordinates are available */}
       {polygonCoordinates.length > 2 && <Polygon positions={polygonCoordinates} color="blue" />}
-
-      {/* Render the Submit Boundary button only if drawing mode is enabled and enough points are added */}
-      {drawBoundary && polygonCoordinates.length > 2 && (
-        <BoxComponent padding="10px">
-          <ButtonComponent onClick={handleSubmitBoundary}>
-            Submit Boundary
-          </ButtonComponent>
-        </BoxComponent>
-      )}
     </MapContainer>
   );
 };

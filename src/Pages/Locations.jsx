@@ -40,15 +40,14 @@ export default function Locations() {
   ]);
 
   const headings = [
-    { field: 'id', headerName: 'ID', width: 50 },
-    { field: 'name', headerName: 'Location Name', width: 200 },
-    { field: 'add_text', headerName: 'Add-Text', width: 200 },
-    { field: 'add_text', headerName: 'Add-Text', width: 150 },
-    { field: 'add_here', headerName: 'Add-Here', width: 150 },
+    { field: 'id', headerName: 'ID'},
+    { field: 'name', headerName: 'Location Name'},
+    { field: 'add_text', headerName: 'Add-Text' },
+    { field: 'add_text', headerName: 'Add-Text' },
+    { field: 'add_here', headerName: 'Add-Here' },
     {
       field: 'Status',
       headerName: 'Status',
-      width:'100',
       renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
     },
   ];
