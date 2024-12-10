@@ -10,18 +10,17 @@ export default function LocationForm() {
   const location = useLocation();
   const title = location.state?.title || 'Add Location';
 
-  const [boundaries, setBoundaries] = useState([]);
-  const [boundaryStatus, setBoundaryStatus] = useState(false);
+  const [boundaries, setBoundaries] = useState([]); // Store the coordinates of the drawn boundary
+  const [boundaryStatus, setBoundaryStatus] = useState(false); // Flag to track if the boundary is drawn
 
   const handleAddBoundary = (newBoundary) => {
-    setBoundaries(newBoundary);
-    setBoundaryStatus(newBoundary.length > 2); // Check if the polygon is valid (at least 3 points)
+    setBoundaries(newBoundary); // Update the boundaries state with the new boundary
+    setBoundaryStatus(newBoundary.length > 2); // Check if the boundary is valid (more than 2 points)
   };
 
   const handleSubmit = () => {
     console.log('Submitted Boundary Coordinates:', boundaries);
   };
-  
 
   return (
     <BoxComponent
@@ -64,7 +63,7 @@ export default function LocationForm() {
           <MapComponent
             center={[30.3753, 69.3451]} // Center of Pakistan
             zoom={6}
-            drawBoundary={true}
+            drawBoundary={true} // Enable drawing mode
             boundaries={handleAddBoundary} // Pass the boundaries to handle state update
           />
         </BoxComponent>
@@ -83,7 +82,7 @@ export default function LocationForm() {
             padding: '10px',
           }}
           onClick={handleSubmit}
-          disabled={!boundaryStatus} // Disable button if no valid boundary is drawn
+          disabled={!boundaryStatus} // Disable button if no boundary
         >
           Submit
         </ButtonComponent>
