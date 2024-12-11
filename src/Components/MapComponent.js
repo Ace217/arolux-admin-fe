@@ -1,66 +1,119 @@
-import React, { useState } from "react";
+import React, { useRef, useEffect } from "react";
 import L from "leaflet";
-import { MapContainer, TileLayer, FeatureGroup } from "react-leaflet"; // Updated import
+import { MapContainer, TileLayer, FeatureGroup, Marker, Popup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
-import { useRef } from "react";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
-
-// Ensure you have osm-providers or a similar module defined
-import osm from "./osm-providers"; // Adjust if necessary for osm-providers or your custom osm object
+import BoxComponent from './Box';
+import TypographyComponent from './Typography';
+import osm from "./osm-providers";
 
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-icon.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-shadow.png",
+  iconRetinaUrl: "Images/location-pointer.png",
+  iconUrl: "Images/location-pointer.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-shadow.png",
 });
 
-const MapComponent = () => {
-  const [center, setCenter] = useState({ lat: 24.4539, lng: 54.3773 });
-  const ZOOM_LEVEL = 12;
+const carIconUrl = 'Images/cars.png';
+const carIcon = L.icon({
+  iconUrl: carIconUrl,
+  iconSize: [25, 25],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const MapComponent = ({ cars = [], center, zoom, isDrawingAllowed = false, drawBoundary, boundaries }) => {
   const mapRef = useRef();
 
-  const _created = (e) => console.log(e);
+  const handleCreated = (e) => {
+    const layer = e.layer;
+    let newBoundary = [];
+
+    if (layer instanceof L.Marker) {
+      // Handle marker creation (location pointer)
+      const markerCoords = layer.getLatLng();
+      console.log("Marker Coordinates:", markerCoords);
+      newBoundary = [markerCoords.lat, markerCoords.lng];
+    } else if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+      // Handle polygon/rectangle creation (boundary)
+      const coords = layer.getLatLngs()[0].map(latlng => [latlng.lat, latlng.lng]);
+      console.log("Boundary Coordinates:", coords);
+      newBoundary = coords;
+    } else if (layer instanceof L.Circle) {
+      // Handle circle creation
+      const center = layer.getLatLng();
+      const radius = layer.getRadius();
+      newBoundary = [{ center: [center.lat, center.lng], radius }];
+      console.log("Circle Coordinates:", newBoundary);
+    } else if (layer instanceof L.CircleMarker) {
+      // Handle circle marker creation
+      const center = layer.getLatLng();
+      newBoundary = [{ center: [center.lat, center.lng], radius: layer.getRadius() }];
+      console.log("Circle Marker Coordinates:", newBoundary);
+    }
+
+    // If boundary data is available, send it back to the parent
+    if (boundaries) {
+      boundaries(newBoundary);
+    }
+  };
+
+  const handleDeleted = (e) => {
+    // When shapes are deleted, clear the boundaries state
+    if (boundaries) {
+      boundaries([]);  // Clear boundary coordinates
+    }
+  };
 
   return (
-    <>
-    
-
-      <div className="row">
-        <div className="col text-center">
-
-          <div className="col">
-            {/* Replace Map with MapContainer */}
-            <MapContainer center={center} zoom={ZOOM_LEVEL} ref={mapRef} style={{ height: "500px", width: "100%" }}>
+    <BoxComponent className="row">
+      <BoxComponent className="col text-center">
+        <BoxComponent className="col">
+          <MapContainer 
+            center={center} 
+            zoom={zoom} 
+            ref={mapRef} 
+            style={{ height: "500px", width: "100%" }}
+          >
+            {isDrawingAllowed && (
               <FeatureGroup>
                 <EditControl
                   position="topright"
-                  onCreated={_created}
+                  onCreated={handleCreated}
+                  onDeleted={handleDeleted} // Handle shape deletion
                   draw={{
-                    // Uncomment or modify according to what you need to draw
-                    // rectangle: false,
-                    // circle: false,
-                    // circlemarker: false,
-                    // marker: false,
-                    // polyline: false,
+                    rectangle: true,
+                    circle: true,
+                    circlemarker: true,
+                    marker: true,  // Allow marker placement
+                    polyline: false,
+                    polygon: true,
                   }}
                 />
               </FeatureGroup>
-              {/* Ensure osm is defined or import correctly */}
-              <TileLayer
-                url={osm.maptiler.url}
-                attribution={osm.maptiler.attribution}
-              />
-            </MapContainer>
-          </div>
-        </div>
-      </div>
-    </>
+            )}
+            <TileLayer
+              url={osm.maptiler.url}
+              attribution={osm.maptiler.attribution}
+            />
+            {cars.length > 0 &&
+              cars.map((car) => (
+                <Marker key={car.id} position={car.position} icon={carIcon}>
+                  <Popup>
+                    <BoxComponent>
+                      <strong>{car.name}</strong>
+                      <TypographyComponent>Status: {car.status}</TypographyComponent>
+                      <TypographyComponent>City: {car.city || 'Not Specified'}</TypographyComponent>
+                    </BoxComponent>
+                  </Popup>
+                </Marker>
+              ))}
+          </MapContainer>
+        </BoxComponent>
+      </BoxComponent>
+    </BoxComponent>
   );
 };
 
