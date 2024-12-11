@@ -19,7 +19,7 @@ L.Icon.Default.mergeOptions({
 const carIconUrl = 'Images/cars.png';
 const carIcon = L.icon({
   iconUrl: carIconUrl,
-  iconSize: [25, 25],
+  iconSize: [22, 22],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
@@ -102,8 +102,11 @@ const MapComponent = ({ cars = [], center, zoom, isDrawingAllowed = false, drawB
               cars.map((car) => (
                 <Marker key={car.id} position={car.position} icon={carIcon}>
                   <Popup>
-                    <BoxComponent>
-                      <strong>{car.name}</strong>
+                    <BoxComponent
+                    >
+                      <TypographyComponent
+                      fontWeight='600'
+                      >{car.name}</TypographyComponent>
                       <TypographyComponent>Status: {car.status}</TypographyComponent>
                       <TypographyComponent>City: {car.city || 'Not Specified'}</TypographyComponent>
                     </BoxComponent>
