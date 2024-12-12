@@ -4,7 +4,6 @@ import TypographyComponent from "./Typography";
 import DetailComponent from "./DetailComponent";
 
 export default function Details() {
-  // Array with one object containing the data and image
   const detailsData = {
     image: "Images/bg.png", // Replace with actual image URL
     details: [
@@ -13,8 +12,12 @@ export default function Details() {
       { title: "Add Heading 3 Here", details: "Add details of Heading 3 Here" },
       { title: "Add Heading 4 Here", details: "Add details of Heading 4 Here" },
       { title: "Add Heading 5 Here", details: "Add details of Heading 5 Here" },
-      { title: "Date of Joining", details: "28January,2023" },
-      { title: "Last Login", details: "28November,2024" },
+      { title: "Add Heading 6 Here", details: "Add details of Heading 6 Here" },
+      { title: "Add Heading 7 Here", details: "Add details of Heading 7 Here" },
+      { title: "Add Heading 8 Here", details: "Add details of Heading 8 Here" },
+      { title: "Date of Joining", details: "28 January, 2023" },
+      { title: "Last Login", details: "28 November, 2024" },
+
     ],
   };
 
@@ -22,31 +25,72 @@ export default function Details() {
     <BoxComponent
       display="flex"
       flexDirection="column"
-      justifyContent="space-around"
       alignItems="center"
       padding="30px"
-      backgroundColor="var(--white)"
+      backgroundColor="var(--light)" // Add a light background color
+      minHeight="100vh"
     >
+      {/* Title Section */}
       <TypographyComponent
-        fontSize="40px"
-        color="var(--dull)"
+        fontSize="36px"
+        color="var(--primary)"
         fontFamily="var(--main)"
-        fontWeight="600"
-        marginBottom="20px"
+        fontWeight="700"
+        marginBottom="30px"
         textAlign="center"
       >
         Details
       </TypographyComponent>
+
+      {/* Content Section */}
       <BoxComponent
-        width="60%"
+        width="80%"
+        maxWidth="1200px"
+        backgroundColor="var(--white)"
+        borderRadius="10px"
+        boxShadow="0 4px 10px rgba(0, 0, 0, 0.1)"
         display="flex"
-        alignItems="center"
-        flexDirection="column"
-        gap="10px"
+        padding="20px"
+        justifyContent='space-around'
       >
+        {/* Left Side (Details) */}
         <BoxComponent
-          width="80%"
-          height="40vh"
+          width="60%"
+          display="flex"
+          flexDirection="column"
+          gap="20px"
+        >
+          {/* Dynamically Generate Rows of Two Details */}
+          {detailsData.details.map((detail, index) => {
+            if (index % 2 === 0) {
+              return (
+                <BoxComponent
+                  key={index}
+                  display="flex"
+                  justifyContent="flex-start"
+                  gap="20px"
+                >
+                  <DetailComponent
+                    title={detailsData.details[index].title}
+                    details={detailsData.details[index].details}
+                  />
+                  {detailsData.details[index + 1] && (
+                    <DetailComponent
+                      title={detailsData.details[index + 1].title}
+                      details={detailsData.details[index + 1].details}
+                    />
+                  )}
+                </BoxComponent>
+              );
+            }
+            return null;
+          })}
+        </BoxComponent>
+
+        {/* Right Side (Image) */}
+        <BoxComponent
+          width="40%"
+          height="35vh"
           display="flex"
           justifyContent="center"
           alignItems="center"
@@ -62,14 +106,6 @@ export default function Details() {
             }}
           />
         </BoxComponent>
-
-        {detailsData.details.map((detail, index) => (
-          <DetailComponent
-            key={index}
-            title={detail.title}
-            details={detail.details}
-          />
-        ))}
       </BoxComponent>
     </BoxComponent>
   );

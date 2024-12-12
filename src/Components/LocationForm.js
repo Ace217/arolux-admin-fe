@@ -5,8 +5,11 @@ import InputComponent from './InputComponent';
 import MapComponent from './MapComponent';
 import ButtonComponent from './Button';
 import { useLocation } from 'react-router-dom';
+import CancelIcon from '@mui/icons-material/Cancel';
+import { useNavigate } from 'react-router-dom';
 
 export default function LocationForm() {
+  const navigate = useNavigate();
   const location = useLocation();
   const title = location.state?.title || 'Add Location';
 
@@ -24,7 +27,10 @@ export default function LocationForm() {
       setBoundaryStatus(true); // Enable the button if a valid boundary or shape exists
     }
   };
-
+  const handleCancel= () => {
+    navigate('/locations');
+  };
+ 
   const handleSubmit = () => {
     console.log('Submitted Boundary Coordinates:', boundaries);
     // Save the coordinates (you can push them into an array or send to a backend API)
@@ -41,7 +47,7 @@ export default function LocationForm() {
     >
       <BoxComponent
         margin="50px"
-        padding="30px 15px"
+        padding="15px"
         borderRadius="10px"
         width="80%"
         gap="5px"
@@ -51,15 +57,34 @@ export default function LocationForm() {
         alignItems="center"
         backgroundColor="var(--light)"
       >
-        <TypographyComponent
-          fontSize="40px"
-          color="var(--dull)"
-          fontFamily="var(--main)"
-          fontWeight="600"
-          marginBottom="10px"
-        >
-          {title}
-        </TypographyComponent>
+       <BoxComponent
+  width="100%"
+  display="flex"
+  flexDirection="column"
+>
+
+  <BoxComponent 
+    display="flex" 
+    justifyContent="flex-end" 
+    width="100%"
+   sx={{ cursor:'pointer'}}
+  >
+    <CancelIcon onClick={handleCancel} fontSize="large" />
+  </BoxComponent>
+
+  
+  <TypographyComponent
+    fontSize="40px"
+    color="var(--dull)"
+    fontFamily="var(--main)"
+    fontWeight="600"
+    marginBottom="10px"
+    textAlign="center"
+    width="100%"
+  >
+    {title}
+  </TypographyComponent>
+</BoxComponent>
 
         <BoxComponent width="80%">
           <InputComponent variant="outlined" label="Name" />

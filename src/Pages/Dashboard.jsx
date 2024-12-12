@@ -72,7 +72,6 @@ export default function Dashboard() {
             marginTop="15px"
             overflow="hidden"
             backgroundColor="var(--white)"
-            sx={{ height: "80vh", width: "100%" }}
           >
             <TypographyComponent fontSize="16px" color="var(--paragraph)" width="100%" padding="15px" backgroundColor="var(--white)" boxShadow="1px 1px 1px 1px var(--secondary)">
               Location of the Cars
