@@ -27,7 +27,7 @@ export default function DriverForm() {
         margin="50px"
         padding="30px 15px"
         borderRadius='10px'
-        width="40%"
+        width="80%"
         gap='10px'
         // height="135vh"
         display="flex"
