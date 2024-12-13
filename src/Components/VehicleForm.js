@@ -15,11 +15,13 @@ export default function VehicleForm() {
       display="flex"
       justifyContent="space-around"
       alignItems="center"
-      sx={{
-        backgroundImage: `url('Images/bg.png')`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
+      backgroundColor='var(--light)'
+      // sx={{
+      //   backgroundImage: `url('Images/bg.png')`,
+      //   backgroundSize: "cover",
+      //   backgroundPosition: "center",
+      // }}
+
     >
       
       <BoxComponent
@@ -33,7 +35,8 @@ export default function VehicleForm() {
         flexDirection="column"
         justifyContent="space-around"
         alignItems="center"
-        backgroundColor='var(--light)'
+        backgroundColor='var(--white)'
+         boxShadow="0 4px 10px rgba(0, 0, 0, 0.1)"
         // boxShadow='1px 1px 1px 1px var(--dull)'
       >
         <TypographyComponent

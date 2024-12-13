@@ -43,7 +43,8 @@ export default function LocationForm() {
       display="flex"
       justifyContent="space-around"
       alignItems="center"
-      sx={{ backgroundImage: `url('Images/bg.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+      backgroundColor='var(--light)'
+      // sx={{ backgroundImage: `url('Images/bg.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }}
     >
       <BoxComponent
         margin="50px"
@@ -55,7 +56,8 @@ export default function LocationForm() {
         flexDirection="column"
         justifyContent="space-around"
         alignItems="center"
-        backgroundColor="var(--light)"
+        backgroundColor="var(--white)"
+         boxShadow="0 4px 10px rgba(0, 0, 0, 0.1)"
       >
        <BoxComponent
   width="100%"
