@@ -1,4 +1,4 @@
-import React from "react";
+  import React from "react";
 import BoxComponent from "./Box";
 import TypographyComponent from "./Typography";
 import InputComponent from "./InputComponent";
