@@ -18,8 +18,14 @@ export default function Sidebar() {
   const location = useLocation();
 
   const handleLogout = () => {
-    navigate("/");
-  };
+    // Clear token from localStorage/sessionStorage
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token'); // if you're using sessionStorage
+ 
+    // Redirect to login page
+    navigate('/'); // Requires useNavigate from react-router-dom
+};
+
 
   const handleDashboard = () => {
     navigate("/dashboard");

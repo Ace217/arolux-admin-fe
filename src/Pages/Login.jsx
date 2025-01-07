@@ -106,9 +106,11 @@ export default function Login() {
         </BoxComponent>
         {error && (
           <TypographyComponent
-            color="red"
+            color="var(--danger)"
             fontFamily='var(--main)'
             fontSize="14px"
+            margin='0px 65px'
+            textAlign="center"
           >
             {error}
           </TypographyComponent>

@@ -1,11 +1,20 @@
-import React, { useContext } from 'react';
+import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
-import { AdminContext } from '../context/AdminContext';
+
+const isAuthenticated = () => !!localStorage.getItem("token");
 
 const ProtectedRoute = ({ children }) => {
-    const { adminToken } = useContext(AdminContext);
+  useEffect(() => {
+    // Prevent caching for authenticated routes
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = () => {
+      if (!isAuthenticated()) {
+        window.location.href = "/";
+      }
+    };
+  }, []);
 
-    return adminToken ? children : <Navigate to="/admin-login" />;
+  return isAuthenticated() ? children : <Navigate to="/" />;
 };
 
 export default ProtectedRoute;

@@ -8,10 +8,13 @@ export default function Head() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Add any logout logic if needed (e.g., clearing user session)
-    navigate("/");
-  };
+    // Clear token from localStorage/sessionStorage
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token'); // if you're using sessionStorage
 
+    // Redirect to login page
+    navigate('/'); // Requires useNavigate from react-router-dom
+};
   return (
     <BoxComponent
       display="flex"
