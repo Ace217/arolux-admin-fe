@@ -20,6 +20,7 @@ import VehicleForm from "./Components/VehicleForm";
 import Locations from "./Pages/Locations";
 import LocationForm from "./Components/LocationForm";
 import ProtectedRoute from "./Components/ProtectedRoute";
+import Form from "./Components/Form"; // Import the Form component
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -27,7 +28,6 @@ const App = () => {
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem("token"));
   }, []);
-
 
   return (
     <Router>
@@ -134,6 +134,18 @@ const App = () => {
           element={
             <ProtectedRoute>
               <LocationForm />
+            </ProtectedRoute>
+          }
+        />
+        {/* New Route for Add Sub-Admin Form */}
+        <Route
+          path="add-admin"
+          element={
+            <ProtectedRoute>
+              <Form
+                title="Add Sub-Admin"
+                onCancel={() => window.history.back()} // Navigate back on cancel
+              />
             </ProtectedRoute>
           }
         />
