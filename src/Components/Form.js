@@ -71,8 +71,8 @@ export default function Form({ onCancel, title }) {
     confirmPassword: "",
   });
 
-  // State for role and permissions from AdminSelection
-  const [selectedRole, setSelectedRole] = useState('superAdmin');
+  // State for adminType and permissions from AdminSelection
+  const [selectedadminType, setSelectedadminType] = useState('superAdmin');
   const [permissions, setPermissions] = useState({
     dashboard: false,
     rides: false,
@@ -94,9 +94,9 @@ export default function Form({ onCancel, title }) {
     setFormData({ ...formData, [field]: value });
   };
 
-  // Handle role change from AdminSelection
-  const handleRoleChange = (role) => {
-    setSelectedRole(role);
+  // Handle adminType change from AdminSelection
+  const handleadminTypeChange = (adminType) => {
+    setSelectedadminType(adminType);
   };
 
   // Handle permission change from AdminSelection
@@ -132,8 +132,8 @@ export default function Form({ onCancel, title }) {
             email: formData.email,
             phone: formData.phone,
             password: formData.password,
-            role: selectedRole, // Send role
-            permissions: selectedRole === 'subAdmin' ? Object.keys(permissions).filter(permission => permissions[permission]) : [], // Send permissions only if subAdmin
+            adminType: selectedadminType, // Send adminType
+            permissions: selectedadminType === 'subAdmin' ? Object.keys(permissions).filter(permission => permissions[permission]) : [], // Send permissions only if subAdmin
           }),
         }
       );
@@ -241,9 +241,9 @@ export default function Form({ onCancel, title }) {
           flexDirection="column"
         >
           <AdminSelection
-            selectedRole={selectedRole}
+            selectedadminType={selectedadminType}
             selectedPermissions={permissions}
-            onRoleChange={handleRoleChange}
+            onadminTypeChange={handleadminTypeChange}
             onPermissionsChange={handlePermissionsChange}
           />
         </BoxComponent>

@@ -13,7 +13,7 @@ import Box from '@mui/material/Box';
 import TypographyComponent from './Typography';
 import BoxComponent from './Box';
 
-export default function AdminSelection({ selectedRole, selectedPermissions, onRoleChange, onPermissionsChange }) {
+export default function AdminSelection({ selectedadminType, selectedPermissions, onadminTypeChange, onPermissionsChange }) {
   const permissionOptions = [
     'dashboard',
     'rides',
@@ -25,9 +25,9 @@ export default function AdminSelection({ selectedRole, selectedPermissions, onRo
     'admins',
   ];
 
-  const handleRoleChange = (event) => {
-    const role = event.target.value;
-    onRoleChange(role); // Pass the role to parent
+  const handleadminTypeChange = (event) => {
+    const adminType = event.target.value;
+    onadminTypeChange(adminType); // Pass the adminType to parent
   };
 
   const handlePermissionChange = (event) => {
@@ -39,15 +39,15 @@ export default function AdminSelection({ selectedRole, selectedPermissions, onRo
 
   return (
     <FormControl component="fieldset">
-      <RadioGroup value={selectedRole} onChange={handleRoleChange}>
+      <RadioGroup value={selectedadminType} onChange={handleadminTypeChange}>
         <Paper
           variant="outlined"
           sx={{
             p: 2,
             mb: 2,
             backgroundColor: 'var(--light)',
-            borderColor: selectedRole === 'superAdmin' ? 'var(--primary)' : 'transparent',
-            borderWidth: selectedRole === 'superAdmin' ? 2 : 0,
+            borderColor: selectedadminType === 'superAdmin' ? 'var(--primary)' : 'transparent',
+            borderWidth: selectedadminType === 'superAdmin' ? 2 : 0,
             borderStyle: 'solid',
           }}
         >
@@ -73,8 +73,8 @@ export default function AdminSelection({ selectedRole, selectedPermissions, onRo
             p: 2,
             mb: 2,
             backgroundColor: 'var(--light)',
-            borderColor: selectedRole === 'subAdmin' ? 'var(--primary)' : 'transparent',
-            borderWidth: selectedRole === 'subAdmin' ? 2 : 0,
+            borderColor: selectedadminType === 'subAdmin' ? 'var(--primary)' : 'transparent',
+            borderWidth: selectedadminType === 'subAdmin' ? 2 : 0,
             borderStyle: 'solid',
           }}
         >
@@ -94,7 +94,7 @@ export default function AdminSelection({ selectedRole, selectedPermissions, onRo
           />
         </Paper>
 
-        {selectedRole === 'subAdmin' && (
+        {selectedadminType === 'subAdmin' && (
           <Box sx={{ mt: 1, p: 1, backgroundColor: 'var(--light)', width: '80%' }}>
             <TypographyComponent variant="body1" fontWeight="bold" gutterBottom>
               Please select the actions that you want to allow.
@@ -119,7 +119,7 @@ export default function AdminSelection({ selectedRole, selectedPermissions, onRo
           </Box>
         )}
 
-        {selectedRole === 'subAdmin' && selectedPermissionsList.length > 0 && (
+        {selectedadminType === 'subAdmin' && selectedPermissionsList.length > 0 && (
           <Box sx={{ mt: 0, width: '100%' }}>
             <TypographyComponent variant="subtitle2" fontWeight="bold">
               Selected Permissions:
