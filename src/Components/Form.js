@@ -5,6 +5,62 @@ import InputComponent from "./InputComponent";
 import AdminSelection from "./AdminSelection";
 import ButtonComponent from "./Button";
 
+// Popup component for error and success messages
+function Popup({ message, onClose, isSuccess }) {
+  return (
+    <BoxComponent
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 1000,
+      }}
+      onClick={onClose}
+    >
+      <BoxComponent
+        style={{
+          backgroundColor: "white",
+          padding: "20px",
+          borderRadius: "10px",
+          maxWidth: "400px",
+          width: "100%",
+          textAlign: "center",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <TypographyComponent
+          color={isSuccess ? "green" : "red"}
+          fontSize="16px"
+          fontFamily="var(--main)"
+        >
+          {message}
+        </TypographyComponent>
+        {isSuccess && (
+          <ButtonComponent
+            variant="contained"
+            backgroundColor="var(--primary)"
+            sx={{
+              marginTop: "10px",
+              fontSize: "12px",
+              padding: "5px 20px",
+              borderRadius: "20px",
+            }}
+            onClick={onClose}
+          >
+            Close Form
+          </ButtonComponent>
+        )}
+      </BoxComponent>
+    </BoxComponent>
+  );
+}
+
 export default function Form({ onCancel, title }) {
   // State to manage form inputs
   const [formData, setFormData] = useState({
@@ -15,129 +71,215 @@ export default function Form({ onCancel, title }) {
     confirmPassword: "",
   });
 
+  // State for role and permissions from AdminSelection
+  const [selectedRole, setSelectedRole] = useState('superAdmin');
+  const [permissions, setPermissions] = useState({
+    dashboard: false,
+    rides: false,
+    vehicles: false,
+    locations: false,
+    drivers: false,
+    customers: false,
+    configurations: false,
+    admins: false,
+  });
+
+  // State for error and success messages
+  const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+
   // Handle input changes
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
   };
 
+  // Handle role change from AdminSelection
+  const handleRoleChange = (role) => {
+    setSelectedRole(role);
+  };
+
+  // Handle permission change from AdminSelection
+  const handlePermissionsChange = (permission, checked) => {
+    setPermissions((prev) => ({ ...prev, [permission]: checked }));
+  };
+
   // Handle form submission
   const handleSubmit = async () => {
+    // Reset previous messages
+    setMessage("");
+    setShowPopup(false);
+
     // Validate form data (e.g., check password match)
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      setMessage("Passwords do not match!");
+      setIsSuccess(false);
+      setShowPopup(true);
       return;
     }
 
     try {
       // Send API request
-      const response = await fetch('http://localhost:8000/api/v1/admin/signup', {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          password: formData.password,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:8000/api/v1/admin/account",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            password: formData.password,
+            role: selectedRole, // Send role
+            permissions: selectedRole === 'subAdmin' ? Object.keys(permissions).filter(permission => permissions[permission]) : [], // Send permissions only if subAdmin
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to add admin");
+        setMessage(errorData.message || "Failed to add admin");
+        setIsSuccess(false);
+        setShowPopup(true);
+        return;
       }
 
-      alert("Sub-Admin added successfully!");
-      setFormData({ name: "", email: "", phone: "", password: "", confirmPassword: "" });
+      setMessage("Sub-Admin added successfully!");
+      setIsSuccess(true);
+      setShowPopup(true);
+
+      // Reset form data and close form on success
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+      });
+
     } catch (error) {
-      alert(error.message);
+      setMessage(error.message);
+      setIsSuccess(false);
+      setShowPopup(true);
     }
   };
 
   return (
-    <BoxComponent
-      boxShadow="1px 1px 1px 1px var(--paragraph)"
-      maxHeight="90vh"
-      overflow="auto"
-      display="flex"
-      flexDirection="column"
-      justifyContent="space-around"
-      alignItems="center"
-    >
-      <TypographyComponent
-        marginTop="20px"
-        fontSize="25px"
-        fontWeight="600"
-        fontFamily="var(--main)"
-        color="var(--dull)"
-      >
-        {title}
-      </TypographyComponent>
-      <BoxComponent width="92%" gap="10px" display="flex" flexDirection="column">
-        <InputComponent
-          label="Sub-Admin Name"
-          value={formData.name}
-          onChange={(e) => handleChange("name", e.target.value)}
+    <>
+      {showPopup && (
+        <Popup
+          message={message}
+          isSuccess={isSuccess}
+          onClose={() => {
+            setShowPopup(false);
+            if (isSuccess) {
+              onCancel(); // Close form on success
+            }
+          }}
         />
-        <InputComponent
-          label="Sub-Admin Email"
-          value={formData.email}
-          onChange={(e) => handleChange("email", e.target.value)}
-        />
-        <InputComponent
-          label="Sub-Admin Phone Number"
-          value={formData.phone}
-          onChange={(e) => handleChange("phone", e.target.value)}
-        />
-        <InputComponent
-          label="Password"
-          type="password"
-          value={formData.password}
-          onChange={(e) => handleChange("password", e.target.value)}
-        />
-        <InputComponent
-          label="Confirm Password"
-          type="password"
-          value={formData.confirmPassword}
-          onChange={(e) => handleChange("confirmPassword", e.target.value)}
-        />
-      </BoxComponent>
-      <BoxComponent padding="5px 20px">
-        <AdminSelection />
-      </BoxComponent>
+      )}
+
       <BoxComponent
+        boxShadow="1px 1px 1px 1px var(--paragraph)"
+        maxHeight="90vh"
+        overflow="auto"
         display="flex"
-        justifyContent="space-between"
-        width="90%"
-        marginBottom="20px"
+        flexDirection="column"
+        justifyContent="space-around"
+        alignItems="center"
+        gap="10px"
       >
-        <ButtonComponent
-          sx={{
-            color: "var(--primary)",
-            padding: "10px 70px",
-            fontSize: "12px",
-            textTransform: "none",
-            fontWeight: "600",
-            borderRadius: "20px",
-          }}
-          onClick={onCancel}
+        <TypographyComponent
+          marginTop="20px"
+          fontSize="25px"
+          fontWeight="600"
+          fontFamily="var(--main)"
+          color="var(--dull)"
         >
-          Cancel
-        </ButtonComponent>
-        <ButtonComponent
-          variant="contained"
-          backgroundColor="var(--primary)"
-          sx={{
-            padding: "10px 70px",
-            fontSize: "12px",
-            borderRadius: "20px",
-          }}
-          onClick={handleSubmit}
+          {title}
+        </TypographyComponent>
+        <BoxComponent
+          width="92%"
+          gap="10px"
+          display="flex"
+          flexDirection="column"
         >
-          {title === "Add Sub-Admin" ? "Add Sub-Admin" : "Update Sub-Admin"}
-        </ButtonComponent>
+          <InputComponent
+            label="Sub-Admin Name"
+            value={formData.name}
+            onChange={(e) => handleChange("name", e.target.value)}
+          />
+          <InputComponent
+            label="Sub-Admin Email"
+            value={formData.email}
+            onChange={(e) => handleChange("email", e.target.value)}
+          />
+          <InputComponent
+            label="Sub-Admin Phone Number"
+            value={formData.phone}
+            onChange={(e) => handleChange("phone", e.target.value)}
+          />
+          <InputComponent
+            label="Password"
+            type="password"
+            value={formData.password}
+            onChange={(e) => handleChange("password", e.target.value)}
+          />
+          <InputComponent
+            label="Confirm Password"
+            type="password"
+            value={formData.confirmPassword}
+            onChange={(e) => handleChange("confirmPassword", e.target.value)}
+          />
+        </BoxComponent>
+        <BoxComponent
+          width="92%"
+          gap="10px"
+          display="flex"
+          flexDirection="column"
+        >
+          <AdminSelection
+            selectedRole={selectedRole}
+            selectedPermissions={permissions}
+            onRoleChange={handleRoleChange}
+            onPermissionsChange={handlePermissionsChange}
+          />
+        </BoxComponent>
+        <BoxComponent
+          display="flex"
+          justifyContent="space-between"
+          width="90%"
+          marginBottom="20px"
+        >
+          <ButtonComponent
+            sx={{
+              color: "var(--primary)",
+              padding: "10px 70px",
+              fontSize: "12px",
+              textTransform: "none",
+              fontWeight: "600",
+              borderRadius: "20px",
+            }}
+            onClick={onCancel}
+          >
+            Cancel
+          </ButtonComponent>
+          <ButtonComponent
+            variant="contained"
+            backgroundColor="var(--primary)"
+            sx={{
+              padding: "10px 70px",
+              fontSize: "12px",
+              borderRadius: "20px",
+            }}
+            onClick={handleSubmit}
+          >
+            {title === "Add Sub-Admin" ? "Add Sub-Admin" : "Update Sub-Admin"}
+          </ButtonComponent>
+        </BoxComponent>
       </BoxComponent>
-    </BoxComponent>
+    </>
   );
 }
