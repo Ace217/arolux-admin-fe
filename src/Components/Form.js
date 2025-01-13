@@ -129,7 +129,7 @@ export default function Form({ onCancel, title }) {
             "Access-Control-Allow-Origin": "*", // CORS settings
             "Md-Cli-App#J5kep": "J0vqsW7tHAhLf3US2xx3FTOCfQyDiS86", // Custom header
             "Md-Cli-Id": "web-usr", // Custom client ID header
-            "Referer": "https://arolux-admin-fe.vercel.app/", // Referrer header
+            "Referer": "https://arolux-admin-fe.vercel.app", // Referrer header
             "Sec-Ch-Ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', // User agent hints
             "Sec-Ch-Ua-Mobile": "?0", // Indicates desktop or non-mobile
             "Sec-Ch-Ua-Platform": '"Windows"', // Platform used
