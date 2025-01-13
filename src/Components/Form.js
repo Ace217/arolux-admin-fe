@@ -125,7 +125,7 @@ export default function Form({ onCancel, title }) {
         {
           method: "POST",
           headers: {
-            "Accept": "application/json", // Accept header
+            "Content-Type": "application/json", // Accept header
             "Access-Control-Allow-Origin": "*", // CORS settings
             "Md-Cli-App#J5kep": "J0vqsW7tHAhLf3US2xx3FTOCfQyDiS86", // Custom header
             "Md-Cli-Id": "web-usr", // Custom client ID header
