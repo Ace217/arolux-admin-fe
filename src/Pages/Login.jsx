@@ -20,7 +20,16 @@ export default function Login() {
       const response = await fetch('https://3.137.118.155:8000/api/v1/admin/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          "Referer": "https://arolux-admin-fe.vercel.app",  // Referal link
+          "Sec-Ch-Ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', // User agent client hints
+          "Sec-Ch-Ua-Mobile": "?1", // Indicates mobile usage
+          "Sec-Ch-Ua-Platform": '"Android"', // Platform used
+          "Sec-Fetch-Dest": "empty", // Fetch destination
+          "Sec-Fetch-Mode": "cors", // Cross-origin resource sharing mode
+          "Sec-Fetch-Site": "same-origin", // Request originates from the same origin
+          "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36", // Full user agent string
+          "X-Has-Extension": "false", // Custom header shown in your screenshot
         },
         body: JSON.stringify({ email, password }),
       });
