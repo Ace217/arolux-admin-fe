@@ -121,7 +121,7 @@ export default function Form({ onCancel, title }) {
     try {
       // Send API request
       const response = await fetch(
-        "http://localhost:8000/api/v1/admin/account",
+        "http://3.137.118.155.8000/api/v1/admin/account",
         {
           method: "POST",
           headers: {
@@ -207,17 +207,17 @@ export default function Form({ onCancel, title }) {
           flexDirection="column"
         >
           <InputComponent
-            label="Sub-Admin Name"
+            label="Name"
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
           />
           <InputComponent
-            label="Sub-Admin Email"
+            label="Email"
             value={formData.email}
             onChange={(e) => handleChange("email", e.target.value)}
           />
           <InputComponent
-            label="Sub-Admin Phone Number"
+            label="Phone Number"
             value={formData.phone}
             onChange={(e) => handleChange("phone", e.target.value)}
           />
