@@ -17,7 +17,7 @@ export default function Login() {
       setError('');
       
       // Send login request to backend
-      const response = await fetch('http://3.137.118.155.8000/api/v1/admin/login', {
+      const response = await fetch('http://3.137.118.155:8000/api/v1/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
