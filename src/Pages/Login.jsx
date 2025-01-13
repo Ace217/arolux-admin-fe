@@ -20,7 +20,7 @@ export default function Login() {
       const response = await fetch('https://3.137.118.155:8000/api/v1/admin/login', {
         method: 'POST',
         headers: {
-          "Accept": "application/json", // Accept header
+          "Content-Type": "application/json", // Accept header
           "Access-Control-Allow-Origin": "*", // CORS settings
           "Md-Cli-App#J5kep": "J0vqsW7tHAhLf3US2xx3FTOCfQyDiS86", // Custom header
           "Md-Cli-Id": "web-usr", // Custom client ID header
