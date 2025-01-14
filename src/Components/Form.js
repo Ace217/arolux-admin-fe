@@ -121,7 +121,7 @@ export default function Form({ onCancel, title }) {
     try {
       // Send API request
       const response = await fetch(
-        "https://3.137.118.155:8000/api/v1/admin/account",
+        "http://3.137.118.155:8000/api/v1/admin/account",
         {
           method: "POST",
           headers: {
