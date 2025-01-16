@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import BoxComponent from '../Components/Box';
 import TypographyComponent from '../Components/Typography';
 import InputComponent from '../Components/InputComponent';
 import ButtonComponent from '../Components/Button';
+import { login } from '../api/api';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -13,39 +14,21 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      // Clear previous errors
-      setError('');
-      
-      // Send login request to backend
-      const response = await fetch('http://localhost:8000/api/v1/admin/login', {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json", // Accept header
-          "Access-Control-Allow-Origin": "*", // CORS settings
-          "Md-Cli-App#J5kep": "J0vqsW7tHAhLf3US2xx3FTOCfQyDiS86", // Custom header
-          "Md-Cli-Id": "web-usr", // Custom client ID header
-          "Referer": "https://arolux-admin-fe.vercel.app", // Referrer header
-          "Sec-Ch-Ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', // User agent hints
-          "Sec-Ch-Ua-Mobile": "?0", // Indicates desktop or non-mobile
-          "Sec-Ch-Ua-Platform": '"Windows"', // Platform used
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", // Full user agent string
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      setError('');  // Clear previous errors
 
-      // Handle the response
-      const data = await response.json();
-      if (response.ok) {
-        // Save token to localStorage
-        localStorage.setItem('token', data.token);
+      const body = { email, password };
 
-        // Navigate to the dashboard
+      // Send login request to backend using login function from api.js
+      const response = await login(body);
+
+      if (response?.data?.success) {
+        localStorage.setItem('token', response.data.data.accessToken);
         navigate('/dashboard');
       } else {
-        // Show error message
-        setError(data.message || 'Login failed. Please try again.');
+        setError(response?.data?.message || 'Login failed. Please try again.');
       }
     } catch (err) {
+      console.error("Error logging in:", err);  // Detailed error logging
       setError('Something went wrong. Please try again later.');
     }
   };
@@ -67,7 +50,7 @@ export default function Login() {
         <img 
           style={{
             width: '100%',
-            height: '100%'
+            height: '100%',
           }}
           src="Images/main.png" alt="" 
         />

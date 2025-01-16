@@ -4,6 +4,8 @@ import TypographyComponent from "./Typography";
 import InputComponent from "./InputComponent";
 import AdminSelection from "./AdminSelection";
 import ButtonComponent from "./Button";
+import { account } from "../api/api"; // Importing account function from api
+
 
 // Popup component for error and success messages
 function Popup({ message, onClose, isSuccess }) {
@@ -62,7 +64,6 @@ function Popup({ message, onClose, isSuccess }) {
 }
 
 export default function Form({ onCancel, title }) {
-  // State to manage form inputs
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -71,7 +72,6 @@ export default function Form({ onCancel, title }) {
     confirmPassword: "",
   });
 
-  // State for adminType and permissions from AdminSelection
   const [selectedadminType, setSelectedadminType] = useState('superAdmin');
   const [permissions, setPermissions] = useState({
     dashboard: false,
@@ -84,33 +84,26 @@ export default function Form({ onCancel, title }) {
     admins: false,
   });
 
-  // State for error and success messages
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
-  // Handle input changes
   const handleChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
   };
 
-  // Handle adminType change from AdminSelection
   const handleadminTypeChange = (adminType) => {
     setSelectedadminType(adminType);
   };
 
-  // Handle permission change from AdminSelection
   const handlePermissionsChange = (permission, checked) => {
     setPermissions((prev) => ({ ...prev, [permission]: checked }));
   };
 
-  // Handle form submission
   const handleSubmit = async () => {
-    // Reset previous messages
     setMessage("");
     setShowPopup(false);
 
-    // Validate form data (e.g., check password match)
     if (formData.password !== formData.confirmPassword) {
       setMessage("Passwords do not match!");
       setIsSuccess(false);
@@ -119,36 +112,19 @@ export default function Form({ onCancel, title }) {
     }
 
     try {
-      // Send API request
-      const response = await fetch(
-        "http://localhost:8000/api/v1/admin/account",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json", // Accept header
-            "Access-Control-Allow-Origin": "*", // CORS settings
-            "Md-Cli-App#J5kep": "J0vqsW7tHAhLf3US2xx3FTOCfQyDiS86", // Custom header
-            "Md-Cli-Id": "web-usr", // Custom client ID header
-            "Referer": "https://arolux-admin-fe.vercel.app", // Referrer header
-            "Sec-Ch-Ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', // User agent hints
-            "Sec-Ch-Ua-Mobile": "?0", // Indicates desktop or non-mobile
-            "Sec-Ch-Ua-Platform": '"Windows"', // Platform used
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", // Full user agent string
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            password: formData.password,
-            adminType: selectedadminType, // Send adminType
-            permissions: selectedadminType === 'subAdmin' ? Object.keys(permissions).filter(permission => permissions[permission]) : [], // Send permissions only if subAdmin
-          }),
-        }
-      );
+      const requestData = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        adminType: selectedadminType,
+        permissions: selectedadminType === 'subAdmin' ? Object.keys(permissions).filter(permission => permissions[permission]) : [],
+      };
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        setMessage(errorData.message || "Failed to add admin");
+      const response = await account(requestData); // Using account function from api.js
+
+      if (response.error) {
+        setMessage(response.error || "Failed to add admin");
         setIsSuccess(false);
         setShowPopup(true);
         return;
@@ -158,7 +134,6 @@ export default function Form({ onCancel, title }) {
       setIsSuccess(true);
       setShowPopup(true);
 
-      // Reset form data and close form on success
       setFormData({
         name: "",
         email: "",
@@ -183,7 +158,7 @@ export default function Form({ onCancel, title }) {
           onClose={() => {
             setShowPopup(false);
             if (isSuccess) {
-              onCancel(); // Close form on success
+              onCancel();
             }
           }}
         />
