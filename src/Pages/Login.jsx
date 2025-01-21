@@ -4,7 +4,7 @@ import BoxComponent from '../Components/Box';
 import TypographyComponent from '../Components/Typography';
 import InputComponent from '../Components/InputComponent';
 import ButtonComponent from '../Components/Button';
-import { login } from '../api/api';
+import { login } from '../api/constants';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ export default function Login() {
 
       // Send login request to backend using login function from api.js
       const response = await login(body);
-
+      console.log("Working")
       if (response?.data?.success) {
         localStorage.setItem('token', response.data.data.accessToken);
         navigate('/dashboard');

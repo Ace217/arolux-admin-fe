@@ -22,11 +22,11 @@ export default function Categories() {
   };
 
   const handleAddCategory = () => {
-    navigate('/category-form', { state: { title: 'Add Category' } });
+    navigate('/vehicle-form', { state: { title: 'Add Category' } });
   };
 
   const handleEditCategory = (category) => {
-    navigate('/category-form', {
+    navigate('/vehicle-form', {
       state: { title: 'Update Category', categoryId: category.id }
     });
   };

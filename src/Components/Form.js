@@ -4,8 +4,7 @@ import TypographyComponent from "./Typography";
 import InputComponent from "./InputComponent";
 import AdminSelection from "./AdminSelection";
 import ButtonComponent from "./Button";
-import { account } from "../api/api"; // Importing account function from api
-
+import { account } from "../api/constants"; // Importing account function from api
 
 // Popup component for error and success messages
 function Popup({ message, onClose, isSuccess }) {
@@ -43,27 +42,12 @@ function Popup({ message, onClose, isSuccess }) {
         >
           {message}
         </TypographyComponent>
-        {isSuccess && (
-          <ButtonComponent
-            variant="contained"
-            backgroundColor="var(--primary)"
-            sx={{
-              marginTop: "10px",
-              fontSize: "12px",
-              padding: "5px 20px",
-              borderRadius: "20px",
-            }}
-            onClick={onClose}
-          >
-            Close Form
-          </ButtonComponent>
-        )}
       </BoxComponent>
     </BoxComponent>
   );
 }
 
-export default function Form({ onCancel, title }) {
+export default function Form({ onCancel, title, token }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -72,7 +56,7 @@ export default function Form({ onCancel, title }) {
     confirmPassword: "",
   });
 
-  const [selectedadminType, setSelectedadminType] = useState('superAdmin');
+  const [selectedadminType, setSelectedadminType] = useState("superAdmin");
   const [permissions, setPermissions] = useState({
     dashboard: false,
     rides: false,
@@ -103,14 +87,28 @@ export default function Form({ onCancel, title }) {
   const handleSubmit = async () => {
     setMessage("");
     setShowPopup(false);
-
+  
+    // Validate form fields
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.phone.trim() ||
+      !formData.password.trim() ||
+      !formData.confirmPassword.trim()
+    ) {
+      setMessage("Plz fill all the required fields!");
+      setIsSuccess(false);
+      setShowPopup(true);
+      return;
+    }
+  
     if (formData.password !== formData.confirmPassword) {
       setMessage("Passwords do not match!");
       setIsSuccess(false);
       setShowPopup(true);
       return;
     }
-
+  
     try {
       const requestData = {
         name: formData.name,
@@ -118,22 +116,30 @@ export default function Form({ onCancel, title }) {
         phone: formData.phone,
         password: formData.password,
         adminType: selectedadminType,
-        permissions: selectedadminType === 'subAdmin' ? Object.keys(permissions).filter(permission => permissions[permission]) : [],
+        permissions:
+          selectedadminType === "subAdmin"
+            ? Object.keys(permissions).filter(
+                (permission) => permissions[permission]
+              )
+            : [],
       };
-
-      const response = await account(requestData); // Using account function from api.js
-
+  
+      const token = localStorage.getItem('token'); // Get JWT token from localStorage or sessionStorage
+  
+      const response = await account(requestData, token);
+  
+      // Check if there is an error in the response
       if (response.error) {
         setMessage(response.error || "Failed to add admin");
         setIsSuccess(false);
         setShowPopup(true);
         return;
       }
-
-      setMessage("Sub-Admin added successfully!");
+  
+      setMessage("New Admin added successfully!");
       setIsSuccess(true);
       setShowPopup(true);
-
+  
       setFormData({
         name: "",
         email: "",
@@ -141,13 +147,13 @@ export default function Form({ onCancel, title }) {
         password: "",
         confirmPassword: "",
       });
-
     } catch (error) {
-      setMessage(error.message);
+      setMessage("An error occurred while adding the admin.");
       setIsSuccess(false);
       setShowPopup(true);
     }
   };
+  
 
   return (
     <>

@@ -1,13 +1,11 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify"; // Correct import for toast
-import { LOGIN, ACCOUNT } from "./endpoints"; // Import the endpoints
 
-const API_URL = process.env.API; 
 
 // Helper function to get headers for requests
 export const getHeader = (serverSideToken = null) => {
-  const clientApiKey = process.env.API; // Correct use of client API key
+  const clientApiKey = process.env.REACT_APP_API_URL; // Correct use of client API key
   const userData = Cookies.get("token") || serverSideToken; // Use Cookies.get directly for token
 
   const headers = {
@@ -33,10 +31,10 @@ export const multiPartForm = (fileExtension) => {
 };
 
 // Function to handle POST requests
-export const doPost = async (endPoint, body) => {
+export const doPost = async (endPoint, body, customHeaders = {}) => {
   try {
     const result = await axios.post(endPoint, body, {
-      headers: getHeader(),
+      headers: { ...getHeader(), ...customHeaders }, // Merge custom headers with default ones
     });
     return result;
   } catch (e) {
@@ -97,16 +95,4 @@ const handleUnauthorized = () => {
   toast.error("Session expired. Please log in again.");
   window.location.reload();
 };
-
-// Integrate the login and account methods
-export const login = (email, password) => {
-  const body = { email, password }; // Create an object for the request body
-  return doPost(`${API_URL}${LOGIN}`, body); // Pass the object as body
-};
-
-
- export const account = (data) => {
-  return doPost(`${API_URL}${ACCOUNT}`, data);
-};
-
 
