@@ -96,7 +96,7 @@ export default function Form({ onCancel, title, token }) {
       !formData.password.trim() ||
       !formData.confirmPassword.trim()
     ) {
-      setMessage("Plz fill all the required fields!");
+      setMessage("Please fill all the required fields!");
       setIsSuccess(false);
       setShowPopup(true);
       return;
