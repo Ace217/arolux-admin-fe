@@ -16,13 +16,13 @@
 // // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 // reportWebVitals();
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import App from './App';
 import AdminProvider from './context/AdminContext';
-
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
     <AdminProvider>
         <App />
     </AdminProvider>,
-    document.getElementById('root')
+    
 );

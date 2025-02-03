@@ -13,13 +13,7 @@ import Box from '@mui/material/Box';
 import TypographyComponent from './Typography';
 import BoxComponent from './Box';
 
-export default function AdminSelection({
-  selectedadminType,
-  selectedPermissions,
-  onadminTypeChange,
-  onPermissionsChange,
-}) {
-  const [error, setError] = React.useState('');
+export default function AdminSelection({ selectedadminType, selectedPermissions, onadminTypeChange, onPermissionsChange }) {
   const permissionOptions = [
     'dashboard',
     'rides',
@@ -34,27 +28,26 @@ export default function AdminSelection({
   const handleadminTypeChange = (event) => {
     const adminType = event.target.value;
     onadminTypeChange(adminType); // Pass the adminType to parent
-    setError(''); // Reset error when changing admin type
+
+    // If the selected admin type is super-admin, clear the permissions
+    if (adminType === 'super-admin') {
+      onPermissionsChange(null); // Clear permissions when super-admin is selected
+    } else {
+      // If it's sub-admin, pass the current permissions to parent (if any)
+      onPermissionsChange(selectedPermissions);
+    }
   };
 
   const handlePermissionChange = (event) => {
     const { name, checked } = event.target;
-    onPermissionsChange(name, checked); // Pass permission change to parent
-    setError(''); // Reset error when permissions are changed
+    // Update the permissions for sub-admin
+    onPermissionsChange((prevPermissions) => ({
+      ...prevPermissions,
+      [name]: checked,
+    }));
   };
 
-  const selectedPermissionsList = Object.keys(selectedPermissions).filter(
-    (key) => selectedPermissions[key]
-  );
-
-  React.useEffect(() => {
-    // Check if subAdmin is selected and no permissions are selected
-    if (selectedadminType === 'subAdmin' && selectedPermissionsList.length === 0) {
-      setError('Please select at least one permission.');
-    } else {
-      setError(''); // Clear error if permissions are selected
-    }
-  }, [selectedadminType, selectedPermissionsList]);
+  const selectedPermissionsList = Object.keys(selectedPermissions || {}).filter((key) => selectedPermissions[key]);
 
   return (
     <FormControl component="fieldset">
@@ -65,13 +58,13 @@ export default function AdminSelection({
             p: 2,
             mb: 2,
             backgroundColor: 'var(--light)',
-            borderColor: selectedadminType === 'superAdmin' ? 'var(--primary)' : 'transparent',
-            borderWidth: selectedadminType === 'superAdmin' ? 2 : 0,
+            borderColor: selectedadminType === 'super-admin' ? 'var(--primary)' : 'transparent',
+            borderWidth: selectedadminType === 'super-admin' ? 2 : 0,
             borderStyle: 'solid',
           }}
         >
           <FormControlLabel
-            value="superAdmin"
+            value="super-admin"
             control={<Radio sx={{ color: 'var(--primary)', '&.Mui-checked': { color: 'var(--primary)' } }} />}
             label={
               <BoxComponent>
@@ -92,13 +85,13 @@ export default function AdminSelection({
             p: 2,
             mb: 2,
             backgroundColor: 'var(--light)',
-            borderColor: selectedadminType === 'subAdmin' ? 'var(--primary)' : 'transparent',
-            borderWidth: selectedadminType === 'subAdmin' ? 2 : 0,
+            borderColor: selectedadminType === 'sub-admin' ? 'var(--primary)' : 'transparent',
+            borderWidth: selectedadminType === 'sub-admin' ? 2 : 0,
             borderStyle: 'solid',
           }}
         >
           <FormControlLabel
-            value="subAdmin"
+            value="sub-admin"
             control={<Radio sx={{ color: 'var(--primary)', '&.Mui-checked': { color: 'var(--primary)' } }} />}
             label={
               <BoxComponent>
@@ -113,8 +106,8 @@ export default function AdminSelection({
           />
         </Paper>
 
-        {selectedadminType === 'subAdmin' && (
-          <BoxComponent sx={{ mt: 1, p: 1, backgroundColor: 'var(--light)', width: '80%' }}>
+        {selectedadminType === 'sub-admin' && (
+          <Box sx={{ mt: 1, p: 1, backgroundColor: 'var(--light)', width: '80%' }}>
             <TypographyComponent variant="body1" fontWeight="bold" gutterBottom>
               Please select the actions that you want to allow.
             </TypographyComponent>
@@ -125,7 +118,7 @@ export default function AdminSelection({
                     control={
                       <Checkbox
                         name={option}
-                        checked={selectedPermissions[option]}
+                        checked={selectedPermissions[option] || false}
                         onChange={handlePermissionChange}
                         sx={{ color: 'var(--primary)', '&.Mui-checked': { color: 'var(--primary)' } }}
                       />
@@ -135,15 +128,15 @@ export default function AdminSelection({
                 </ListItem>
               ))}
             </List>
-          </BoxComponent>
+          </Box>
         )}
 
-        {selectedadminType === 'subAdmin' && selectedPermissionsList.length > 0 && (
-          <BoxComponent sx={{ mt: 0, width: '100%' }}>
+        {selectedadminType === 'sub-admin' && selectedPermissionsList.length > 0 && (
+          <Box sx={{ mt: 0, width: '100%' }}>
             <TypographyComponent variant="subtitle2" fontWeight="bold">
               Selected Permissions:
             </TypographyComponent>
-            <BoxComponent sx={{ mt: 0, display: 'flex', gap: 1, flexWrap: 'wrap', width: '100%' }}>
+            <Box sx={{ mt: 0, display: 'flex', gap: 1, flexWrap: 'wrap', width: '100%' }}>
               {selectedPermissionsList.map((permission) => (
                 <Chip
                   key={permission}
@@ -151,15 +144,8 @@ export default function AdminSelection({
                   sx={{ backgroundColor: 'var(--primary)', color: 'var(--light)' }}
                 />
               ))}
-            </BoxComponent>
-          </BoxComponent>
-        )}
-
-        {/* Show error message if no permissions are selected for subAdmin */}
-        {error && (
-          <BoxComponent sx={{ mt: 1, color: 'red' }}>
-            <TypographyComponent variant="body2">{error}</TypographyComponent>
-          </BoxComponent>
+            </Box>
+          </Box>
         )}
       </RadioGroup>
     </FormControl>

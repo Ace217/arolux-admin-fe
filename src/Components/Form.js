@@ -47,16 +47,16 @@ function Popup({ message, onClose, isSuccess }) {
   );
 }
 
-export default function Form({ onCancel, title, token }) {
+export default function Form({ onCancel, title, token: receivedToken }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
+    phoneNumber: "",
     password: "",
     confirmPassword: "",
   });
 
-  const [selectedadminType, setSelectedadminType] = useState("superAdmin");
+  const [selectedadminType, setSelectedadminType] = useState("super-admin");
   const [permissions, setPermissions] = useState({
     dashboard: false,
     rides: false,
@@ -86,13 +86,12 @@ export default function Form({ onCancel, title, token }) {
 
   const handleSubmit = async () => {
     setMessage("");
-    setShowPopup(false);
   
     // Validate form fields
     if (
       !formData.name.trim() ||
       !formData.email.trim() ||
-      !formData.phone.trim() ||
+      !formData.phoneNumber.trim() ||
       !formData.password.trim() ||
       !formData.confirmPassword.trim()
     ) {
@@ -109,28 +108,36 @@ export default function Form({ onCancel, title, token }) {
       return;
     }
   
+    const token = receivedToken || localStorage.getItem('token');
+    if (!token) {
+      setMessage("Authentication token is missing. Please log in again.");
+      setIsSuccess(false);
+      setShowPopup(true);
+      return;
+    }
+  
     try {
+      // Prepare the request data
       const requestData = {
         name: formData.name,
         email: formData.email,
-        phone: formData.phone,
+        phoneNumber: formData.phoneNumber,
         password: formData.password,
+        confirmPassword: formData.confirmPassword,
         adminType: selectedadminType,
-        permissions:
-          selectedadminType === "subAdmin"
-            ? Object.keys(permissions).filter(
-                (permission) => permissions[permission]
-              )
-            : [],
       };
   
-      const token = localStorage.getItem('token'); // Get JWT token from localStorage or sessionStorage
+      // Only include permissions if the admin is a sub-admin
+      if (selectedadminType === "sub-admin") {
+        requestData.permissions = Object.keys(permissions).filter(
+          (permission) => permissions[permission]
+        );
+      }
   
       const response = await account(requestData, token);
   
-      // Check if there is an error in the response
-      if (response.error) {
-        setMessage(response.error || "Failed to add admin");
+      if (!response || response.status !== 200) {
+        setMessage(response.data?.message || "Failed to add admin");
         setIsSuccess(false);
         setShowPopup(true);
         return;
@@ -140,21 +147,25 @@ export default function Form({ onCancel, title, token }) {
       setIsSuccess(true);
       setShowPopup(true);
   
+      // Reset form data
       setFormData({
         name: "",
         email: "",
-        phone: "",
+        phoneNumber: "",
         password: "",
         confirmPassword: "",
       });
+  
     } catch (error) {
-      setMessage("An error occurred while adding the admin.");
+      console.error("Error adding admin:", error);
+      setMessage(
+        error.response?.data?.error || error.message || "An unexpected error occurred."
+      );
       setIsSuccess(false);
       setShowPopup(true);
     }
   };
   
-
   return (
     <>
       {showPopup && (
@@ -207,8 +218,8 @@ export default function Form({ onCancel, title, token }) {
           />
           <InputComponent
             label="Phone Number"
-            value={formData.phone}
-            onChange={(e) => handleChange("phone", e.target.value)}
+            value={formData.phoneNumber}
+            onChange={(e) => handleChange("phoneNumber", e.target.value)}
           />
           <InputComponent
             label="Password"

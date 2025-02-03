@@ -20,7 +20,6 @@ export default function Login() {
 
       // Send login request to backend using login function from api.js
       const response = await login(body);
-      console.log("Working")
       if (response?.data?.success) {
         localStorage.setItem('token', response.data.data.accessToken);
         navigate('/dashboard');

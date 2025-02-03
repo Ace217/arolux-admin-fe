@@ -1,5 +1,5 @@
 // Integrate the login and account methods
-import {doPut, doGet, doPost} from './api'
+import {doPut, doGet, doPost, getHeader} from './api'
 import { 
     LOGIN, 
     ACCOUNT 
@@ -13,7 +13,9 @@ export const login = (body) => {
     return doPost(`${API_URL}${API_VERSION}${LOGIN}`, body); // Pass the object as body
   };
   
-  export const account = (formData) => {
-    return doPost(`${API_URL}${API_VERSION}${ACCOUNT}`, formData); 
-  };
+  export const account = (requestData, token) => {
+    return doPost(`${API_URL}${API_VERSION}${ACCOUNT}`, requestData, getHeader(token)); 
+};
+
+  
   

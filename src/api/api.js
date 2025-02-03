@@ -3,23 +3,26 @@ import Cookies from "js-cookie";
 import { toast } from "react-toastify"; // Correct import for toast
 
 
-// Helper function to get headers for requests
 export const getHeader = (serverSideToken = null) => {
-  const clientApiKey = process.env.REACT_APP_API_URL; // Correct use of client API key
-  const userData = Cookies.get("token") || serverSideToken; // Use Cookies.get directly for token
+  const clientApiKey = process.env.REACT_APP_API_URL;
+  const userData = Cookies.get("token") || serverSideToken;
 
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",
     "md-cli-app#J5keP": `${clientApiKey}`,
     "md-cli-id": "web-usr",
-    Authorization: userData ? `Bearer ${userData}` : null, // Authorization header with Bearer token
     "Access-Control-Allow-Origin": "*",
-    Origin: "https://www.arolux.com",
+    Origin: window.location.origin,
   };
+
+  if (userData) {
+    headers["Authorization"] = `${userData}`;
+  }
 
   return headers;
 };
+
 
 // Helper function to set headers for multipart form data
 export const multiPartForm = (fileExtension) => {
