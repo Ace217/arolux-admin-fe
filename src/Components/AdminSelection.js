@@ -9,11 +9,16 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Chip from '@mui/material/Chip';
-import Box from '@mui/material/Box';
 import TypographyComponent from './Typography';
 import BoxComponent from './Box';
 
-export default function AdminSelection({ selectedadminType, selectedPermissions, onadminTypeChange, onPermissionsChange }) {
+export default function AdminSelection({
+  selectedadminType,
+  selectedPermissions,
+  onadminTypeChange,
+  onPermissionsChange,
+}) {
+  const [error, setError] = React.useState('');
   const permissionOptions = [
     'dashboard',
     'rides',
@@ -28,26 +33,20 @@ export default function AdminSelection({ selectedadminType, selectedPermissions,
   const handleadminTypeChange = (event) => {
     const adminType = event.target.value;
     onadminTypeChange(adminType); // Pass the adminType to parent
-
-    // If the selected admin type is super-admin, clear the permissions
-    if (adminType === 'super-admin') {
-      onPermissionsChange(null); // Clear permissions when super-admin is selected
-    } else {
-      // If it's sub-admin, pass the current permissions to parent (if any)
-      onPermissionsChange(selectedPermissions);
-    }
+    setError(''); // Reset error when changing admin type
   };
 
   const handlePermissionChange = (event) => {
     const { name, checked } = event.target;
-    // Update the permissions for sub-admin
-    onPermissionsChange((prevPermissions) => ({
-      ...prevPermissions,
-      [name]: checked,
-    }));
+    onPermissionsChange(name, checked); // Pass permission change to parent
+    setError(''); // Reset error when permissions are changed
   };
 
-  const selectedPermissionsList = Object.keys(selectedPermissions || {}).filter((key) => selectedPermissions[key]);
+  const selectedPermissionsList = Object.keys(selectedPermissions).filter(
+    (key) => selectedPermissions[key]
+  );
+
+  React.useEffect(() => {}, [selectedadminType, selectedPermissionsList]);
 
   return (
     <FormControl component="fieldset">
@@ -107,7 +106,7 @@ export default function AdminSelection({ selectedadminType, selectedPermissions,
         </Paper>
 
         {selectedadminType === 'sub-admin' && (
-          <Box sx={{ mt: 1, p: 1, backgroundColor: 'var(--light)', width: '80%' }}>
+          <BoxComponent sx={{ mt: 1, p: 1, backgroundColor: 'var(--light)', width: '80%' }}>
             <TypographyComponent variant="body1" fontWeight="bold" gutterBottom>
               Please select the actions that you want to allow.
             </TypographyComponent>
@@ -118,7 +117,7 @@ export default function AdminSelection({ selectedadminType, selectedPermissions,
                     control={
                       <Checkbox
                         name={option}
-                        checked={selectedPermissions[option] || false}
+                        checked={selectedPermissions[option]}
                         onChange={handlePermissionChange}
                         sx={{ color: 'var(--primary)', '&.Mui-checked': { color: 'var(--primary)' } }}
                       />
@@ -128,15 +127,15 @@ export default function AdminSelection({ selectedadminType, selectedPermissions,
                 </ListItem>
               ))}
             </List>
-          </Box>
+          </BoxComponent>
         )}
 
         {selectedadminType === 'sub-admin' && selectedPermissionsList.length > 0 && (
-          <Box sx={{ mt: 0, width: '100%' }}>
+          <BoxComponent sx={{ mt: 0, width: '100%' }}>
             <TypographyComponent variant="subtitle2" fontWeight="bold">
               Selected Permissions:
             </TypographyComponent>
-            <Box sx={{ mt: 0, display: 'flex', gap: 1, flexWrap: 'wrap', width: '100%' }}>
+            <BoxComponent sx={{ mt: 0, display: 'flex', gap: 1, flexWrap: 'wrap', width: '100%' }}>
               {selectedPermissionsList.map((permission) => (
                 <Chip
                   key={permission}
@@ -144,8 +143,15 @@ export default function AdminSelection({ selectedadminType, selectedPermissions,
                   sx={{ backgroundColor: 'var(--primary)', color: 'var(--light)' }}
                 />
               ))}
-            </Box>
-          </Box>
+            </BoxComponent>
+          </BoxComponent>
+        )}
+
+        {/* Show error message if no permissions are selected for sub-admin */}
+        {error && (
+          <BoxComponent sx={{ mt: 1, color: 'red' }}>
+            <TypographyComponent variant="body2">{error}</TypographyComponent>
+          </BoxComponent>
         )}
       </RadioGroup>
     </FormControl>

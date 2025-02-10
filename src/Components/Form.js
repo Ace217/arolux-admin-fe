@@ -108,7 +108,7 @@ export default function Form({ onCancel, title, token: receivedToken }) {
       return;
     }
   
-    const token = receivedToken || localStorage.getItem('token');
+    const token = receivedToken || localStorage.getItem("token");
     if (!token) {
       setMessage("Authentication token is missing. Please log in again.");
       setIsSuccess(false);
@@ -127,15 +127,28 @@ export default function Form({ onCancel, title, token: receivedToken }) {
         adminType: selectedadminType,
       };
   
-      // Only include permissions if the admin is a sub-admin
+      // Include permissions only if admin type is "sub-admin"
       if (selectedadminType === "sub-admin") {
-        requestData.permissions = Object.keys(permissions).filter(
-          (permission) => permissions[permission]
-        );
+        const selectedPermissions = Object.keys(permissions)
+          .filter((permission) => permissions[permission]) // Keep only checked permissions
+          .reduce((obj, key) => {
+            obj[key] = true; // Maintain object structure
+            return obj;
+          }, {});
+      
+        if (Object.keys(selectedPermissions).length === 0) {
+          setMessage("At least one permission must be selected for sub-admin.");
+          setIsSuccess(false);
+          setShowPopup(true);
+          return;
+        }
+      
+        requestData.permissions = selectedPermissions;
       }
+      
   
       const response = await account(requestData, token);
-  
+      console.log(requestData)
       if (!response || response.status !== 200) {
         setMessage(response.data?.message || "Failed to add admin");
         setIsSuccess(false);
@@ -156,6 +169,17 @@ export default function Form({ onCancel, title, token: receivedToken }) {
         confirmPassword: "",
       });
   
+      setPermissions({
+        dashboard: false,
+        rides: false,
+        vehicles: false,
+        locations: false,
+        drivers: false,
+        customers: false,
+        configurations: false,
+        admins: false,
+      });
+  
     } catch (error) {
       console.error("Error adding admin:", error);
       setMessage(
@@ -165,6 +189,7 @@ export default function Form({ onCancel, title, token: receivedToken }) {
       setShowPopup(true);
     }
   };
+  
   
   return (
     <>
