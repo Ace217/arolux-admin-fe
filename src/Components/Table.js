@@ -9,7 +9,8 @@ export default function Table({
   headings, // Column headers and definitions
   icons, // Icons for edit, details, etc.
   onStatusChange,
-  onDetailClick, // Function to handle status changes
+  onDetailClick,
+  getRowId, 
 }) {
   // Create columns based on the headings prop
   const columns = headings.map((heading) => ({
@@ -80,13 +81,14 @@ export default function Table({
     sortable: false,
   });
 
+  console.log("Rows", rows)
   const paginationModel = { page: 0, pageSize: 5 };
-
   return (
     <Paper sx={{ height: 400, width: "100%" }}>
       <DataGrid
         rows={rows} // The rows passed as a prop (filtered or unfiltered)
         columns={columns} // The columns based on headings
+        getRowId={getRowId}
         initialState={{ pagination: { paginationModel } }} // Pagination model
         pageSizeOptions={[5, 10]} // Pagination size options
         sx={{

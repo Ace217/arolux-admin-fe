@@ -2,7 +2,8 @@
 import {doPut, doGet, doPost, getHeader} from './api'
 import { 
     LOGIN, 
-    ACCOUNT 
+    ACCOUNT,
+    ACCOUNTS
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -16,6 +17,7 @@ export const login = (body) => {
   export const account = (requestData, token) => {
     return doPost(`${API_URL}${API_VERSION}${ACCOUNT}`, requestData, getHeader(token)); 
 };
-
-  
+export const accounts = (token) => {
+  return doGet(`${API_URL}${API_VERSION}${ACCOUNTS}`, token);
+};
   

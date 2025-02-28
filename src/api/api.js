@@ -16,6 +16,7 @@ export const getHeader = (serverSideToken = null) => {
     Origin: window.location.origin,
   };
 
+  console.log("userData", userData)
   if (userData) {
     headers["Authorization"] = `${userData}`;
   }
@@ -96,6 +97,6 @@ const handleUnauthorized = () => {
   Cookies.remove("arolux_refresh");
   Cookies.remove("name");
   toast.error("Session expired. Please log in again.");
-  window.location.reload();
+  // window.location.reload();
 };
 
