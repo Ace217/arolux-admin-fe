@@ -78,13 +78,14 @@ export default function Admin({ token: receivedToken }) {
   };
 
   const headings = [
-    { field: "Name", headerName: "Name" },
-    { field: "Role", headerName: "Role" },
-    { field: "Email", headerName: "Email" },
-    { field: "Phone", headerName: "Phone No", type: "number" },
-    { field: "Last_Login", headerName: "Last Login" },
+    { field: "name", headerName: "Name" },
+    { field: "adminType", headerName: "Admin Type" },
+    { field: "email", headerName: "Email" },
+    { field: "phoneNumber", headerName: "Phone No", type: "number" },
+    { field: "createdBy", headerName: "Created By" },
+    { field: "lastLoginTime", headerName: "Last Login" },
     {
-      field: "Status",
+      field: "isActive",
       headerName: "Status",
       width: "100",
       renderCell: (params) => (
@@ -96,11 +97,11 @@ export default function Admin({ token: receivedToken }) {
   ];
 
   const icons = {
-    edit: (id) => (
-      <ModeEditOutlineOutlinedIcon onClick={() => handleEditClick(id)} />
+    edit: (_id) => (
+      <ModeEditOutlineOutlinedIcon onClick={() => handleEditClick(_id)} />
     ),
-    details: (id) => (
-      <VisibilityIcon onClick={() => handleDetailClick(id)} />
+    details: (_id) => (
+      <VisibilityIcon onClick={() => handleDetailClick(_id)} />
     ),
     key: () => <VpnKeyOutlinedIcon onClick={handleOpenUpdateModal} />,
   };

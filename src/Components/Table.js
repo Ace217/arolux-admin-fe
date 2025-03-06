@@ -90,7 +90,7 @@ export default function Table({
         columns={columns} // The columns based on headings
         getRowId={getRowId}
         initialState={{ pagination: { paginationModel } }} // Pagination model
-        pageSizeOptions={[5, 10]} // Pagination size options
+        pageSizeOptions={[5]} // Pagination size options
         sx={{
           border: 0,
           "& .MuiDataGrid-columnHeaderTitle": {
