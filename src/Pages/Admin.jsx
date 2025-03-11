@@ -48,9 +48,10 @@ export default function Admin({ token: receivedToken }) {
     };
   
     fetchAdmins();
-  }, [receivedToken]); // Removed navigate to avoid unnecessary calls
-  
-  const getRowId= (row) => row._id;
+  }, [receivedToken]);
+
+  const getRowId = (row) => row._id;
+
   const handleDetailClick = (id) => {
     navigate(`/details?id=${id}`);
   };
@@ -60,13 +61,18 @@ export default function Admin({ token: receivedToken }) {
     setModalTitle(mode === "edit" ? "Edit Sub-Admin" : "Add Sub-Admin");
   };
 
-  const handleCancelClick = () => {
-    setIsModalOpen(false);
+  const handleStatusChange = (_id) => {
+    setRows((prevRows) =>
+      prevRows.map((row) =>
+        row._id === _id
+          ? { ...row, Status: row.Status === "Active" ? "Inactive" : "Active" }
+          : row
+      )
+    );
   };
 
-  const handleEditClick = (id) => {
-    console.log("Editing ID:", id); // Debugging
-    handleOpenModal("edit");
+  const handleCancelClick = () => {
+    setIsModalOpen(false);
   };
 
   const handleOpenUpdateModal = () => {
@@ -76,6 +82,7 @@ export default function Admin({ token: receivedToken }) {
   const handleCloseUpdateModal = () => {
     setIsUpdateModalOpen(false);
   };
+  
 
   const headings = [
     { field: "name", headerName: "Name" },
@@ -94,18 +101,39 @@ export default function Admin({ token: receivedToken }) {
         </span>
       ),
     },
+    {
+      field: "edit",
+      headerName: "Edit",
+      renderCell: (params) => (
+        <ModeEditOutlineOutlinedIcon
+          onClick={() => handleOpenModal(params.row._id)}
+          style={{ cursor: "pointer" }}
+        />
+      ),
+    },
+    {
+      field: "view",
+      headerName: "View",
+      renderCell: (params) => (
+        <VisibilityIcon
+          onClick={() => handleDetailClick(params.row._id)}
+          style={{ cursor: "pointer" }}
+        />
+      ),
+    },
+    {
+      field: "update",
+      headerName: "Update",
+      renderCell: (params) => (
+        <VpnKeyOutlinedIcon
+          onClick={() => handleOpenUpdateModal(params.row._id)}
+          style={{ cursor: "pointer" }}
+        />
+      ),
+    },
   ];
-
-  const icons = {
-    edit: (_id) => (
-      <ModeEditOutlineOutlinedIcon onClick={() => handleEditClick(_id)} />
-    ),
-    details: (_id) => (
-      <VisibilityIcon onClick={() => handleDetailClick(_id)} />
-    ),
-    key: () => <VpnKeyOutlinedIcon onClick={handleOpenUpdateModal} />,
-  };
-
+  
+  console.log("Headings:", headings);
   return (
     <BoxComponent backgroundColor="var(--light)">
       <Head />
@@ -113,7 +141,12 @@ export default function Admin({ token: receivedToken }) {
         <Sidebar />
         <BoxComponent width="82%" padding="20px">
           <BoxComponent display="flex" justifyContent="space-between" width="100%">
-            <TypographyComponent fontSize="18px" fontFamily="var(--main)" color="var(--dark)" fontWeight="400">
+            <TypographyComponent
+              fontSize="18px"
+              fontFamily="var(--main)"
+              color="var(--dark)"
+              fontWeight="400"
+            >
               ADMIN ACCESS
             </TypographyComponent>
             <ButtonComponent
@@ -125,19 +158,55 @@ export default function Admin({ token: receivedToken }) {
               + Add Sub-Admin
             </ButtonComponent>
           </BoxComponent>
-          <Find placeholder="Search a user by name, e-mail or phone number" label="Status" status={[
-            { value: 1, label: "All" },
-            { value: 2, label: "Active" },
-            { value: 3, label: "Inactive" }
-          ]} />
-          <Table getRowId= {getRowId} rows={rows} headings={headings} icons={icons} />
+
+          <Find
+            placeholder="Search a user by name, e-mail or phone number"
+            label="Status"
+            status={[
+              { value: 1, label: "All" },
+              { value: 2, label: "Active" },
+              { value: 3, label: "Inactive" },
+            ]}
+          />
+
+          <Table
+            getRowId={getRowId}
+            rows={rows}
+            headings={headings}
+            onDetailClick={(_id) => {
+              const currentRow = rows.find((row) => row._id === _id);
+              if (currentRow) {
+                handleDetailClick(_id, currentRow._id);
+              }
+            }}
+            onStatusChange={handleStatusChange}
+          />
         </BoxComponent>
       </BoxComponent>
 
       {isModalOpen && (
         <>
-          <BoxComponent position="fixed" top="0" left="0" width="100%" height="100%" bgcolor="rgba(0, 0, 0, 0.5)" zIndex="1200" onClick={handleCancelClick} />
-          <BoxComponent position="fixed" width="40%" top="5%" left="30%" transform="translate(-50%, -50%)" bgcolor="var(--light)" borderRadius="8px" padding="20px" zIndex="1200">
+          <BoxComponent
+            position="fixed"
+            top="0"
+            left="0"
+            width="100%"
+            height="100%"
+            bgcolor="rgba(0, 0, 0, 0.5)"
+            zIndex="1200"
+            onClick={handleCancelClick}
+          />
+          <BoxComponent
+            position="fixed"
+            width="40%"
+            top="5%"
+            left="30%"
+            transform="translate(-50%, -50%)"
+            bgcolor="var(--light)"
+            borderRadius="8px"
+            padding="20px"
+            zIndex="1200"
+          >
             <Form onCancel={handleCancelClick} title={modalTitle} />
           </BoxComponent>
         </>
@@ -145,8 +214,27 @@ export default function Admin({ token: receivedToken }) {
 
       {isUpdateModalOpen && (
         <>
-          <BoxComponent position="fixed" top="0" left="0" width="100%" height="100%" bgcolor="rgba(0, 0, 0, 0.7)" zIndex="1200" onClick={handleCloseUpdateModal} />
-          <BoxComponent position="fixed" width="30%" top="30%" left="35%" padding="5px" transform="translate(-50%, -50%)" bgcolor="var(--light)" borderRadius="10px" zIndex="1201">
+          <BoxComponent
+            position="fixed"
+            top="0"
+            left="0"
+            width="100%"
+            height="100%"
+            bgcolor="rgba(0, 0, 0, 0.7)"
+            zIndex="1200"
+            onClick={handleCloseUpdateModal}
+          />
+          <BoxComponent
+            position="fixed"
+            width="30%"
+            top="30%"
+            left="35%"
+            padding="5px"
+            transform="translate(-50%, -50%)"
+            bgcolor="var(--light)"
+            borderRadius="10px"
+            zIndex="1201"
+          >
             <Update onCancel={handleCloseUpdateModal} />
           </BoxComponent>
         </>

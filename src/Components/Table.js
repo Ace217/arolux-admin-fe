@@ -5,107 +5,103 @@ import IconButton from "@mui/material/IconButton";
 import Switch from "@mui/material/Switch";
 
 export default function Table({
-  rows, // The data to be displayed
-  headings, // Column headers and definitions
-  icons, // Icons for edit, details, etc.
-  onStatusChange,
-  onDetailClick,
-  getRowId, 
+  rows = [], // Ensure rows default to an empty array
+  headings = [], // Ensure headings default to an empty array
+  icons = {}, // Ensure icons default to an empty object
+  onStatusChange = () => {}, // Default to an empty function
+  onDetailClick = () => {},
+  getRowId = (row) => row.id, // Default getRowId to avoid errors
 }) {
   // Create columns based on the headings prop
-  const columns = headings.map((heading) => ({
+  const columns = headings
+  .filter((heading) => heading.field) // Ensure only valid fields are included
+  .map((heading) => ({
     field: heading.field,
     headerName: heading.headerName,
-    flex: heading.flex || 1, // Use flex instead of fixed width
+    flex: heading.flex || 1,
     sortable: heading.sortable || false,
     renderCell: heading.renderCell || undefined,
-    headerClassName: "center-header", // Add class for header styling
-    cellClassName: "center-cell", // Add class for cell styling
+    headerClassName: "center-header",
+    cellClassName: "center-cell",
   }));
 
-  // Add edit, details, and key columns with icons
-  columns.push({
-    field: "Edit",
-    headerName: "",
-    flex: 0.5, // Smaller flex for icons
-    renderCell: () => (
-      <IconButton aria-label="edit" sx={{ color: "var(--primary)" }}>
-        {icons.edit}
-      </IconButton>
-    ),
-    sortable: false,
-  });
+  // Add edit, details, and key columns with safe checks for icons
+  columns.push(
+    {
+      field: "Edit",
+      headerName: "",
+      flex: 0.5,
+      renderCell: () =>
+        icons.edit ? (
+          <IconButton aria-label="edit" sx={{ color: "var(--primary)" }}>
+            {icons.edit}
+          </IconButton>
+        ) : null,
+      sortable: false,
+    },
+    {
+      field: "Details",
+      headerName: "",
+      flex: 0.5,
+      renderCell: (params) =>
+        icons.details ? (
+          <IconButton
+            onClick={() => onDetailClick(params.row.categoryName)}
+            aria-label="details"
+            sx={{ color: "var(--primary)" }}
+          >
+            {icons.details}
+          </IconButton>
+        ) : null,
+      sortable: false,
+    },
+    {
+      field: "Key",
+      headerName: "",
+      flex: 0.5,
+      renderCell: () =>
+        icons.key ? (
+          <IconButton aria-label="key" sx={{ color: "var(--primary)" }}>
+            {icons.key}
+          </IconButton>
+        ) : null,
+      sortable: false,
+    },
+    {
+      field: "Actions",
+      headerName: "Actions",
+      flex: 1,
+      renderCell: (params) => (
+        <Switch
+          checked={params.row.Status === "Active"}
+          onChange={() => onStatusChange(params.row._id)}
+          style={{ color: "var(--primary)" }}
+        />
+      ),
+      sortable: false,
+    }
+  );
 
-  columns.push({
-    field: "Details",
-    headerName: "",
-    flex: 0.5, // Smaller flex for icons
-    renderCell: (params) => (
-      <IconButton
-        checked={params.row.Status === "Active"}
-        onClick={() => onDetailClick(params.row.categoryName)}
-        aria-label="details"
-        sx={{ color: "var(--primary)" }}
-      >
-        {icons.details}
-      </IconButton>
-    ),
-    sortable: false,
-  });
-
-  columns.push({
-    field: "Key",
-    headerName: "",
-    flex: 0.5, // Smaller flex for icons
-    renderCell: () => (
-      <IconButton aria-label="key" sx={{ color: "var(--primary)" }}>
-        {icons.key}
-      </IconButton>
-    ),
-    sortable: false,
-  });
-
-  columns.push({
-    field: "Actions",
-    headerName: "Actions",
-    flex: 1, // Standard flex for the switch
-    renderCell: (params) => (
-      <Switch
-        checked={params.row.Status === "Active"}
-        onChange={() => onStatusChange(params.row.id)}
-        style={{
-          color: "var(--primary)", // Default thumb color when unchecked
-        }}
-      />
-    ),
-    sortable: false,
-  });
-
-  console.log("Rows", rows)
   const paginationModel = { page: 0, pageSize: 5 };
   return (
     <Paper sx={{ height: 400, width: "100%" }}>
       <DataGrid
-        rows={rows} // The rows passed as a prop (filtered or unfiltered)
-        columns={columns} // The columns based on headings
+        rows={rows}
+        columns={columns}
         getRowId={getRowId}
-        initialState={{ pagination: { paginationModel } }} // Pagination model
-        pageSizeOptions={[5]} // Pagination size options
+        initialState={{ pagination: { paginationModel } }}
+        pageSizeOptions={[5]}
         sx={{
           border: 0,
-          "& .MuiDataGrid-columnHeaderTitle": {
-            fontWeight: "bold",
-          },
+          "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
           "& .center-header": {
-            justifyContent: "center", // Center the header text
+            justifyContent: "center",
             display: "flex",
           },
-          "& .center-cell": {
-            padding: "5px", // Apply padding to cells
-          },
+          "& .center-cell": { padding: "5px" },
         }}
-        disableColumnMenu // Optional: Hide the column menu for a cleaner look
-        autoHeight // Automatically adjusts height to content
+        disableColumnMenu
+        autoHeight
       />
     </Paper>
   );
