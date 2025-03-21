@@ -66,7 +66,7 @@ export default function Admin({ token: receivedToken }) {
     setRows((prevRows) =>
       prevRows.map((row) =>
         row._id === _id
-          ? { ...row, Status: row.Status === "Active" ? "Inactive" : "Active" }
+          ? { ...row, Status: row.Status === "Active" ? "In-Active" : "Active" }
           : row
       )
     );
@@ -107,7 +107,7 @@ export default function Admin({ token: receivedToken }) {
       width: 100,
       renderCell: (params) => (
         <TypographyComponent sx={{ color: params.value===true ? 'green' : 'red' }}>
-          {params.value===true ? 'Active' : 'Inactive'}
+          {params.value===true ? 'Active' : 'In-Active'}
         </TypographyComponent>
       ),
     },

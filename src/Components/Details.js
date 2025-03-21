@@ -48,35 +48,40 @@ export default function Details() {
         padding="20px"
         justifyContent="space-around"
       >
-        {/* Left Side (Details) */}
-        <BoxComponent width="60%" display="flex" flexDirection="column" gap="20px">
-          {/* Dynamically Generate Rows of Two Details */}
-          {Object.keys(data).length > 0 ? (
-            Object.entries(data).map(([key, value], index) => {
-              if (key !== "image") {
-                if (index % 2 === 0) {
-                  return (
-                    <BoxComponent key={index} display="flex" justifyContent="flex-start" gap="20px">
-                      <DetailComponent title={formatKey(key)} details={value || "N/A"} />
-                      {Object.entries(data)[index + 1] &&
-                        Object.entries(data)[index + 1][0] !== "image" && (
-                          <DetailComponent
-                            title={formatKey(Object.entries(data)[index + 1][0])}
-                            details={Object.entries(data)[index + 1][1] || "N/A"}
-                          />
-                        )}
-                    </BoxComponent>
-                  );
-                }
-              }
-              return null;
-            })
-          ) : (
-            <TypographyComponent fontSize="18px" color="var(--dark)">
-              No Data Available
-            </TypographyComponent>
-          )}
-        </BoxComponent>
+      {/* Left Side (Details) */}
+<BoxComponent width="60%" display="flex" flexDirection="column" gap="20px">
+  {Object.keys(data).length > 0 ? (
+    Object.entries(data).map(([key, value], index) => {
+      if (key !== "image") {
+        if (index % 2 === 0) {
+          return (
+            <BoxComponent key={index} display="flex" justifyContent="flex-start" gap="20px">
+              <DetailComponent 
+                title={formatKey(key)} 
+                details={typeof value === "boolean" ? (value ? "Yes" : "No") : value || "N/A"} 
+              />
+              {Object.entries(data)[index + 1] &&
+                Object.entries(data)[index + 1][0] !== "image" && (
+                  <DetailComponent
+                    title={formatKey(Object.entries(data)[index + 1][0])}
+                    details={typeof Object.entries(data)[index + 1][1] === "boolean"
+                      ? (Object.entries(data)[index + 1][1] ? "Yes" : "No")
+                      : Object.entries(data)[index + 1][1] || "N/A"}
+                  />
+                )}
+            </BoxComponent>
+          );
+        }
+      }
+      return null;
+    })
+  ) : (
+    <TypographyComponent fontSize="18px" color="var(--dark)">
+      No Data Available
+    </TypographyComponent>
+  )}
+</BoxComponent>
+
 
         {/* Right Side (Image) */}
         <BoxComponent
