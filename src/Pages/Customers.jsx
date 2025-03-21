@@ -17,8 +17,10 @@ export default function Customers() {
   const [confirmMessage, setConfirmMessage] = useState('');
   const [selectedNewsId, setSelectedNewsId] = useState(null);
 
-  const handleDetailClick = (id) => {
-    navigate(`/details?id=${id}`);
+  
+
+  const handleDetailClick = (data) => {
+    navigate("/details", { state: { ...data } }); // Ensure full row data is passed
   };
 
   const status = [
@@ -28,18 +30,18 @@ export default function Customers() {
   ];
 
   const [rows, setRows] = useState([
-    { id: 1, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-    { id: 2, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-    { id: 3, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
+    { id: 1, image: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
+    { id: 2, image: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
+    { id: 3, image: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
 ]);
 
   const headings = [
     { field: 'id', headerName: 'ID' },
     {
-      field: 'coverImage',
+      field: 'image',
       headerName: 'Image',
       width: 100,
-      renderCell: (params) => <img src={params.row.coverImage} alt="Cover" style={{ width: '80px', height: '40px' }} />,
+      renderCell: (params) => <img src={params.row.image} alt="Cover" style={{ width: '80px', height: '40px' }} />,
     },
     { field: 'name', headerName: 'Name' },
     { field: 'CNIC', headerName: 'CNIC' },
@@ -52,6 +54,16 @@ export default function Customers() {
       headerName: 'Status',
       renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
     },
+     {
+          field: "view",
+          headerName: "View",
+          renderCell: (params) => (
+            <VisibilityIcon
+              onClick={() => handleDetailClick(params.row)}
+              style={{ cursor: "pointer" }}
+            />
+          ),
+        },
   ];
 
 
@@ -112,6 +124,7 @@ export default function Customers() {
           </BoxComponent>
           <Find placeholder="Search a Customer by ID" label="Status" status={status} />
           <Table
+          // getRowId={getRowId}
             rows={rows}
             headings={headings}
             icons={icons}

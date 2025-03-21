@@ -1,24 +1,19 @@
 import React from "react";
+import { useLocation } from "react-router-dom";
 import BoxComponent from "./Box";
 import TypographyComponent from "./Typography";
 import DetailComponent from "./DetailComponent";
 
 export default function Details() {
-  const detailsData = {
-    image: "Images/bg.png", // Replace with actual image URL
-    details: [
-      { title: "Add Heading 1 Here", details: "Add details of Heading 1 Here" },
-      { title: "Add Heading 2 Here", details: "Add details of Heading 2 Here" },
-      { title: "Add Heading 3 Here", details: "Add details of Heading 3 Here" },
-      { title: "Add Heading 4 Here", details: "Add details of Heading 4 Here" },
-      { title: "Add Heading 5 Here", details: "Add details of Heading 5 Here" },
-      { title: "Add Heading 6 Here", details: "Add details of Heading 6 Here" },
-      { title: "Add Heading 7 Here", details: "Add details of Heading 7 Here" },
-      { title: "Add Heading 8 Here", details: "Add details of Heading 8 Here" },
-      { title: "Date of Joining", details: "28 January, 2023" },
-      { title: "Last Login", details: "28 November, 2024" },
+  const location = useLocation();
+  const data = location.state || {}; // Get row data or use an empty object if no data is passed
 
-    ],
+  // Function to convert keys to Title Case
+  const formatKey = (key) => {
+    return key
+      .split("_") // Handle keys with underscores
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   return (
@@ -27,7 +22,7 @@ export default function Details() {
       flexDirection="column"
       alignItems="center"
       padding="30px"
-      backgroundColor="var(--light)" // Add a light background color
+      backgroundColor="var(--light)"
       minHeight="100vh"
     >
       {/* Title Section */}
@@ -51,40 +46,36 @@ export default function Details() {
         boxShadow="0 4px 10px rgba(0, 0, 0, 0.1)"
         display="flex"
         padding="20px"
-        justifyContent='space-around'
+        justifyContent="space-around"
       >
         {/* Left Side (Details) */}
-        <BoxComponent
-          width="60%"
-          display="flex"
-          flexDirection="column"
-          gap="20px"
-        >
+        <BoxComponent width="60%" display="flex" flexDirection="column" gap="20px">
           {/* Dynamically Generate Rows of Two Details */}
-          {detailsData.details.map((detail, index) => {
-            if (index % 2 === 0) {
-              return (
-                <BoxComponent
-                  key={index}
-                  display="flex"
-                  justifyContent="flex-start"
-                  gap="20px"
-                >
-                  <DetailComponent
-                    title={detailsData.details[index].title}
-                    details={detailsData.details[index].details}
-                  />
-                  {detailsData.details[index + 1] && (
-                    <DetailComponent
-                      title={detailsData.details[index + 1].title}
-                      details={detailsData.details[index + 1].details}
-                    />
-                  )}
-                </BoxComponent>
-              );
-            }
-            return null;
-          })}
+          {Object.keys(data).length > 0 ? (
+            Object.entries(data).map(([key, value], index) => {
+              if (key !== "image") {
+                if (index % 2 === 0) {
+                  return (
+                    <BoxComponent key={index} display="flex" justifyContent="flex-start" gap="20px">
+                      <DetailComponent title={formatKey(key)} details={value || "N/A"} />
+                      {Object.entries(data)[index + 1] &&
+                        Object.entries(data)[index + 1][0] !== "image" && (
+                          <DetailComponent
+                            title={formatKey(Object.entries(data)[index + 1][0])}
+                            details={Object.entries(data)[index + 1][1] || "N/A"}
+                          />
+                        )}
+                    </BoxComponent>
+                  );
+                }
+              }
+              return null;
+            })
+          ) : (
+            <TypographyComponent fontSize="18px" color="var(--dark)">
+              No Data Available
+            </TypographyComponent>
+          )}
         </BoxComponent>
 
         {/* Right Side (Image) */}
@@ -97,12 +88,12 @@ export default function Details() {
           overflow="hidden"
         >
           <img
-            src={detailsData.image}
+            src={data.image || "images/bg.png"}
             alt="Cover"
             style={{
-              maxWidth: "100%", 
+              maxWidth: "100%",
               maxHeight: "100%",
-              objectFit: "contain", 
+              objectFit: "contain",
             }}
           />
         </BoxComponent>

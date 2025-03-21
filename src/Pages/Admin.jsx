@@ -17,7 +17,7 @@ import { accounts } from "../api/constants";
 export default function Admin({ token: receivedToken }) {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalTitle, setModalTitle] = useState("Add Sub-Admin");
+  const [modalTitle, setModalTitle] = useState("Add Admin");
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [rows, setRows] = useState([]);
 
@@ -52,13 +52,14 @@ export default function Admin({ token: receivedToken }) {
 
   const getRowId = (row) => row._id;
 
-  const handleDetailClick = (id) => {
-    navigate(`/details?id=${id}`);
+  const handleDetailClick = (data) => {
+    navigate("/details", { state: { ...data } }); // Ensure full row data is passed
   };
-
+  
+  
   const handleOpenModal = (mode) => {
     setIsModalOpen(true);
-    setModalTitle(mode === "edit" ? "Edit Sub-Admin" : "Add Sub-Admin");
+    setModalTitle(mode === "edit" ? "Edit Admin" : "Add Admin");
   };
 
   const handleStatusChange = (_id) => {
@@ -83,24 +84,34 @@ export default function Admin({ token: receivedToken }) {
     setIsUpdateModalOpen(false);
   };
   
-
+  
   const headings = [
     { field: "name", headerName: "Name" },
     { field: "adminType", headerName: "Admin Type" },
     { field: "email", headerName: "Email" },
     { field: "phoneNumber", headerName: "Phone No", type: "number" },
-    { field: "createdBy", headerName: "Created By" },
+    {
+      field: 'createdBy',
+      headerName: 'Created By',
+      width: 150,
+      renderCell: (params) => (
+        <TypographyComponent>
+          {params.value ? params.value.name : "N/A"}
+        </TypographyComponent>
+      ),
+    },    
     { field: "lastLoginTime", headerName: "Last Login" },
     {
-      field: "isActive",
-      headerName: "Status",
-      width: "100",
+      field: 'isActive',
+      headerName: 'Status',
+      width: 100,
       renderCell: (params) => (
-        <span style={{ color: params.value === "Active" ? "green" : "red" }}>
-          {params.value}
-        </span>
+        <TypographyComponent sx={{ color: params.value===true ? 'green' : 'red' }}>
+          {params.value===true ? 'Active' : 'Inactive'}
+        </TypographyComponent>
       ),
     },
+     
     {
       field: "edit",
       headerName: "Edit",
@@ -116,7 +127,7 @@ export default function Admin({ token: receivedToken }) {
       headerName: "View",
       renderCell: (params) => (
         <VisibilityIcon
-          onClick={() => handleDetailClick(params.row._id)}
+          onClick={() => handleDetailClick(params.row)}
           style={{ cursor: "pointer" }}
         />
       ),
@@ -132,8 +143,7 @@ export default function Admin({ token: receivedToken }) {
       ),
     },
   ];
-  
-  console.log("Headings:", headings);
+  console.log("Headings Passed to Table:", headings);
   return (
     <BoxComponent backgroundColor="var(--light)">
       <Head />
@@ -155,7 +165,7 @@ export default function Admin({ token: receivedToken }) {
               sx={{ color: "var(--light)", padding: "10px" }}
               onClick={() => handleOpenModal("add")}
             >
-              + Add Sub-Admin
+              + Add Admin
             </ButtonComponent>
           </BoxComponent>
 
@@ -173,12 +183,9 @@ export default function Admin({ token: receivedToken }) {
             getRowId={getRowId}
             rows={rows}
             headings={headings}
-            onDetailClick={(_id) => {
-              const currentRow = rows.find((row) => row._id === _id);
-              if (currentRow) {
-                handleDetailClick(_id, currentRow._id);
-              }
-            }}
+            // icons={icons}
+            onDetailClick={(row) => handleDetailClick(row)
+            }
             onStatusChange={handleStatusChange}
           />
         </BoxComponent>

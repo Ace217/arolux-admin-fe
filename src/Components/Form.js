@@ -301,7 +301,7 @@ export default function Form({ onCancel, title, token: receivedToken }) {
             }}
             onClick={handleSubmit}
           >
-            {title === "Add Sub-Admin" ? "Add Sub-Admin" : "Update Sub-Admin"}
+            {title === "Add Admin" ? "Add Admin" : "Update Admin"}
           </ButtonComponent>
         </BoxComponent>
       </BoxComponent>

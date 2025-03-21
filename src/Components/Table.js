@@ -59,7 +59,7 @@ export default function Table({
       field: "Key",
       headerName: "",
       flex: 0.5,
-      renderCell: () =>
+      renderCell: (params) =>
         icons.key ? (
           <IconButton aria-label="key" sx={{ color: "var(--primary)" }}>
             {icons.key}
