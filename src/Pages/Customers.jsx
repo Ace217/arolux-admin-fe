@@ -69,7 +69,7 @@ export default function Customers() {
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon />,
-    details:<VisibilityIcon onClick={handleDetailClick}/>
+    // details:<VisibilityIcon onClick={handleDetailClick}/>
   };
 
   const handleToggleClick = (id, currentStatus) => {

@@ -73,10 +73,10 @@ export const doGet = async (endPoint, serverSideToken = null) => {
 };
 
 // Function to handle PUT requests
-export const doPut = async (endPoint, body) => {
+export const doPut = async (endPoint, body, customHeaders) => {
   try {
     const result = await axios.put(endPoint, body, {
-      headers: getHeader(),
+      headers: { ...getHeader(), ...customHeaders },
     });
     return result;
   } catch (e) {

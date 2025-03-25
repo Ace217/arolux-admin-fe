@@ -20,6 +20,7 @@ export default function Admin({ token: receivedToken }) {
   const [modalTitle, setModalTitle] = useState("Add Admin");
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [rows, setRows] = useState([]);
+  const [selectedAdmin, setSelectedAdmin] = useState(null); // Store selected admin data
 
   useEffect(() => {
     const fetchAdmins = async () => {
@@ -56,12 +57,17 @@ export default function Admin({ token: receivedToken }) {
     navigate("/details", { state: { ...data } }); // Ensure full row data is passed
   };
   
-  
-  const handleOpenModal = (mode) => {
-    setIsModalOpen(true);
-    setModalTitle(mode === "edit" ? "Edit Admin" : "Add Admin");
-  };
 
+  const handleOpenModal = (mode, adminData = null) => {
+    setIsModalOpen(true);
+    setModalTitle(mode === "edit" ? "Update Admin" : "Add Admin");
+    
+    if (mode === "edit" && adminData) {
+      setSelectedAdmin(adminData); // Store admin data for editing
+    } else {
+      setSelectedAdmin(null); // Reset for Add Admin
+    }
+  };
   const handleStatusChange = (_id) => {
     setRows((prevRows) =>
       prevRows.map((row) =>
@@ -110,18 +116,17 @@ export default function Admin({ token: receivedToken }) {
           {params.value===true ? 'Active' : 'In-Active'}
         </TypographyComponent>
       ),
-    },
-     
+    }, 
     {
       field: "edit",
       headerName: "Edit",
       renderCell: (params) => (
         <ModeEditOutlineOutlinedIcon
-          onClick={() => handleOpenModal(params.row._id)}
+          onClick={() => handleOpenModal("edit", params.row)} // Pass selected row data
           style={{ cursor: "pointer" }}
         />
       ),
-    },
+    },       
     {
       field: "view",
       headerName: "View",
@@ -214,7 +219,7 @@ export default function Admin({ token: receivedToken }) {
             padding="20px"
             zIndex="1200"
           >
-            <Form onCancel={handleCancelClick} title={modalTitle} />
+            <Form onCancel={handleCancelClick} title={modalTitle} adminData={selectedAdmin} />
           </BoxComponent>
         </>
       )}
