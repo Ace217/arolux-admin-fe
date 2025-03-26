@@ -5,6 +5,7 @@ import {
     ACCOUNT,
     ACCOUNTS,
     UPDATE,
+    PASSWORD,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -18,10 +19,14 @@ export const login = (body) => {
   export const account = (requestData, token) => {
     return doPost(`${API_URL}${API_VERSION}${ACCOUNT}`, requestData, getHeader(token)); 
 };
-  export const update = (requestData, token) => {
-    return doPut(`${API_URL}${API_VERSION}${UPDATE}`, requestData, getHeader(token)); 
-};
 export const accounts = (token) => {
   return doGet(`${API_URL}${API_VERSION}${ACCOUNTS}`, token);
 };
+  export const update = ( requestData, token) => {
+    return doPut(`${API_URL}${API_VERSION}${UPDATE}`,  requestData, getHeader(token)); 
+}; 
+  export const updatePassword  = (requestData, token) => {
+    return doPut(`${API_URL}${API_VERSION}${PASSWORD}`,requestData, getHeader(token)); 
+};
+
   
