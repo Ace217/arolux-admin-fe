@@ -4,3 +4,7 @@ export const ACCOUNTS = "admin/accounts";
 export const UPDATE = "admin/:adminId/account";
 export const PASSWORD = "admin/:adminId/account/password";
 export const VEHICLE_CATEGORIES = "admin/vehicle-categories/list";
+export const CREATE_VEHICLE_CATEGORY = "admin/vehicle-categories/record";
+export const CUSTOMERS_LIST = "admin/users/list";
+export const CUSTOMER_DETAILS = "admin/users/:userId/details";
+export const UPDATE_CUSTOMER_STATUS = "admin/users/:userId/status";

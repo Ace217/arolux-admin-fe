@@ -1,5 +1,5 @@
 // Integrate the login and account methods
-import { doPut, doGet, doPost, getHeader } from "./api";
+import { doPut, doGet, doPost, doPatch, getHeader } from "./api";
 import {
   LOGIN,
   ACCOUNT,
@@ -7,6 +7,10 @@ import {
   UPDATE,
   PASSWORD,
   VEHICLE_CATEGORIES,
+  CREATE_VEHICLE_CATEGORY,
+  CUSTOMERS_LIST,
+  CUSTOMER_DETAILS,
+  UPDATE_CUSTOMER_STATUS,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -48,4 +52,36 @@ export const getVehicleCategories = (params, token) => {
     `${API_URL}${API_VERSION}${VEHICLE_CATEGORIES}?${queryString}`,
     token
   );
+};
+
+export const createVehicleCategory = (requestData, token) => {
+  return doPost(
+    `${API_URL}${API_VERSION}${CREATE_VEHICLE_CATEGORY}`,
+    requestData,
+    getHeader(token)
+  );
+};
+
+export const getCustomersList = (params, token) => {
+  const queryString = new URLSearchParams(params).toString();
+  return doGet(
+    `${API_URL}${API_VERSION}${CUSTOMERS_LIST}?${queryString}`,
+    token
+  );
+};
+
+export const getCustomerDetails = (userId, token) => {
+  const url = `${API_URL}${API_VERSION}${CUSTOMER_DETAILS.replace(
+    ":userId",
+    userId
+  )}`;
+  return doGet(url, token);
+};
+
+export const updateCustomerStatus = (userId, status, token) => {
+  const url = `${API_URL}${API_VERSION}${UPDATE_CUSTOMER_STATUS.replace(
+    ":userId",
+    userId
+  )}`;
+  return doPatch(url, { status }, getHeader(token));
 };

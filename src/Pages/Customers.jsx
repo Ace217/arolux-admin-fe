@@ -1,26 +1,31 @@
-import React, { useState } from 'react';
-import BoxComponent from '../Components/Box';
-import Sidebar from '../Components/Sidebar';
-import Head from '../Components/Head';
-import TypographyComponent from '../Components/Typography';
-
-import Confirm from '../Components/Confirm';
-import { useNavigate } from 'react-router-dom';
-import Table from '../Components/Table';
-import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import Find from '../Components/Find';
+import React, { useState, useEffect } from "react";
+import BoxComponent from "../Components/Box";
+import Sidebar from "../Components/Sidebar";
+import Head from "../Components/Head";
+import TypographyComponent from "../Components/Typography";
+import Confirm from "../Components/Confirm";
+import { useNavigate } from "react-router-dom";
+import Table from "../Components/Table";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import Find from "../Components/Find";
+import { getCustomersList, updateCustomerStatus } from "../api/constants";
+import Cookies from "js-cookie";
+import { useDebounce } from "../hooks/useDebounce";
+import { toast } from "react-toastify";
 
 export default function Customers() {
   const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
-  const [confirmMessage, setConfirmMessage] = useState('');
-  const [selectedNewsId, setSelectedNewsId] = useState(null);
-
-  
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isActive, setIsActive] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const debouncedSearchText = useDebounce(searchInput, 500);
 
   const handleDetailClick = (data) => {
-    navigate("/details", { state: { ...data } }); // Ensure full row data is passed
+    navigate("/details", { state: { ...data } });
   };
 
   const status = [
@@ -29,131 +34,235 @@ export default function Customers() {
     { value: 3, label: "Inactive" },
   ];
 
-  const [rows, setRows] = useState([
-    { id: 1, image: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-    { id: 2, image: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-    { id: 3, image: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-]);
-
   const headings = [
-    { field: 'id', headerName: 'ID' },
+    { field: "id", headerName: "ID", width: 220 },
     {
-      field: 'image',
-      headerName: 'Image',
+      field: "profileImageURL",
+      headerName: "Image",
       width: 100,
-      renderCell: (params) => <img src={params.row.image} alt="Cover" style={{ width: '80px', height: '40px' }} />,
+      renderCell: (params) => (
+        <img
+          src={params.value || "Images/logo.png"}
+          alt="Profile"
+          style={{
+            width: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            objectFit: "cover",
+          }}
+        />
+      ),
     },
-    { field: 'name', headerName: 'Name' },
-    { field: 'CNIC', headerName: 'CNIC' },
-    { field: 'Email', headerName: 'E-mail' },
-    { field: 'Phone', headerName: 'Phone' },
-    { field: 'vehicle', headerName: 'Vehicle No' },
-    { field: 'city', headerName: 'City'},
+    { field: "name", headerName: "Name", width: 150 },
     {
-      field: 'Status',
-      headerName: 'Status',
-      renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
+      field: "phone",
+      headerName: "Phone",
+      width: 150,
+      renderCell: (params) =>
+        `${params.row.countryCode}${params.row.phoneNumber}`,
     },
-     {
-          field: "view",
-          headerName: "View",
-          renderCell: (params) => (
-            <VisibilityIcon
-              onClick={() => handleDetailClick(params.row)}
-              style={{ cursor: "pointer" }}
-            />
-          ),
-        },
+    { field: "email", headerName: "E-mail", width: 220 },
+    {
+      field: "status",
+      headerName: "Status",
+      width: 100,
+      renderCell: (params) => (
+        <span
+          style={{
+            color: params.value === "active" ? "green" : "red",
+            cursor: "pointer",
+          }}
+          onClick={() => handleToggleClick(params.row.id, params.value)}
+        >
+          {params.value === "active" ? "Active" : "Blocked"}
+        </span>
+      ),
+    },
+    {
+      field: "createdAt",
+      headerName: "Created At",
+      width: 200,
+      renderCell: (params) => new Date(params.value).toLocaleDateString(),
+    },
+    {
+      field: "view",
+      headerName: "View",
+      width: 70,
+      renderCell: (params) => (
+        <VisibilityIcon
+          onClick={() => handleDetailClick(params.row)}
+          style={{ cursor: "pointer" }}
+        />
+      ),
+    },
   ];
 
-
-  const icons = {
-    edit: <ModeEditOutlineOutlinedIcon />,
-    // details:<VisibilityIcon onClick={handleDetailClick}/>
-  };
-
   const handleToggleClick = (id, currentStatus) => {
-    setSelectedNewsId(id);
+    setSelectedCustomerId(id);
     setConfirmMessage(
-      currentStatus === 'Active'
-        ? 'Are you sure you want to remove this customer?'
-        : 'Are you sure you want to add this customer?'
+      currentStatus === "active"
+        ? "Are you sure you want to block this customer?"
+        : "Are you sure you want to unblock this customer?"
     );
     setShowConfirm(true);
   };
 
-  const handleConfirm = (confirm) => {
+  const handleConfirm = async (confirm) => {
     if (confirm) {
-      setRows((prevRows) =>
-        prevRows.map((row) =>
-          row.id === selectedNewsId
-            ? { ...row, Status: row.Status === 'Active' ? 'Inactive' : 'Active' }
-            : row
-        )
-      );
+      try {
+        const currentRow = rows.find((row) => row.id === selectedCustomerId);
+        if (!currentRow) return;
+
+        const token = Cookies.get("token");
+        const newStatus = currentRow.status === "active" ? "blocked" : "active";
+
+        const response = await updateCustomerStatus(
+          selectedCustomerId,
+          newStatus,
+          token
+        );
+
+        if (response?.data?.success) {
+          setRows((prevRows) =>
+            prevRows.map((row) =>
+              row.id === selectedCustomerId
+                ? { ...row, status: newStatus }
+                : row
+            )
+          );
+          toast.success(
+            `Customer ${
+              newStatus === "active" ? "activated" : "blocked"
+            } successfully`
+          );
+        } else {
+          toast.error(response?.data?.message || "Failed to update status");
+        }
+      } catch (error) {
+        console.error("Error updating customer status:", error);
+        toast.error("Error updating customer status");
+      }
     }
     setShowConfirm(false);
   };
 
+  const fetchCustomers = async (params = {}) => {
+    setLoading(true);
+    try {
+      const token = Cookies.get("token");
+      const apiParams = {
+        limit: 20,
+        offset: 0,
+        searchText: params.searchText || "",
+        ...(params.isActive !== "" && { status: params.isActive }),
+      };
+
+      const response = await getCustomersList(apiParams, token);
+
+      if (response?.data?.success) {
+        // Transform the data to include an 'id' field for DataGrid
+        const customers = response.data.data.users.map((user) => ({
+          ...user,
+          id: user._id, // Add id field required by DataGrid
+          phone: user.phoneNumber, // For consistency in rendering
+        }));
+        setRows(customers);
+      }
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomers({
+      searchText: debouncedSearchText,
+      isActive,
+    });
+  }, [debouncedSearchText, isActive]);
+
+  const handleSearch = (value) => {
+    setSearchInput(value);
+  };
+
+  const handleStatusChange = (value) => {
+    let activeStatus;
+    switch (value) {
+      case 1: // All
+        activeStatus = "";
+        break;
+      case 2: // Active
+        activeStatus = "active";
+        break;
+      case 3: // Inactive
+        activeStatus = "blocked";
+        break;
+      default:
+        activeStatus = "";
+    }
+    setIsActive(activeStatus);
+  };
+
   return (
-    <BoxComponent
-    backgroundColor="var(--light)"
-    >
+    <BoxComponent backgroundColor="var(--light)">
       <Head />
       <BoxComponent display="flex" justifyContent="space-between">
         <Sidebar />
-        <BoxComponent display="flex" flexDirection="column" width="82%" padding="20px">
-          <BoxComponent display="flex" justifyContent="space-between" width="100%">
+        <BoxComponent
+          display="flex"
+          flexDirection="column"
+          width="82%"
+          padding="20px"
+        >
+          <BoxComponent
+            display="flex"
+            justifyContent="space-between"
+            width="100%"
+          >
             <TypographyComponent
-               fontSize="18px"
-               fontFamily="var(--main)"
-               color="var(--dark)"
-               fontWeight="400"
+              fontSize="18px"
+              fontFamily="var(--main)"
+              color="var(--dark)"
+              fontWeight="400"
             >
               CUSTOMER MANAGEMENT
             </TypographyComponent>
-            {/* <ButtonComponent
-              variant="contained"
-              backgroundColor="var(--primary)"
-              sx={{ color: "var(--light)", padding: "10px 20px" }}
-              onClick={handleAddNews}
-              title="Add Customer"
-            >
-              + Add Customer
-            </ButtonComponent> */}
           </BoxComponent>
-          <Find placeholder="Search a Customer by ID" label="Status" status={status} />
+          <Find
+            placeholder="Search a Customer by Name"
+            label="Status"
+            status={status}
+            onSearch={handleSearch}
+            onStatusChange={handleStatusChange}
+          />
           <Table
-          // getRowId={getRowId}
             rows={rows}
             headings={headings}
-            icons={icons}
-            onDetailClick={(id) => {
-              const currentRow = rows.find((row) => row.id === id);
-              if (currentRow) {
-                handleDetailClick(id, currentRow.id);
-              }
-            }}
+            loading={loading}
+            getRowId={(row) => row.id}
             onStatusChange={(id) => {
               const currentRow = rows.find((row) => row.id === id);
               if (currentRow) {
-                handleToggleClick(id, currentRow.Status);
+                handleToggleClick(id, currentRow.status);
               }
             }}
           />
           {showConfirm && (
-            <BoxComponent style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vw',
-              height: '100vh',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 1000,
-            }}>
+            <BoxComponent
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                zIndex: 1000,
+              }}
+            >
               <Confirm message={confirmMessage} onConfirm={handleConfirm} />
             </BoxComponent>
           )}

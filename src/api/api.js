@@ -71,6 +71,25 @@ export const doGet = async (endPoint, serverSideToken = null) => {
   }
 };
 
+// Function to handle PATCH requests
+export const doPatch = async (endPoint, body, customHeaders = {}) => {
+  try {
+    const result = await axios.patch(endPoint, body, {
+      headers: { ...getHeader(), ...customHeaders },
+    });
+    return result;
+  } catch (e) {
+    const status = e?.response?.status;
+    if (status === 401) {
+      handleUnauthorized();
+    }
+    if (status === 403) {
+      toast.error("Not Authorized");
+    }
+    return e.response;
+  }
+};
+
 // Function to handle PUT requests
 export const doPut = async (endPoint, body, customHeaders) => {
   try {
