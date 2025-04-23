@@ -1,13 +1,14 @@
-import React from 'react';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import SearchIcon from '@mui/icons-material/Search';
+import React from "react";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import SearchIcon from "@mui/icons-material/Search";
 
-export default function Searchbox(props) {
+export default function Searchbox({ placeholder, onChange }) {
   return (
     <TextField
       variant="outlined"
-      placeholder={props.placeholder}
+      placeholder={placeholder}
+      onChange={onChange}
       fullWidth
       InputProps={{
         startAdornment: (
@@ -17,14 +18,14 @@ export default function Searchbox(props) {
         ),
       }}
       sx={{
-        backgroundColor: 'white',
-        borderRadius: '4px',
-        '& .MuiOutlinedInput-root': {
-          '& fieldset': {
-            borderColor: 'var(--dull)', // Use your custom variable if needed
+        backgroundColor: "white",
+        borderRadius: "4px",
+        "& .MuiOutlinedInput-root": {
+          "& fieldset": {
+            borderColor: "var(--dull)",
           },
-          '&:hover fieldset': {
-            borderColor: 'var(--secondary)',
+          "&:hover fieldset": {
+            borderColor: "var(--secondary)",
           },
         },
       }}

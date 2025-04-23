@@ -10,20 +10,21 @@ export default function Table({
   icons = {}, // Ensure icons default to an empty object
   onStatusChange = () => {}, // Default to an empty function
   onDetailClick = () => {},
+  onEdit = () => {}, // Add onEdit prop
   getRowId = (row) => row.id, // Default getRowId to avoid errors
 }) {
   // Create columns based on the headings prop
   const columns = headings
-  .filter((heading) => heading.field) // Ensure only valid fields are included
-  .map((heading) => ({
-    field: heading.field,
-    headerName: heading.headerName,
-    flex: heading.flex || 1,
-    sortable: heading.sortable || false,
-    renderCell: heading.renderCell || undefined,
-    headerClassName: "center-header",
-    cellClassName: "center-cell",
-  }));
+    .filter((heading) => heading.field) // Ensure only valid fields are included
+    .map((heading) => ({
+      field: heading.field,
+      headerName: heading.headerName,
+      flex: heading.flex || 1,
+      sortable: heading.sortable || false,
+      renderCell: heading.renderCell || undefined,
+      headerClassName: "center-header",
+      cellClassName: "center-cell",
+    }));
 
   // Add edit, details, and key columns with safe checks for icons
   columns.push(
@@ -31,9 +32,13 @@ export default function Table({
       field: "Edit",
       headerName: "",
       flex: 0.5,
-      renderCell: () =>
+      renderCell: (params) =>
         icons.edit ? (
-          <IconButton aria-label="edit" sx={{ color: "var(--primary)" }}>
+          <IconButton
+            onClick={() => params.row.id && onEdit(params.row)}
+            aria-label="edit"
+            sx={{ color: "var(--primary)" }}
+          >
             {icons.edit}
           </IconButton>
         ) : null,
@@ -46,7 +51,7 @@ export default function Table({
       renderCell: (params) =>
         icons.details ? (
           <IconButton
-            onClick={() => onDetailClick(params.row.categoryName)}
+            onClick={() => onDetailClick(params.row.name)}
             aria-label="details"
             sx={{ color: "var(--primary)" }}
           >
@@ -74,7 +79,7 @@ export default function Table({
       renderCell: (params) => (
         <Switch
           checked={params.row.Status === "Active"}
-          onChange={() => onStatusChange(params.row._id)}
+          onChange={() => onStatusChange(params.row.id)}
           style={{ color: "var(--primary)" }}
         />
       ),

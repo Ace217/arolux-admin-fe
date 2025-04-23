@@ -10,6 +10,7 @@ import Table from "../Components/Table";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Find from "../Components/Find";
+import axios from "axios"; // Import axios
 
 export default function Vehicles() {
   const navigate = useNavigate();
@@ -18,13 +19,13 @@ export default function Vehicles() {
   const [confirmMessage, setConfirmMessage] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
-  
+
   const handleDetailClick = (id) => {
     navigate(`/details?id=${id}`);
-  }; 
+  };
   const handleVehicle = (id) => {
     navigate(`/vehicles`);
-  }; 
+  };
 
   const handleAddVehicle = () => {
     navigate("/vehicle-form", { state: { title: "Add Vehicle" } });
@@ -34,21 +35,96 @@ export default function Vehicles() {
     navigate("/vehicle-form", { state: { title: "Update Vehicle" } });
   };
   const [rows, setRows] = useState([
-    { id: 1, coverImage: "Images/logo.png", category: "Ride", Status: "Active" },
-    { id: 2, coverImage: "Images/logo.png", category: "Ride AC", Status: "Active" },
-    { id: 3, coverImage: "Images/logo.png", category: "Courier", Status: "Active" },
-    { id: 4, coverImage: "Images/logo.png", category: "Bike", Status: "Active" },
-    { id: 5, coverImage: "Images/logo.png", category: "Ride Mini", Status: "Active" },
-    { id: 6, coverImage: "Images/logo.png", category: "Trip Booking", Status: "Active" },
-    { id: 7, coverImage: "Images/logo.png", category: "Bike", Status: "Active" },
-    { id: 8, coverImage: "Images/logo.png", category: "Bike", Status: "Active" },
-    { id: 9, coverImage: "Images/logo.png", category: "Ride", Status: "Active" },
-    { id: 10, coverImage: "Images/logo.png", category: "Ride AC", Status: "Active" },
-    { id: 11, coverImage: "Images/logo.png", category: "Ride", Status: "Active" },
-    { id: 12, coverImage: "Images/logo.png", category: "Trip Booking", Status: "Active" },
-    { id: 13, coverImage: "Images/logo.png", category: "Ride AC", Status: "Active" },
-    { id: 14, coverImage: "Images/logo.png", category: "Courier", Status: "Active" },
-    { id: 15, coverImage: "Images/logo.png", category: "Ride", Status: "Active" },
+    {
+      id: 1,
+      coverImage: "Images/logo.png",
+      category: "Ride",
+      Status: "Active",
+    },
+    {
+      id: 2,
+      coverImage: "Images/logo.png",
+      category: "Ride AC",
+      Status: "Active",
+    },
+    {
+      id: 3,
+      coverImage: "Images/logo.png",
+      category: "Courier",
+      Status: "Active",
+    },
+    {
+      id: 4,
+      coverImage: "Images/logo.png",
+      category: "Bike",
+      Status: "Active",
+    },
+    {
+      id: 5,
+      coverImage: "Images/logo.png",
+      category: "Ride Mini",
+      Status: "Active",
+    },
+    {
+      id: 6,
+      coverImage: "Images/logo.png",
+      category: "Trip Booking",
+      Status: "Active",
+    },
+    {
+      id: 7,
+      coverImage: "Images/logo.png",
+      category: "Bike",
+      Status: "Active",
+    },
+    {
+      id: 8,
+      coverImage: "Images/logo.png",
+      category: "Bike",
+      Status: "Active",
+    },
+    {
+      id: 9,
+      coverImage: "Images/logo.png",
+      category: "Ride",
+      Status: "Active",
+    },
+    {
+      id: 10,
+      coverImage: "Images/logo.png",
+      category: "Ride AC",
+      Status: "Active",
+    },
+    {
+      id: 11,
+      coverImage: "Images/logo.png",
+      category: "Ride",
+      Status: "Active",
+    },
+    {
+      id: 12,
+      coverImage: "Images/logo.png",
+      category: "Trip Booking",
+      Status: "Active",
+    },
+    {
+      id: 13,
+      coverImage: "Images/logo.png",
+      category: "Ride AC",
+      Status: "Active",
+    },
+    {
+      id: 14,
+      coverImage: "Images/logo.png",
+      category: "Courier",
+      Status: "Active",
+    },
+    {
+      id: 15,
+      coverImage: "Images/logo.png",
+      category: "Ride",
+      Status: "Active",
+    },
   ]);
 
   const headings = [
@@ -80,10 +156,8 @@ export default function Vehicles() {
 
   const icons = {
     edit: <ModeEditOutlineOutlinedIcon onClick={handleEditVehicle} />,
-    details: <VisibilityIcon onClick={handleDetailClick}/>,
+    details: <VisibilityIcon onClick={handleDetailClick} />,
   };
-
-  
 
   const status = [
     { value: 1, label: "All" },
@@ -123,51 +197,86 @@ export default function Vehicles() {
     const category = queryParams.get("category");
 
     if (category) {
-      setFilteredVehicles(rows.filter((vehicle) => vehicle.category === category));
+      setFilteredVehicles(
+        rows.filter((vehicle) => vehicle.category === category)
+      );
     } else {
       setFilteredVehicles(rows); // Show all vehicles if no category filter is applied
     }
   }, [location.search, rows]); // Re-run effect when location.search or rows changes
 
+  useEffect(() => {
+    console.log("Coming here");
+    // Fetch vehicle categories when the component mounts
+    const fetchVehicleCategories = async () => {
+      try {
+        const response = await axios.get(
+          "admin/vehicle-categories/list?limit=10&offset=0&searchText=&isActive="
+        );
+        console.log("Vehicle Categories Response:", response.data);
+      } catch (error) {
+        console.error("Error fetching vehicle categories:", error);
+      }
+    };
+
+    fetchVehicleCategories();
+  }, []); // Empty dependency array ensures this runs only once
+
   return (
-    <BoxComponent
-    backgroundColor="var(--light)"
-    >
+    <BoxComponent backgroundColor="var(--light)">
       <Head />
       <BoxComponent display="flex" justifyContent="space-between">
         <Sidebar />
-        <BoxComponent display="flex" flexDirection="column" width="82%" padding="20px">
-          <BoxComponent display="flex" justifyContent="space-between" width="100%">
-            <TypographyComponent   fontSize="18px"
-            fontFamily="var(--main)"
-            color="var(--dark)"
-            fontWeight="400">
+        <BoxComponent
+          display="flex"
+          flexDirection="column"
+          width="82%"
+          padding="20px"
+        >
+          <BoxComponent
+            display="flex"
+            justifyContent="space-between"
+            width="100%"
+          >
+            <TypographyComponent
+              fontSize="18px"
+              fontFamily="var(--main)"
+              color="var(--dark)"
+              fontWeight="400"
+            >
               VEHICLES
             </TypographyComponent>
-            <BoxComponent display='flex' justifyContent='space-between' gap='5px'>
-            <ButtonComponent
-              variant="contained"
-              backgroundColor="var(--primary)"
-              sx={{ color: "var(--light)", padding: "10px 20px" }}
-              onClick={handleVehicle}
-              
+            <BoxComponent
+              display="flex"
+              justifyContent="space-between"
+              gap="5px"
             >
-              View All
-            </ButtonComponent>
-            <ButtonComponent
-              variant="contained"
-              backgroundColor="var(--primary)"
-              sx={{ color: "var(--light)", padding: "10px 20px" }}
-              onClick={handleAddVehicle}
-              title="Add Vehicle"
-            >
-              + Add Vehicle
-            </ButtonComponent>
+              <ButtonComponent
+                variant="contained"
+                backgroundColor="var(--primary)"
+                sx={{ color: "var(--light)", padding: "10px 20px" }}
+                onClick={handleVehicle}
+              >
+                View All
+              </ButtonComponent>
+              <ButtonComponent
+                variant="contained"
+                backgroundColor="var(--primary)"
+                sx={{ color: "var(--light)", padding: "10px 20px" }}
+                onClick={handleAddVehicle}
+                title="Add Vehicle"
+              >
+                + Add Vehicle
+              </ButtonComponent>
             </BoxComponent>
           </BoxComponent>
-          <Find placeholder="Search a Vehicle by ID" label="Status" status={status} />
+          <Find
+            placeholder="Search a Vehicle by ID"
+            label="Status"
+            status={status}
+          />
           <Table
-            rows={filteredVehicles}  // Display filtered vehicles here
+            rows={filteredVehicles} // Display filtered vehicles here
             headings={headings}
             icons={icons}
             onDetailClick={(id) => {

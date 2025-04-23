@@ -2,10 +2,9 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify"; // Correct import for toast
 
-
 export const getHeader = (serverSideToken = null) => {
   const clientApiKey = process.env.REACT_APP_API_URL;
-  const userData = Cookies.get("token") || serverSideToken;
+  const userData = localStorage.getItem("token") || serverSideToken;
 
   const headers = {
     "Content-Type": "application/json",
@@ -16,14 +15,13 @@ export const getHeader = (serverSideToken = null) => {
     Origin: window.location.origin,
   };
 
-  console.log("userData", userData)
+  console.log("userData", userData);
   if (userData) {
     headers["Authorization"] = `${userData}`;
   }
 
   return headers;
 };
-
 
 // Helper function to set headers for multipart form data
 export const multiPartForm = (fileExtension) => {
@@ -55,6 +53,7 @@ export const doPost = async (endPoint, body, customHeaders = {}) => {
 
 // Function to handle GET requests
 export const doGet = async (endPoint, serverSideToken = null) => {
+  console.log("Server side token", serverSideToken);
   try {
     const result = await axios.get(endPoint, {
       headers: getHeader(serverSideToken),
@@ -99,4 +98,3 @@ const handleUnauthorized = () => {
   toast.error("Session expired. Please log in again.");
   // window.location.reload();
 };
-
