@@ -13,6 +13,7 @@ import {
   CUSTOMER_DETAILS,
   UPDATE_CUSTOMER_STATUS,
   UPDATE_CUSTOMER,
+  GET_FILE,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -102,4 +103,11 @@ export const updateVehicleCategory = (id, requestData, token) => {
     id
   );
   return doPut(url, requestData, getHeader(token));
+};
+
+export const getFile = (fileType, mimeType, token) => {
+  return doGet(
+    `${API_URL}${API_VERSION}${GET_FILE}?fileType=${fileType}&mimeType=${mimeType}`,
+    token
+  );
 };

@@ -10,3 +10,4 @@ export const CUSTOMERS_LIST = "admin/users/list";
 export const CUSTOMER_DETAILS = "admin/users/:userId/details";
 export const UPDATE_CUSTOMER_STATUS = "admin/users/:userId/status";
 export const UPDATE_CUSTOMER = "admin/users/:userId";
+export const GET_FILE = "file";

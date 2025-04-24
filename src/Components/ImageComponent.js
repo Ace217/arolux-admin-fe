@@ -3,44 +3,42 @@ import BoxComponent from "./Box";
 import TypographyComponent from "./Typography";
 import ButtonComponent from "./Button";
 import Cookies from "js-cookie";
+import { getFile } from "../api/constants";
 
-const ImageComponent = ({ onImageUpload }) => {
+const ImageComponent = ({ onImageUpload, imageType = "general-image" }) => {
   const defaultImage =
     "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png";
   const [image, setImage] = useState(defaultImage);
   const [error, setError] = useState("");
-  const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const uploadImage = async (file) => {
-    const formData = new FormData();
-    formData.append("image", file);
+  const trimUrl = (url) => {
+    // Find the first occurrence of a query parameter
+    const queryIndex = url.indexOf("?");
+    if (queryIndex !== -1) {
+      return url.substring(0, queryIndex);
+    }
+    return url;
+  };
 
+  const uploadToUrl = async (file, url) => {
     try {
-      setUploading(true);
-      const token = Cookies.get("token");
-      const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/admin/upload-image`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const response = await fetch(url, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type, // Use the file's actual mime type
+        },
+      });
 
-      if (response.ok) {
-        const data = await response.json();
-        return data.url; // Assuming the API returns the image URL
-      } else {
-        throw new Error("Image upload failed");
+      if (!response.ok) {
+        throw new Error("Failed to upload image to URL");
       }
+
+      return true;
     } catch (error) {
-      console.error("Error uploading image:", error);
-      setError("Failed to upload image. Please try again.");
-      return null;
-    } finally {
-      setUploading(false);
+      console.error("Error uploading to URL:", error);
+      throw error;
     }
   };
 
@@ -51,14 +49,39 @@ const ImageComponent = ({ onImageUpload }) => {
       if (file.size > 5 * 1024 * 1024) {
         setError("File size should be 5MB or less.");
         setImage(null);
-      } else {
+        return;
+      }
+
+      try {
+        setLoading(true);
         setError("");
+
+        // Show preview immediately
         setImage(URL.createObjectURL(file));
 
-        const imageUrl = await uploadImage(file);
-        if (imageUrl && onImageUpload) {
-          onImageUpload(imageUrl);
+        const token = Cookies.get("token");
+        // Get file extension from the actual file
+        const fileExt = file.type.split("/")[1];
+        const response = await getFile(imageType, fileExt, token);
+
+        if (response?.data?.data?.url) {
+          const fullUrl = response.data.data.url;
+          const trimmedUrl = trimUrl(fullUrl);
+
+          // Upload the file to the full URL
+          await uploadToUrl(file, fullUrl);
+
+          // Pass the trimmed URL to the parent component
+          onImageUpload(trimmedUrl);
+        } else {
+          throw new Error("Failed to get image URL");
         }
+      } catch (error) {
+        console.error("Error in image upload process:", error);
+        setError("Failed to process image. Please try again.");
+        setImage(defaultImage);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -74,7 +97,7 @@ const ImageComponent = ({ onImageUpload }) => {
       <ButtonComponent
         variant="contained"
         component="label"
-        disabled={uploading}
+        disabled={loading}
         sx={{
           backgroundColor: "var(--primary)",
           color: "var(--light)",
@@ -84,7 +107,7 @@ const ImageComponent = ({ onImageUpload }) => {
           "&:hover": { backgroundColor: "var(--primary)" },
         }}
       >
-        {uploading ? "Uploading..." : "Upload Picture Here"}
+        {loading ? "Processing..." : "Upload Picture Here"}
         <input
           type="file"
           accept="image/*"
