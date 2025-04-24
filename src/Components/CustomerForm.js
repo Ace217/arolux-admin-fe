@@ -8,12 +8,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { updateCustomer } from "../api/constants";
+import { updateCustomer, getCustomerDetails } from "../api/constants";
 
 export default function CustomerForm() {
   const location = useLocation();
   const navigate = useNavigate();
   const { title, customerData } = location.state || {};
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -23,17 +24,34 @@ export default function CustomerForm() {
   });
 
   useEffect(() => {
-    if (customerData) {
-      setFormData({
-        name: customerData.name || "",
-        email: customerData.email || "",
-        phone: `${customerData.countryCode || "+1"}${
-          customerData.phoneNumber || ""
-        }`,
-        profileImageURL: customerData.profileImageURL || "",
-      });
-    }
-  }, [customerData]);
+    const fetchCustomerDetails = async () => {
+      if (customerData?.id) {
+        setLoading(true);
+        try {
+          const token = Cookies.get("token");
+          const response = await getCustomerDetails(customerData.id, token);
+          if (response?.data?.success) {
+            const details = response.data.data;
+            setFormData({
+              name: details.name || "",
+              email: details.email || "",
+              phone: `${details.countryCode || "+1"}${
+                details.phoneNumber || ""
+              }`,
+              profileImageURL: details.profileImageURL || "",
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching customer details:", error);
+          toast.error("Error fetching customer details");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchCustomerDetails();
+  }, [customerData?.id]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({
@@ -111,87 +129,91 @@ export default function CustomerForm() {
       alignItems="center"
       backgroundColor="var(--light)"
     >
-      <BoxComponent
-        margin="50px"
-        padding="30px 15px"
-        borderRadius="10px"
-        width="80%"
-        gap="20px"
-        display="flex"
-        flexDirection="column"
-        justifyContent="space-around"
-        alignItems="center"
-        backgroundColor="var(--white)"
-        boxShadow="0 4px 10px rgba(0, 0, 0, 0.1)"
-      >
-        <BoxComponent width="100%" display="flex" flexDirection="column">
-          <BoxComponent
-            display="flex"
-            justifyContent="flex-end"
-            width="100%"
-            sx={{ cursor: "pointer" }}
-          >
-            <CancelIcon onClick={handleCancel} fontSize="large" />
+      {loading ? (
+        <TypographyComponent>Loading...</TypographyComponent>
+      ) : (
+        <BoxComponent
+          margin="50px"
+          padding="30px 15px"
+          borderRadius="10px"
+          width="80%"
+          gap="20px"
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-around"
+          alignItems="center"
+          backgroundColor="var(--white)"
+          boxShadow="0 4px 10px rgba(0, 0, 0, 0.1)"
+        >
+          <BoxComponent width="100%" display="flex" flexDirection="column">
+            <BoxComponent
+              display="flex"
+              justifyContent="flex-end"
+              width="100%"
+              sx={{ cursor: "pointer" }}
+            >
+              <CancelIcon onClick={handleCancel} fontSize="large" />
+            </BoxComponent>
+
+            <TypographyComponent
+              fontSize="40px"
+              color="var(--dull)"
+              fontFamily="var(--main)"
+              fontWeight="600"
+              marginBottom="20px"
+              textAlign="center"
+              width="100%"
+            >
+              {title || "Edit Customer"}
+            </TypographyComponent>
           </BoxComponent>
 
-          <TypographyComponent
-            fontSize="40px"
-            color="var(--dull)"
-            fontFamily="var(--main)"
-            fontWeight="600"
-            marginBottom="20px"
-            textAlign="center"
-            width="100%"
+          <BoxComponent width="90%">
+            <InputComponent
+              variant="outlined"
+              label="Name"
+              value={formData.name}
+              onChange={(e) => handleChange("name", e.target.value)}
+            />
+          </BoxComponent>
+
+          <BoxComponent width="90%">
+            <InputComponent
+              variant="outlined"
+              label="Email"
+              value={formData.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+            />
+          </BoxComponent>
+
+          <BoxComponent width="90%">
+            <InputComponent
+              variant="outlined"
+              label="Phone Number (with country code)"
+              value={formData.phone}
+              onChange={(e) => handleChange("phone", e.target.value)}
+              placeholder="+1234567890"
+            />
+          </BoxComponent>
+
+          <ImageComponent
+            onImageUpload={handleImageUpload}
+            currentImage={formData.profileImageURL}
+          />
+
+          <ButtonComponent
+            variant="contained"
+            backgroundColor="var(--primary)"
+            sx={{
+              width: "90%",
+              padding: "10px",
+            }}
+            onClick={handleSubmit}
           >
-            {title || "Edit Customer"}
-          </TypographyComponent>
+            Update Customer
+          </ButtonComponent>
         </BoxComponent>
-
-        <BoxComponent width="90%">
-          <InputComponent
-            variant="outlined"
-            label="Name"
-            value={formData.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-          />
-        </BoxComponent>
-
-        <BoxComponent width="90%">
-          <InputComponent
-            variant="outlined"
-            label="Email"
-            value={formData.email}
-            onChange={(e) => handleChange("email", e.target.value)}
-          />
-        </BoxComponent>
-
-        <BoxComponent width="90%">
-          <InputComponent
-            variant="outlined"
-            label="Phone Number (with country code)"
-            value={formData.phone}
-            onChange={(e) => handleChange("phone", e.target.value)}
-            placeholder="+1234567890"
-          />
-        </BoxComponent>
-
-        <ImageComponent
-          onImageUpload={handleImageUpload}
-          currentImage={formData.profileImageURL}
-        />
-
-        <ButtonComponent
-          variant="contained"
-          backgroundColor="var(--primary)"
-          sx={{
-            width: "90%",
-            padding: "10px",
-          }}
-          onClick={handleSubmit}
-        >
-          Update Customer
-        </ButtonComponent>
-      </BoxComponent>
+      )}
     </BoxComponent>
   );
 }

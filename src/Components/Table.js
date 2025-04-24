@@ -3,6 +3,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import Switch from "@mui/material/Switch";
+import TypographyComponent from "./Typography";
 
 export default function Table({
   rows = [], // Ensure rows default to an empty array
@@ -12,6 +13,7 @@ export default function Table({
   onDetailClick = () => {},
   onEdit = () => {}, // Add onEdit prop
   getRowId = (row) => row.id, // Default getRowId to avoid errors
+  loading = false, // Add loading prop
 }) {
   // Create columns based on the headings prop
   const columns = headings
@@ -88,6 +90,25 @@ export default function Table({
   );
 
   const paginationModel = { page: 0, pageSize: 5 };
+
+  if (loading) {
+    return (
+      <Paper
+        sx={{
+          height: 400,
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <TypographyComponent color="var(--primary)" fontSize="16px">
+          Loading...
+        </TypographyComponent>
+      </Paper>
+    );
+  }
+
   return (
     <Paper sx={{ height: 400, width: "100%" }}>
       <DataGrid
