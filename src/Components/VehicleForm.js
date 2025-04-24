@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BoxComponent from "./Box";
 import TypographyComponent from "./Typography";
 import InputComponent from "./InputComponent";
@@ -6,13 +6,14 @@ import ImageComponent from "./ImageComponent";
 import ButtonComponent from "./Button";
 import { useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { createVehicleCategory } from "../api/constants";
+import { createVehicleCategory, updateVehicleCategory } from "../api/constants";
 import { toast } from "react-toastify";
 
 export default function VehicleForm() {
   const location = useLocation();
   const navigate = useNavigate();
-  const title = location.state?.title || "Add Vehicle";
+  const title = location.state?.title || "Add Vehicle Category";
+  const categoryId = location.state?.categoryId;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -21,7 +22,29 @@ export default function VehicleForm() {
     maxSeatingCapacity: "",
     iconURL:
       "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png",
+    isActive: true,
   });
+
+  useEffect(() => {
+    if (location.state?.categoryData) {
+      const {
+        name,
+        description,
+        iconURL,
+        minSeatingCapacity,
+        maxSeatingCapacity,
+        isActive,
+      } = location.state.categoryData;
+      setFormData({
+        name,
+        description,
+        iconURL,
+        minSeatingCapacity: minSeatingCapacity.toString(),
+        maxSeatingCapacity: maxSeatingCapacity.toString(),
+        isActive,
+      });
+    }
+  }, [location.state]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({
@@ -71,30 +94,39 @@ export default function VehicleForm() {
 
     try {
       const token = Cookies.get("token");
-      const response = await createVehicleCategory(
-        {
-          ...formData,
-          minSeatingCapacity: parseInt(formData.minSeatingCapacity),
-          maxSeatingCapacity: parseInt(formData.maxSeatingCapacity),
-          isActive: true,
-        },
-        token
-      );
+      const requestData = {
+        ...formData,
+        minSeatingCapacity: parseInt(formData.minSeatingCapacity),
+        maxSeatingCapacity: parseInt(formData.maxSeatingCapacity),
+      };
 
-      console.log("response", response);
+      let response;
+      if (categoryId) {
+        response = await updateVehicleCategory(categoryId, requestData, token);
+      } else {
+        response = await createVehicleCategory(requestData, token);
+      }
+
       if (response?.data?.success) {
-        toast.success("Vehicle category created successfully!");
+        toast.success(
+          categoryId
+            ? "Vehicle category updated successfully!"
+            : "Vehicle category created successfully!"
+        );
         navigate(-1);
       } else {
         toast.error(
-          response?.data?.message || "Failed to create vehicle category"
+          response?.data?.message ||
+            `Failed to ${categoryId ? "update" : "create"} vehicle category`
         );
       }
     } catch (error) {
-      console.error("Error creating category:", error);
+      console.error("Error:", error);
       toast.error(
         error?.response?.data?.message ||
-          "An error occurred while creating the category"
+          `An error occurred while ${
+            categoryId ? "updating" : "creating"
+          } the category`
       );
     }
   };
@@ -121,57 +153,61 @@ export default function VehicleForm() {
       >
         <TypographyComponent
           fontSize="40px"
-          color="var(--dull)"
           fontFamily="var(--main)"
-          fontWeight="600"
-          marginBottom="20px"
+          color="var(--dark)"
+          fontWeight="400"
         >
           {title}
         </TypographyComponent>
-        <BoxComponent width="90%">
-          <InputComponent
-            variant="outlined"
-            label="Name"
-            value={formData.name}
-            onChange={(e) => handleChange("name", e.target.value)}
-          />
+        <InputComponent
+          label="Name"
+          placeholder="Enter Name"
+          value={formData.name}
+          onChange={(e) => handleChange("name", e.target.value)}
+        />
+        <InputComponent
+          label="Description"
+          placeholder="Enter Description"
+          value={formData.description}
+          onChange={(e) => handleChange("description", e.target.value)}
+        />
+        <InputComponent
+          label="Minimum Seating Capacity"
+          type="number"
+          placeholder="Enter Minimum Seating Capacity"
+          value={formData.minSeatingCapacity}
+          onChange={(e) => handleChange("minSeatingCapacity", e.target.value)}
+        />
+        <InputComponent
+          label="Maximum Seating Capacity"
+          type="number"
+          placeholder="Enter Maximum Seating Capacity"
+          value={formData.maxSeatingCapacity}
+          onChange={(e) => handleChange("maxSeatingCapacity", e.target.value)}
+        />
+        <ImageComponent
+          label="Vehicle Category Image"
+          imageURL={formData.iconURL}
+          onImageUpload={handleImageUpload}
+        />
+        <BoxComponent display="flex" gap="10px">
+          <ButtonComponent
+            variant="contained"
+            backgroundColor="var(--primary)"
+            sx={{ color: "var(--light)", padding: "10px 20px" }}
+            onClick={handleSubmit}
+          >
+            {categoryId ? "Update" : "Submit"}
+          </ButtonComponent>
+          <ButtonComponent
+            variant="contained"
+            backgroundColor="var(--error)"
+            sx={{ color: "var(--light)", padding: "10px 20px" }}
+            onClick={() => navigate(-1)}
+          >
+            Cancel
+          </ButtonComponent>
         </BoxComponent>
-        <BoxComponent width="90%">
-          <InputComponent
-            variant="outlined"
-            label="Description"
-            value={formData.description}
-            onChange={(e) => handleChange("description", e.target.value)}
-          />
-        </BoxComponent>
-        <BoxComponent width="90%" display="flex" gap="20px">
-          <InputComponent
-            variant="outlined"
-            label="Min Seating Capacity"
-            type="number"
-            value={formData.minSeatingCapacity}
-            onChange={(e) => handleChange("minSeatingCapacity", e.target.value)}
-          />
-          <InputComponent
-            variant="outlined"
-            label="Max Seating Capacity"
-            type="number"
-            value={formData.maxSeatingCapacity}
-            onChange={(e) => handleChange("maxSeatingCapacity", e.target.value)}
-          />
-        </BoxComponent>
-        <ImageComponent onImageUpload={handleImageUpload} />
-        <ButtonComponent
-          variant="contained"
-          backgroundColor="var(--primary)"
-          sx={{
-            width: "90%",
-            padding: "10px",
-          }}
-          onClick={handleSubmit}
-        >
-          Submit
-        </ButtonComponent>
       </BoxComponent>
     </BoxComponent>
   );

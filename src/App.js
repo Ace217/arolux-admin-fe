@@ -1,9 +1,5 @@
 import "./App.css";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Login from "./Pages/Login";
 import Dashboard from "./Pages/Dashboard";
@@ -21,6 +17,7 @@ import Locations from "./Pages/Locations";
 import LocationForm from "./Components/LocationForm";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import Form from "./Components/Form"; // Import the Form component
+import CustomerForm from "./Components/CustomerForm";
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -134,6 +131,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <LocationForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="customer-form"
+          element={
+            <ProtectedRoute>
+              <CustomerForm />
             </ProtectedRoute>
           }
         />

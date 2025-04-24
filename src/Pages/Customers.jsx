@@ -12,6 +12,7 @@ import { getCustomersList, updateCustomerStatus } from "../api/constants";
 import Cookies from "js-cookie";
 import { useDebounce } from "../hooks/useDebounce";
 import { toast } from "react-toastify";
+import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 
 export default function Customers() {
   const navigate = useNavigate();
@@ -23,9 +24,17 @@ export default function Customers() {
   const [isActive, setIsActive] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearchText = useDebounce(searchInput, 500);
+  const [selectedCustomerData, setSelectedCustomerData] = useState(null);
 
   const handleDetailClick = (data) => {
     navigate("/details", { state: { ...data } });
+  };
+
+  const handleEditClick = (data) => {
+    setSelectedCustomerData(data);
+    navigate("/customer-form", {
+      state: { title: "Edit Customer", customerData: data },
+    });
   };
 
   const status = [
@@ -83,6 +92,17 @@ export default function Customers() {
       headerName: "Created At",
       width: 200,
       renderCell: (params) => new Date(params.value).toLocaleDateString(),
+    },
+    {
+      field: "edit",
+      headerName: "Edit",
+      width: 70,
+      renderCell: (params) => (
+        <ModeEditOutlineOutlinedIcon
+          onClick={() => handleEditClick(params.row)}
+          style={{ cursor: "pointer" }}
+        />
+      ),
     },
     {
       field: "view",

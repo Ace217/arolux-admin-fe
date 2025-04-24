@@ -8,9 +8,11 @@ import {
   PASSWORD,
   VEHICLE_CATEGORIES,
   CREATE_VEHICLE_CATEGORY,
+  UPDATE_VEHICLE_CATEGORY,
   CUSTOMERS_LIST,
   CUSTOMER_DETAILS,
   UPDATE_CUSTOMER_STATUS,
+  UPDATE_CUSTOMER,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -84,4 +86,20 @@ export const updateCustomerStatus = (userId, status, token) => {
     userId
   )}`;
   return doPatch(url, { status }, getHeader(token));
+};
+
+export const updateCustomer = (userId, requestData, token) => {
+  const url = `${API_URL}${API_VERSION}${UPDATE_CUSTOMER.replace(
+    ":userId",
+    userId
+  )}`;
+  return doPut(url, requestData, getHeader(token));
+};
+
+export const updateVehicleCategory = (id, requestData, token) => {
+  const url = `${API_URL}${API_VERSION}${UPDATE_VEHICLE_CATEGORY}`.replace(
+    ":id",
+    id
+  );
+  return doPut(url, requestData, getHeader(token));
 };

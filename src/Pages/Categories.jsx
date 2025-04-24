@@ -35,7 +35,18 @@ export default function Categories() {
 
   const handleEditCategory = (category) => {
     navigate("/vehicle-form", {
-      state: { title: "Update Category", categoryId: category.id },
+      state: {
+        title: "Update Category",
+        categoryId: category._id,
+        categoryData: {
+          name: category.name,
+          description: category.description,
+          iconURL: category.iconURL,
+          minSeatingCapacity: category.minSeatingCapacity,
+          maxSeatingCapacity: category.maxSeatingCapacity,
+          isActive: category.isActive,
+        },
+      },
     });
   };
 
