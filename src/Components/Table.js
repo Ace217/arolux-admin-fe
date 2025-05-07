@@ -53,7 +53,7 @@ export default function Table({
       renderCell: (params) =>
         icons.details ? (
           <IconButton
-            onClick={() => onDetailClick(params.row.name)}
+            onClick={() => onDetailClick(params.row)}
             aria-label="details"
             sx={{ color: "var(--primary)" }}
           >

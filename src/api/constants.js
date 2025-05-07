@@ -13,6 +13,8 @@ import {
   CUSTOMER_DETAILS,
   UPDATE_CUSTOMER_STATUS,
   UPDATE_CUSTOMER,
+  DRIVERS_LIST,
+  DRIVER_DETAILS,
   GET_FILE,
 } from "./endpoints"; // Import the endpoints
 
@@ -110,4 +112,17 @@ export const getFile = (fileType, mimeType, token) => {
     `${API_URL}${API_VERSION}${GET_FILE}?fileType=${fileType}&mimeType=${mimeType}`,
     token
   );
+};
+
+export const getDriversList = (params, token) => {
+  const queryString = new URLSearchParams(params).toString();
+  return doGet(`${API_URL}${API_VERSION}${DRIVERS_LIST}?${queryString}`, token);
+};
+
+export const getDriverDetails = (driverId, token) => {
+  const url = `${API_URL}${API_VERSION}${DRIVER_DETAILS.replace(
+    ":driverId",
+    driverId
+  )}`;
+  return doGet(url, token);
 };

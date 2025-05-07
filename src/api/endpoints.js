@@ -10,4 +10,6 @@ export const CUSTOMERS_LIST = "admin/users/list";
 export const CUSTOMER_DETAILS = "admin/users/:userId/details";
 export const UPDATE_CUSTOMER_STATUS = "admin/users/:userId/status";
 export const UPDATE_CUSTOMER = "admin/users/:userId";
+export const DRIVERS_LIST = "admin/users/drivers/list";
+export const DRIVER_DETAILS = "admin/users/drivers/:driverId/details";
 export const GET_FILE = "file";

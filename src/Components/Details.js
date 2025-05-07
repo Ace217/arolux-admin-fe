@@ -4,7 +4,11 @@ import BoxComponent from "./Box";
 import TypographyComponent from "./Typography";
 import DetailComponent from "./DetailComponent";
 import ButtonComponent from "./Button";
-import { getCustomerDetails, updateCustomerStatus } from "../api/constants";
+import {
+  getCustomerDetails,
+  updateCustomerStatus,
+  getDriverDetails,
+} from "../api/constants";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 
@@ -13,6 +17,7 @@ export default function Details() {
   const initialData = location.state || {};
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(false);
+  const [isDriver] = useState(!!initialData.driverProfile);
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -20,19 +25,33 @@ export default function Details() {
         setLoading(true);
         try {
           const token = Cookies.get("token");
-          const response = await getCustomerDetails(initialData.id, token);
-          if (response?.data?.success) {
-            const details = response.data.data;
-            setData({
-              ...details,
-              id: details._id,
-              createdAt: new Date(details.createdAt).toLocaleString(),
-              updatedAt: new Date(details.updatedAt).toLocaleString(),
-            });
+          let response;
+
+          if (isDriver) {
+            response = await getDriverDetails(initialData.id, token);
+            if (response?.data?.success) {
+              const driverDetails = response.data.data.driver[0];
+              setData({
+                ...driverDetails,
+                id: driverDetails._id,
+                createdAt: new Date(driverDetails.createdAt).toLocaleString(),
+              });
+            }
+          } else {
+            response = await getCustomerDetails(initialData.id, token);
+            if (response?.data?.success) {
+              const details = response.data.data;
+              setData({
+                ...details,
+                id: details._id,
+                createdAt: new Date(details.createdAt).toLocaleString(),
+                updatedAt: new Date(details.updatedAt).toLocaleString(),
+              });
+            }
           }
         } catch (error) {
-          console.error("Error fetching customer details:", error);
-          toast.error("Error fetching customer details");
+          console.error("Error fetching details:", error);
+          toast.error("Error fetching details");
         } finally {
           setLoading(false);
         }
@@ -40,20 +59,16 @@ export default function Details() {
     };
 
     fetchDetails();
-  }, [initialData.id]);
+  }, [initialData.id, isDriver]);
 
   const handleStatusChange = async () => {
     try {
       const token = Cookies.get("token");
       const newStatus = data.status === "active" ? "blocked" : "active";
-
       const response = await updateCustomerStatus(data.id, newStatus, token);
 
       if (response?.data?.success) {
-        setData((prev) => ({
-          ...prev,
-          status: newStatus,
-        }));
+        setData((prev) => ({ ...prev, status: newStatus }));
         toast.success(
           `Customer ${
             newStatus === "active" ? "activated" : "blocked"
@@ -63,26 +78,256 @@ export default function Details() {
         toast.error(response?.data?.message || "Failed to update status");
       }
     } catch (error) {
-      console.error("Error updating customer status:", error);
-      toast.error("Error updating customer status");
+      console.error("Error updating status:", error);
+      toast.error("Error updating status");
     }
   };
 
   const formatKey = (key) => {
     return key
-      .replace(/_/g, " ")
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, (str) => str.toUpperCase())
+      .trim();
   };
 
   const shouldDisplayField = (key, value) => {
-    const excludedFields = ["__v", "_id"];
+    const excludedFields = [
+      "__v",
+      "_id",
+      "id",
+      "driverProfile",
+      "vehicleDetails",
+      "drivingLicense",
+      "bankAccount",
+    ];
     return (
       !excludedFields.includes(key) &&
       value !== undefined &&
       value !== null &&
       typeof value !== "object"
+    );
+  };
+
+  const renderDriverSpecificDetails = () => {
+    if (!isDriver || !data.driverProfile) return null;
+
+    const { driverProfile, vehicleDetails, drivingLicense, bankAccount } = data;
+
+    return (
+      <>
+        {/* Profile Details */}
+        <BoxComponent width="100%" marginBottom="20px">
+          <TypographyComponent
+            fontSize="24px"
+            color="var(--primary)"
+            fontWeight="600"
+            marginBottom="15px"
+          >
+            Profile Details
+          </TypographyComponent>
+          <BoxComponent display="grid" gridTemplateColumns="1fr 1fr" gap="20px">
+            <DetailComponent
+              title="First Name"
+              details={driverProfile.firstName}
+            />
+            <DetailComponent
+              title="Last Name"
+              details={driverProfile.lastName}
+            />
+            <DetailComponent title="Email" details={driverProfile.email} />
+            <DetailComponent title="Gender" details={driverProfile.gender} />
+            <DetailComponent
+              title="Date of Birth"
+              details={new Date(driverProfile.dateOfBirth).toLocaleDateString()}
+            />
+            <DetailComponent title="Address" details={driverProfile.address} />
+            <DetailComponent title="City" details={driverProfile.city} />
+            <DetailComponent
+              title="Postal Code"
+              details={driverProfile.postalCode}
+            />
+            <DetailComponent
+              title="Partner Type"
+              details={driverProfile.partnerType}
+            />
+            <DetailComponent
+              title="Tax File Number"
+              details={driverProfile.taxFileNumber}
+            />
+            <DetailComponent title="Status" details={driverProfile.status} />
+            <DetailComponent
+              title="Online Status"
+              details={driverProfile.isOnline ? "Online" : "Offline"}
+            />
+            <DetailComponent
+              title="Admin Approval Status"
+              details={driverProfile.adminApprovalStatus}
+            />
+            <DetailComponent
+              title="Admin Approval Time"
+              details={new Date(
+                driverProfile.adminApprovalTime
+              ).toLocaleString()}
+            />
+          </BoxComponent>
+        </BoxComponent>
+
+        {/* Vehicle Details */}
+        {vehicleDetails && (
+          <BoxComponent width="100%" marginBottom="20px">
+            <TypographyComponent
+              fontSize="24px"
+              color="var(--primary)"
+              fontWeight="600"
+              marginBottom="15px"
+            >
+              Vehicle Details
+            </TypographyComponent>
+            <BoxComponent
+              display="grid"
+              gridTemplateColumns="1fr 1fr"
+              gap="20px"
+            >
+              <DetailComponent title="Make" details={vehicleDetails.make} />
+              <DetailComponent title="Model" details={vehicleDetails.model} />
+              <DetailComponent title="Year" details={vehicleDetails.year} />
+              <DetailComponent title="Color" details={vehicleDetails.color} />
+              <DetailComponent
+                title="Plate Number"
+                details={vehicleDetails.plateNumber}
+              />
+            </BoxComponent>
+          </BoxComponent>
+        )}
+
+        {/* Bank Account Details */}
+        {bankAccount && (
+          <BoxComponent width="100%" marginBottom="20px">
+            <TypographyComponent
+              fontSize="24px"
+              color="var(--primary)"
+              fontWeight="600"
+              marginBottom="15px"
+            >
+              Bank Account Details
+            </TypographyComponent>
+            <BoxComponent
+              display="grid"
+              gridTemplateColumns="1fr 1fr"
+              gap="20px"
+            >
+              <DetailComponent
+                title="Account Number"
+                details={bankAccount.accountNumber}
+              />
+              <DetailComponent
+                title="Swift Code"
+                details={bankAccount.swiftCode}
+              />
+            </BoxComponent>
+          </BoxComponent>
+        )}
+
+        {/* Documents */}
+        {(drivingLicense || vehicleDetails) && (
+          <BoxComponent width="100%" marginBottom="20px">
+            <TypographyComponent
+              fontSize="24px"
+              color="var(--primary)"
+              fontWeight="600"
+              marginBottom="15px"
+            >
+              Documents
+            </TypographyComponent>
+            <BoxComponent
+              display="grid"
+              gridTemplateColumns="1fr 1fr"
+              gap="20px"
+            >
+              {drivingLicense && (
+                <>
+                  <BoxComponent>
+                    <TypographyComponent marginBottom="10px">
+                      Driving License Front
+                    </TypographyComponent>
+                    <img
+                      src={drivingLicense.frontSide}
+                      alt="License Front"
+                      style={{
+                        width: "100%",
+                        maxWidth: "300px",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </BoxComponent>
+                  <BoxComponent>
+                    <TypographyComponent marginBottom="10px">
+                      Driving License Back
+                    </TypographyComponent>
+                    <img
+                      src={drivingLicense.backSide}
+                      alt="License Back"
+                      style={{
+                        width: "100%",
+                        maxWidth: "300px",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </BoxComponent>
+                </>
+              )}
+              {vehicleDetails && (
+                <>
+                  <BoxComponent>
+                    <TypographyComponent marginBottom="10px">
+                      Vehicle Inspection Front
+                    </TypographyComponent>
+                    <img
+                      src={vehicleDetails.inspectionFrontSide}
+                      alt="Inspection Front"
+                      style={{
+                        width: "100%",
+                        maxWidth: "300px",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </BoxComponent>
+                  <BoxComponent>
+                    <TypographyComponent marginBottom="10px">
+                      Vehicle Inspection Back
+                    </TypographyComponent>
+                    <img
+                      src={vehicleDetails.inspectionBackSide}
+                      alt="Inspection Back"
+                      style={{
+                        width: "100%",
+                        maxWidth: "300px",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  </BoxComponent>
+                  {vehicleDetails.registrationFrontSide && (
+                    <BoxComponent>
+                      <TypographyComponent marginBottom="10px">
+                        Vehicle Registration
+                      </TypographyComponent>
+                      <img
+                        src={vehicleDetails.registrationFrontSide}
+                        alt="Registration"
+                        style={{
+                          width: "100%",
+                          maxWidth: "300px",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </BoxComponent>
+                  )}
+                </>
+              )}
+            </BoxComponent>
+          </BoxComponent>
+        )}
+      </>
     );
   };
 
@@ -103,7 +348,7 @@ export default function Details() {
         marginBottom="30px"
         textAlign="center"
       >
-        Customer Details
+        {isDriver ? "Driver Details" : "Customer Details"}
       </TypographyComponent>
 
       {loading ? (
@@ -120,29 +365,31 @@ export default function Details() {
           padding="20px"
           gap="20px"
         >
-          <BoxComponent
-            display="flex"
-            justifyContent="flex-end"
-            width="100%"
-            marginBottom="20px"
-          >
-            <ButtonComponent
-              onClick={handleStatusChange}
-              variant="contained"
-              backgroundColor={
-                data.status === "active" ? "var(--error)" : "var(--success)"
-              }
-              sx={{
-                color: "var(--white)",
-                padding: "8px 16px",
-                borderRadius: "4px",
-              }}
+          {!isDriver && (
+            <BoxComponent
+              display="flex"
+              justifyContent="flex-end"
+              width="100%"
+              marginBottom="20px"
             >
-              {data.status === "active"
-                ? "Block Customer"
-                : "Activate Customer"}
-            </ButtonComponent>
-          </BoxComponent>
+              <ButtonComponent
+                onClick={handleStatusChange}
+                variant="contained"
+                backgroundColor={
+                  data.status === "active" ? "var(--error)" : "var(--success)"
+                }
+                sx={{
+                  color: "var(--white)",
+                  padding: "8px 16px",
+                  borderRadius: "4px",
+                }}
+              >
+                {data.status === "active"
+                  ? "Block Customer"
+                  : "Activate Customer"}
+              </ButtonComponent>
+            </BoxComponent>
+          )}
 
           <BoxComponent
             width="100%"
@@ -169,10 +416,12 @@ export default function Details() {
               </BoxComponent>
             )}
 
+            {/* Basic Details */}
             <BoxComponent
               display="grid"
               gridTemplateColumns="1fr 1fr"
               gap="20px"
+              marginBottom="20px"
             >
               {Object.entries(data).map(([key, value]) =>
                 shouldDisplayField(key, value) ? (
@@ -184,6 +433,9 @@ export default function Details() {
                 ) : null
               )}
             </BoxComponent>
+
+            {/* Driver Specific Details */}
+            {renderDriverSpecificDetails()}
           </BoxComponent>
         </BoxComponent>
       )}

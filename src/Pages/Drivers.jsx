@@ -1,33 +1,26 @@
-import React, { useState } from 'react';
-import BoxComponent from '../Components/Box';
-import Sidebar from '../Components/Sidebar';
-import Head from '../Components/Head';
-import TypographyComponent from '../Components/Typography';
-import ButtonComponent from '../Components/Button';
-import Confirm from '../Components/Confirm';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate
-import Table from '../Components/Table';
-import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import Find from '../Components/Find';
+import React, { useState, useEffect } from "react";
+import BoxComponent from "../Components/Box";
+import Sidebar from "../Components/Sidebar";
+import Head from "../Components/Head";
+import TypographyComponent from "../Components/Typography";
+import ButtonComponent from "../Components/Button";
+import { useNavigate } from "react-router-dom";
+import Table from "../Components/Table";
+import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import Find from "../Components/Find";
+import { getDriversList } from "../api/constants";
+import { useDebounce } from "../hooks/useDebounce";
+import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 export default function Drivers() {
-  const navigate = useNavigate();  // For navigation
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [confirmMessage, setConfirmMessage] = useState('');
-const [selectedDriverId, setSelectedDriverId] = useState(null);
-
- const handleDetailClick = (id) => {
-    navigate(`/details?id=${id}`);
-  };
-
-  const handleAddDriver = () => {
-    navigate('/driver-form', { state: { title: 'Add Driver'}});
-  };
-
-  const handleEditDriver = () => {
-    navigate('/driver-form', { state: { title: 'Update Driver' } });
-  };
+  const navigate = useNavigate();
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isActive, setIsActive] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const debouncedSearchText = useDebounce(searchInput, 500);
 
   const status = [
     { value: 1, label: "All" },
@@ -35,73 +28,144 @@ const [selectedDriverId, setSelectedDriverId] = useState(null);
     { value: 3, label: "Inactive" },
   ];
 
-  const [rows, setRows] = useState([
-    { id: 1, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-    { id: 2, coverImage: 'Images/logo.png', name:'Ali', CNIC:'9876543210', Email:'ali@example.com', Phone:'9876543210', vehicle:"RIM 5678", city:'Islamabad', Status: 'Inactive' },
-    { id: 3, coverImage: 'Images/logo.png', name:'Sara', CNIC:'1234532543', Email:'sara@example.com', Phone:'2345678901', vehicle:"RIM 9876", city:'Lahore', Status: 'Active' },
-  ]);
-
   const headings = [
-    { field: 'id', headerName: 'ID'},
+    { field: "id", headerName: "ID", width: 220 },
     {
-      field: 'coverImage',
-      headerName: 'Cover Image',
-      renderCell: (params) => <img src={params.row.coverImage} alt="Cover" style={{ width: '80px', height: '40px' }} />,
+      field: "name",
+      headerName: "Name",
+      width: 150,
+      renderCell: (params) =>
+        `${params.row.driverProfile.firstName} ${params.row.driverProfile.lastName}`,
     },
-    { field: 'name', headerName: 'Name' },
-    { field: 'CNIC', headerName: 'CNIC' },
-    { field: 'Email', headerName: 'E-mail' },
-    { field: 'Phone', headerName: 'Phone' },
-    { field: 'vehicle', headerName: 'Vehicle No' },
-    { field: 'city', headerName: 'City' },
     {
-      field: 'Status',
-      headerName: 'Status',
-      renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
+      field: "email",
+      headerName: "E-mail",
+      width: 200,
+      valueGetter: (params) => params.row.driverProfile.email,
+    },
+    {
+      field: "phone",
+      headerName: "Phone",
+      width: 150,
+      renderCell: (params) =>
+        `${params.row.countryCode}${params.row.phoneNumber}`,
+    },
+    {
+      field: "partnerType",
+      headerName: "Partner Type",
+      width: 150,
+      valueGetter: (params) => params.row.driverProfile.partnerTypeId.name,
+    },
+    {
+      field: "createdAt",
+      headerName: "Created At",
+      width: 200,
+      renderCell: (params) => new Date(params.value).toLocaleDateString(),
     },
   ];
 
   const icons = {
-    edit: <ModeEditOutlineOutlinedIcon onClick={handleEditDriver}/>,
-    details:<VisibilityIcon onClick={handleDetailClick} />,
-  };
-  const handleToggleClick = (id, currentStatus) => {
-    setSelectedDriverId(id);
-    setConfirmMessage(
-      currentStatus === 'Active'
-        ? 'Are you sure you want to remove this Driver?'
-        : 'Are you sure you want to add this Driver?'
-    );
-    setShowConfirm(true);
+    edit: <ModeEditOutlineOutlinedIcon />,
+    details: <VisibilityIcon />,
   };
 
-  const handleConfirm = (confirm) => {
-    if (confirm) {
-      setRows((prevRows) =>
-        prevRows.map((row) =>
-          row.id === selectedDriverId
-            ? { ...row, Status: row.Status === 'Active' ? 'Inactive' : 'Active' }
-            : row
-        )
-      );
+  const handleAddDriver = () => {
+    navigate("/driver-form", { state: { title: "Add Driver" } });
+  };
+
+  const handleEditDriver = (data) => {
+    navigate("/driver-form", {
+      state: {
+        title: "Update Driver",
+        driverData: data,
+      },
+    });
+  };
+
+  const handleDetailClick = (data) => {
+    navigate(`/details`, { state: { ...data } });
+  };
+
+  const fetchDrivers = async (params = {}) => {
+    setLoading(true);
+    try {
+      const token = Cookies.get("token");
+      const apiParams = {
+        limit: 20,
+        offset: 0,
+        searchText: params.searchText || "",
+        ...(params.isActive !== "" && { status: params.isActive }),
+      };
+
+      const response = await getDriversList(apiParams, token);
+
+      if (response?.data?.success) {
+        const drivers = response.data.data.drivers.map((driver) => ({
+          ...driver,
+          id: driver._id,
+        }));
+        setRows(drivers);
+      } else {
+        toast.error(response?.data?.message || "Failed to fetch drivers");
+      }
+    } catch (error) {
+      console.error("Error fetching drivers:", error);
+      toast.error("Error fetching drivers");
+    } finally {
+      setLoading(false);
     }
-    setShowConfirm(false);
+  };
+
+  useEffect(() => {
+    fetchDrivers({
+      searchText: debouncedSearchText,
+      isActive,
+    });
+  }, [debouncedSearchText, isActive]);
+
+  const handleSearch = (value) => {
+    setSearchInput(value);
+  };
+
+  const handleStatusChange = (value) => {
+    let activeStatus;
+    switch (value) {
+      case 1: // All
+        activeStatus = "";
+        break;
+      case 2: // Active
+        activeStatus = "active";
+        break;
+      case 3: // Inactive
+        activeStatus = "inactive";
+        break;
+      default:
+        activeStatus = "";
+    }
+    setIsActive(activeStatus);
   };
 
   return (
-    <BoxComponent
-    backgroundColor="var(--light)"
-    >
+    <BoxComponent backgroundColor="var(--light)">
       <Head />
       <BoxComponent display="flex" justifyContent="space-between">
         <Sidebar />
-        <BoxComponent display="flex" flexDirection="column" width="82%" padding="20px">
-          <BoxComponent display="flex" justifyContent="space-between" width="100%">
+        <BoxComponent
+          display="flex"
+          flexDirection="column"
+          width="82%"
+          padding="20px"
+        >
+          <BoxComponent
+            display="flex"
+            justifyContent="space-between"
+            width="100%"
+          >
             <TypographyComponent
-               fontSize="18px"
-               fontFamily="var(--main)"
-               color="var(--dark)"
-               fontWeight="400"
+              fontSize="18px"
+              fontFamily="var(--main)"
+              color="var(--dark)"
+              fontWeight="400"
             >
               DRIVER MANAGEMENT
             </TypographyComponent>
@@ -111,45 +175,26 @@ const [selectedDriverId, setSelectedDriverId] = useState(null);
               sx={{ color: "var(--light)", padding: "10px 20px" }}
               onClick={handleAddDriver}
               title="Add Driver"
-            
             >
               + Add Driver
             </ButtonComponent>
           </BoxComponent>
-          <Find placeholder="Search a Driver by ID" label="Status" status={status} />
+          <Find
+            placeholder="Search a Driver by Name"
+            label="Status"
+            status={status}
+            onSearch={handleSearch}
+            onStatusChange={handleStatusChange}
+          />
           <Table
             rows={rows}
             headings={headings}
             icons={icons}
-            onDetailClick={(id) => {
-              const currentRow = rows.find((row) => row.id === id);
-              if (currentRow) {
-                handleDetailClick(id, currentRow.id);
-              }
-            }}
-            onStatusChange={(id) => {
-              const currentRow = rows.find((row) => row.id === id);
-              if (currentRow) {
-                handleToggleClick(id, currentRow.Status);
-              }
-            }}
+            loading={loading}
+            getRowId={(row) => row.id}
+            onDetailClick={handleDetailClick}
+            onEdit={handleEditDriver}
           />
-          {showConfirm && (
-            <BoxComponent style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vw',
-              height: '100vh',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 1000,
-            }}>
-              <Confirm message={confirmMessage} onConfirm={handleConfirm} />
-            </BoxComponent>
-          )}
         </BoxComponent>
       </BoxComponent>
     </BoxComponent>
