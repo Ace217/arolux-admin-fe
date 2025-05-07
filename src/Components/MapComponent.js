@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import L from "leaflet";
 import { MapContainer, TileLayer, FeatureGroup, Marker, Popup } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
+import { Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import BoxComponent from './Box';
@@ -16,54 +17,120 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-shadow.png",
 });
 
-const carIconUrl = 'Images/cars.png';
 const carIcon = L.icon({
-  iconUrl: carIconUrl,
+  iconUrl: 'Images/cars.png',
   iconSize: [22, 22],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
 
-const MapComponent = ({ cars = [], center, zoom, isDrawingAllowed = false, drawBoundary, boundaries }) => {
+const pickupIcon = L.icon({
+  iconUrl: 'Images/location-pointer.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+  className: 'pickup-marker' // This will be green
+});
+
+const dropoffIcon = L.icon({
+  iconUrl: 'Images/location-pointer.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+  className: 'dropoff-marker' // This will be red
+});
+
+const decodePolyline = (str, precision = 5) => {
+  let index = 0,
+      lat = 0,
+      lng = 0,
+      coordinates = [],
+      shift = 0,
+      result = 0,
+      byte = null,
+      latitude_change,
+      longitude_change,
+      factor = Math.pow(10, precision);
+
+  while (index < str.length) {
+    byte = null;
+    shift = 0;
+    result = 0;
+
+    do {
+      byte = str.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20);
+
+    latitude_change = ((result & 1) ? ~(result >> 1) : (result >> 1));
+
+    shift = result = 0;
+
+    do {
+      byte = str.charCodeAt(index++) - 63;
+      result |= (byte & 0x1f) << shift;
+      shift += 5;
+    } while (byte >= 0x20);
+
+    longitude_change = ((result & 1) ? ~(result >> 1) : (result >> 1));
+
+    lat += latitude_change;
+    lng += longitude_change;
+
+    coordinates.push([lat / factor, lng / factor]);
+  }
+
+  return coordinates;
+};
+
+const MapComponent = ({ 
+  cars = [], 
+  center, 
+  zoom, 
+  isDrawingAllowed = false, 
+  drawBoundary, 
+  boundaries,
+  markers = [],
+  polyline
+}) => {
   const mapRef = useRef();
+  const [decodedPolyline, setDecodedPolyline] = React.useState([]);
+
+  useEffect(() => {
+    if (polyline) {
+      const decoded = decodePolyline(polyline);
+      setDecodedPolyline(decoded);
+    }
+  }, [polyline]);
 
   const handleCreated = (e) => {
     const layer = e.layer;
     let newBoundary = [];
 
     if (layer instanceof L.Marker) {
-      // Handle marker creation (location pointer)
       const markerCoords = layer.getLatLng();
-      console.log("Marker Coordinates:", markerCoords);
       newBoundary = [markerCoords.lat, markerCoords.lng];
     } else if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
-      // Handle polygon/rectangle creation (boundary)
       const coords = layer.getLatLngs()[0].map(latlng => [latlng.lat, latlng.lng]);
-      console.log("Boundary Coordinates:", coords);
       newBoundary = coords;
     } else if (layer instanceof L.Circle) {
-      // Handle circle creation
       const center = layer.getLatLng();
       const radius = layer.getRadius();
       newBoundary = [{ center: [center.lat, center.lng], radius }];
-      console.log("Circle Coordinates:", newBoundary);
     } else if (layer instanceof L.CircleMarker) {
-      // Handle circle marker creation
       const center = layer.getLatLng();
       newBoundary = [{ center: [center.lat, center.lng], radius: layer.getRadius() }];
-      console.log("Circle Marker Coordinates:", newBoundary);
     }
 
-    // If boundary data is available, send it back to the parent
     if (boundaries) {
       boundaries(newBoundary);
     }
   };
 
   const handleDeleted = (e) => {
-    // When shapes are deleted, clear the boundaries state
     if (boundaries) {
-      boundaries([]);  // Clear boundary coordinates
+      boundaries([]);
     }
   };
 
@@ -71,6 +138,31 @@ const MapComponent = ({ cars = [], center, zoom, isDrawingAllowed = false, drawB
     <BoxComponent className="row">
       <BoxComponent className="col text-center">
         <BoxComponent className="col">
+          <style>
+            {`
+              .pickup-marker img {
+                filter: hue-rotate(120deg); /* Makes the marker green */
+              }
+              .dropoff-marker img {
+                filter: hue-rotate(0deg); /* Keeps the marker red */
+              }
+              .location-label {
+                background: none;
+                border: none;
+                box-shadow: none;
+                font-weight: bold;
+                padding: 0;
+                text-align: center;
+                margin-top: -5px;
+              }
+              .location-label.pickup {
+                color: #00a800;
+              }
+              .location-label.dropoff {
+                color: #d10000;
+              }
+            `}
+          </style>
           <MapContainer 
             center={center} 
             zoom={zoom} 
@@ -82,12 +174,12 @@ const MapComponent = ({ cars = [], center, zoom, isDrawingAllowed = false, drawB
                 <EditControl
                   position="topright"
                   onCreated={handleCreated}
-                  onDeleted={handleDeleted} // Handle shape deletion
+                  onDeleted={handleDeleted}
                   draw={{
                     rectangle: true,
                     circle: true,
                     circlemarker: true,
-                    marker: true,  // Allow marker placement
+                    marker: true,
                     polyline: false,
                     polygon: true,
                   }}
@@ -102,17 +194,42 @@ const MapComponent = ({ cars = [], center, zoom, isDrawingAllowed = false, drawB
               cars.map((car) => (
                 <Marker key={car.id} position={car.position} icon={carIcon}>
                   <Popup>
-                    <BoxComponent
-                    >
-                      <TypographyComponent
-                      fontWeight='600'
-                      >{car.name}</TypographyComponent>
+                    <BoxComponent>
+                      <TypographyComponent fontWeight='600'>{car.name}</TypographyComponent>
                       <TypographyComponent>Status: {car.status}</TypographyComponent>
                       <TypographyComponent>City: {car.city || 'Not Specified'}</TypographyComponent>
                     </BoxComponent>
                   </Popup>
                 </Marker>
               ))}
+            {markers.map((marker, index) => (
+              <Marker 
+                key={index} 
+                position={marker.position} 
+                icon={marker.type === 'pickup' ? pickupIcon : dropoffIcon}
+              >
+                <Popup>
+                  <BoxComponent>
+                    <TypographyComponent 
+                      fontWeight='600'
+                      className={`location-label ${marker.type}`}
+                    >
+                      {marker.type === 'pickup' ? '📍 Pickup Location' : '🎯 Drop-off Location'}
+                    </TypographyComponent>
+                    <TypographyComponent>{marker.title}</TypographyComponent>
+                  </BoxComponent>
+                </Popup>
+              </Marker>
+            ))}
+            {decodedPolyline.length > 0 && (
+              <Polyline 
+                positions={decodedPolyline}
+                color="#0066ff"
+                weight={4}
+                opacity={0.7}
+                dashArray="5, 10" // Makes the line dashed for better visibility
+              />
+            )}
           </MapContainer>
         </BoxComponent>
       </BoxComponent>

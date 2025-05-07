@@ -15,7 +15,6 @@ export const getHeader = (serverSideToken = null) => {
     Origin: window.location.origin,
   };
 
-  console.log("userData", userData);
   if (userData) {
     headers["Authorization"] = `${userData}`;
   }
@@ -53,7 +52,6 @@ export const doPost = async (endPoint, body, customHeaders = {}) => {
 
 // Function to handle GET requests
 export const doGet = async (endPoint, serverSideToken = null) => {
-  console.log("Server side token", serverSideToken);
   try {
     const result = await axios.get(endPoint, {
       headers: getHeader(serverSideToken),

@@ -8,9 +8,11 @@ import {
   getCustomerDetails,
   updateCustomerStatus,
   getDriverDetails,
+  getRideBookingDetails,
 } from "../api/constants";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import MapComponent from "./MapComponent";
 
 export default function Details() {
   const location = useLocation();
@@ -18,10 +20,11 @@ export default function Details() {
   const [data, setData] = useState(initialData);
   const [loading, setLoading] = useState(false);
   const [isDriver] = useState(!!initialData.driverProfile);
+  const [isRideBooking] = useState(!!initialData.randomBookingId);
 
   useEffect(() => {
     const fetchDetails = async () => {
-      if (initialData.id) {
+      if ((initialData.id || initialData._id) && (isDriver || isRideBooking)) {
         setLoading(true);
         try {
           const token = Cookies.get("token");
@@ -36,6 +39,14 @@ export default function Details() {
                 id: driverDetails._id,
                 createdAt: new Date(driverDetails.createdAt).toLocaleString(),
               });
+            }
+          } else if (isRideBooking) {
+            response = await getRideBookingDetails(initialData._id, token);
+            if (response?.data?.success) {
+              const details = response.data.data.rideBooking;
+              setData(details);
+            } else {
+              toast.error(response?.data?.message || "Failed to fetch ride details");
             }
           } else {
             response = await getCustomerDetails(initialData.id, token);
@@ -59,7 +70,7 @@ export default function Details() {
     };
 
     fetchDetails();
-  }, [initialData.id, isDriver]);
+  }, [initialData.id, initialData._id, isDriver, isRideBooking]);
 
   const handleStatusChange = async () => {
     try {
@@ -88,6 +99,10 @@ export default function Details() {
       .replace(/([A-Z])/g, " $1")
       .replace(/^./, (str) => str.toUpperCase())
       .trim();
+  };
+
+  const formatDateTime = (timestamp) => {
+    return new Date(timestamp * 1000).toLocaleString();
   };
 
   const shouldDisplayField = (key, value) => {
@@ -331,6 +346,175 @@ export default function Details() {
     );
   };
 
+  const renderRideBookingDetails = () => {
+    if (!isRideBooking) return null;
+
+    const { pricingBreakdown = {}, distanceDetails = {} } = data || {};
+
+    return (
+      <>
+        {/* Pricing Breakdown */}
+        <BoxComponent width="100%" marginBottom="20px">
+          <TypographyComponent
+            fontSize="24px"
+            color="var(--primary)"
+            fontWeight="600"
+            marginBottom="15px"
+          >
+            Pricing Breakdown
+          </TypographyComponent>
+          <BoxComponent display="grid" gridTemplateColumns="1fr 1fr" gap="20px">
+            <DetailComponent
+              title="Base Fare"
+              details={`${data?.currencySymbol || '$'}${pricingBreakdown?.baseFare || 0}`}
+            />
+            <DetailComponent
+              title="Distance Charges"
+              details={`${data?.currencySymbol || '$'}${pricingBreakdown?.distanceCharges || 0}`}
+            />
+            <DetailComponent
+              title="Time Charges"
+              details={`${data?.currencySymbol || '$'}${pricingBreakdown?.timeCharges || 0}`}
+            />
+            <DetailComponent
+              title="Minimum Fare"
+              details={`${data?.currencySymbol || '$'}${pricingBreakdown?.minimumFare || 0}`}
+            />
+            <DetailComponent
+              title="Toll Charges"
+              details={`${data?.currencySymbol || '$'}${pricingBreakdown?.tollCharges || 0}`}
+            />
+            <DetailComponent
+              title="Suited Charges"
+              details={`${data?.currencySymbol || '$'}${pricingBreakdown?.suitedCharges || 0}`}
+            />
+            <DetailComponent
+              title="Surcharges"
+              details={`${data?.currencySymbol || '$'}${pricingBreakdown?.estimatedSurcharges || 0}`}
+            />
+            <DetailComponent
+              title="Promo Discount"
+              details={`${data?.currencySymbol || '$'}${pricingBreakdown?.promoDiscount || 0}`}
+            />
+            <DetailComponent
+              title="Total Fare"
+              details={`${data?.currencySymbol || '$'}${data?.totalFare || 0}`}
+            />
+          </BoxComponent>
+        </BoxComponent>
+
+        {/* Distance Details */}
+        <BoxComponent width="100%" marginBottom="20px">
+          <TypographyComponent
+            fontSize="24px"
+            color="var(--primary)"
+            fontWeight="600"
+            marginBottom="15px"
+          >
+            Ride Details
+          </TypographyComponent>
+          <BoxComponent display="grid" gridTemplateColumns="1fr 1fr" gap="20px">
+            <DetailComponent
+              title="Distance"
+              details={`${((distanceDetails?.distance || 0) / 1000).toFixed(2)} km`}
+            />
+            <DetailComponent
+              title="Duration"
+              details={`${Math.round((distanceDetails?.duration || 0) / 60)} mins`}
+            />
+            <DetailComponent
+              title="Booking Type"
+              details={data?.bookingType ? data.bookingType.charAt(0).toUpperCase() + data.bookingType.slice(1) : 'N/A'}
+            />
+            <DetailComponent
+              title="Scheduled Time"
+              details={data?.scheduledTime ? formatDateTime(data.scheduledTime) : 'N/A'}
+            />
+            <DetailComponent
+              title="Vehicle Category"
+              details={data?.vehicleCategoryId?.name || 'N/A'}
+            />
+            <DetailComponent
+              title="Customer"
+              details={data?.userName || 'N/A'}
+            />
+            <DetailComponent
+              title="Pickup Location"
+              details={data?.pickTitle || 'N/A'}
+            />
+            <DetailComponent
+              title="Drop-off Location"
+              details={data?.dropTitle || 'N/A'}
+            />
+          </BoxComponent>
+        </BoxComponent>
+
+        {/* Map */}
+        {data?.pickupLatitude && data?.pickupLongitude && data?.dropOffLatitude && data?.dropOffLongitude && (
+          <BoxComponent width="100%" marginBottom="20px">
+            <TypographyComponent
+              fontSize="24px"
+              color="var(--primary)"
+              fontWeight="600"
+              marginBottom="15px"
+            >
+              Route Map
+            </TypographyComponent>
+            <BoxComponent height="400px">
+              <MapComponent
+                center={[data.pickupLatitude, data.pickupLongitude]}
+                zoom={13}
+                isDrawingAllowed={false}
+                markers={[
+                  {
+                    position: [data.pickupLatitude, data.pickupLongitude],
+                    title: "Pickup",
+                    type: "pickup"
+                  },
+                  {
+                    position: [data.dropOffLatitude, data.dropOffLongitude],
+                    title: "Drop-off",
+                    type: "dropoff"
+                  }
+                ]}
+                polyline={distanceDetails?.polyline}
+              />
+            </BoxComponent>
+          </BoxComponent>
+        )}
+
+        {/* Payment Details */}
+        {data?.cardDetails && (
+          <BoxComponent width="100%" marginBottom="20px">
+            <TypographyComponent
+              fontSize="24px"
+              color="var(--primary)"
+              fontWeight="600"
+              marginBottom="15px"
+            >
+              Payment Details
+            </TypographyComponent>
+            <BoxComponent display="grid" gridTemplateColumns="1fr 1fr" gap="20px">
+              <DetailComponent
+                title="Card Holder"
+                details={data.cardDetails?.name || 'N/A'}
+              />
+              <DetailComponent
+                title="Card Number"
+                details={data.cardDetails?.cardNumber || 'N/A'}
+              />
+              <DetailComponent
+                title="Expiry"
+                details={data.cardDetails?.expiryMonth && data.cardDetails?.expiryYear ? 
+                  `${data.cardDetails.expiryMonth}/${data.cardDetails.expiryYear}` : 'N/A'}
+              />
+            </BoxComponent>
+          </BoxComponent>
+        )}
+      </>
+    );
+  };
+
   return (
     <BoxComponent
       display="flex"
@@ -348,7 +532,7 @@ export default function Details() {
         marginBottom="30px"
         textAlign="center"
       >
-        {isDriver ? "Driver Details" : "Customer Details"}
+        {isDriver ? "Driver Details" : isRideBooking ? "Ride Booking Details" : "Customer Details"}
       </TypographyComponent>
 
       {loading ? (
@@ -365,7 +549,7 @@ export default function Details() {
           padding="20px"
           gap="20px"
         >
-          {!isDriver && (
+          {!isDriver && !isRideBooking && (
             <BoxComponent
               display="flex"
               justifyContent="flex-end"
@@ -436,6 +620,9 @@ export default function Details() {
 
             {/* Driver Specific Details */}
             {renderDriverSpecificDetails()}
+
+            {/* Ride Booking Details */}
+            {renderRideBookingDetails()}
           </BoxComponent>
         </BoxComponent>
       )}

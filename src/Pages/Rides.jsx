@@ -1,141 +1,170 @@
-import React, { useState } from 'react';
-import BoxComponent from '../Components/Box';
-import Sidebar from '../Components/Sidebar';
-import Head from '../Components/Head';
-import TypographyComponent from '../Components/Typography';
-import Confirm from '../Components/Confirm';
-import { useNavigate } from 'react-router-dom';
-import Table from '../Components/Table';
-import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import Find from '../Components/Find';
+import React, { useState, useEffect } from "react";
+import BoxComponent from "../Components/Box";
+import Sidebar from "../Components/Sidebar";
+import Head from "../Components/Head";
+import TypographyComponent from "../Components/Typography";
+import { useNavigate } from "react-router-dom";
+import Table from "../Components/Table";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import Find from "../Components/Find";
+import { getRideBookingsList } from "../api/constants";
+import Cookies from "js-cookie";
+import { toast } from "react-toastify";
+import { useDebounce } from "../hooks/useDebounce";
 
 export default function Rides() {
   const navigate = useNavigate();
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [confirmMessage, setConfirmMessage] = useState('');
-  const [selectedRideId, setSelectedRideId] = useState(null);
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const debouncedSearchText = useDebounce(searchInput, 500);
 
-  const handleDetailClick = (id) => {
-    navigate(`/details?id=${id}`);
+  const handleDetailClick = (data) => {
+    navigate(`/details`, { state: { ...data } });
   };
 
   const status = [
-    { value: 1, label: "All" },
-    { value: 2, label: "Active" },
-    { value: 3, label: "Inactive" },
+    { value: "", label: "All" },
+    { value: "pending", label: "Pending" },
+    { value: "accepted", label: "Accepted" },
+    { value: "completed", label: "Completed" },
+    { value: "cancelled", label: "Cancelled" },
   ];
-
-  const [rows, setRows] = useState([
-    { id: 1, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-    { id: 2, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Inactive' },
-    { id: 3, coverImage: 'Images/logo.png', name:'Zain', CNIC:'123423543254', Email:'zeeforzain@gmail.com', Phone:'1231434', vehicle:"RIM 1234", city:'Rawalpindi', Status: 'Active' },
-]);
 
   const headings = [
-    { field: 'id', headerName: 'ID' },
+    { field: "randomBookingId", headerName: "Booking ID", width: 120 },
     {
-      field: 'coverImage',
-      headerName: 'Cover Image',
- 
-      renderCell: (params) => <img src={params.row.coverImage} alt="Cover" style={{ width: '80px', height: '40px' }} />,
+      field: "status",
+      headerName: "Status",
+      width: 100,
+      renderCell: (params) => (
+        <span
+          style={{
+            color:
+              params.value === "completed"
+                ? "green"
+                : params.value === "cancelled"
+                ? "red"
+                : params.value === "accepted"
+                ? "blue"
+                : "orange",
+          }}
+        >
+          {params.value.charAt(0).toUpperCase() + params.value.slice(1)}
+        </span>
+      ),
     },
-    { field: 'name', headerName: 'Name' },
-    { field: 'CNIC', headerName: 'CNIC' },
-    { field: 'Email', headerName: 'E-mail' },
-    { field: 'Phone', headerName: 'Phone' },
-    { field: 'vehicle', headerName: 'Vehicle No' },
-    { field: 'city', headerName: 'City' },
+    { field: "bookingType", headerName: "Type", width: 100 },
+    { field: "pickTitle", headerName: "Pickup Location", width: 200 },
+    { field: "dropTitle", headerName: "Drop-off Location", width: 200 },
     {
-      field: 'Status',
-      headerName: 'Status',
-      renderCell: (params) => <span style={{ color: params.value === 'Active' ? 'green' : 'red' }}>{params.value}</span>,
+      field: "totalFare",
+      headerName: "Fare",
+      width: 100,
+      renderCell: (params) =>
+        `${params.row.currencySymbol}${params.row.totalFare}`,
+    },
+    {
+      field: "scheduledTime",
+      headerName: "Scheduled Time",
+      width: 160,
+      renderCell: (params) => new Date(params.value * 1000).toLocaleString(),
+    },
+    { field: "userName", headerName: "Customer", width: 150 },
+    {
+      field: "vehicleCategoryId",
+      headerName: "Vehicle Category",
+      width: 130,
+      renderCell: (params) => params.row.vehicleCategoryId?.name || "N/A",
     },
   ];
 
-
-
   const icons = {
-    edit: <ModeEditOutlineOutlinedIcon />,
-    details:<VisibilityIcon onClick={handleDetailClick} />
+    details: <VisibilityIcon />,
   };
 
-  const handleToggleClick = (id, currentStatus) => {
-    setSelectedRideId(id);
-    setConfirmMessage(
-      currentStatus === 'Active'
-        ? 'Are you sure you want to remove this ride?'
-        : 'Are you sure you want to add this ride?'
-    );
-    setShowConfirm(true);
-  };
+  const fetchRideBookings = async (params = {}) => {
+    setLoading(true);
+    try {
+      const token = Cookies.get("token");
+      const apiParams = {
+        limit: 20,
+        offset: 0,
+        searchText: params.searchText || "",
+        ...(params.status && { status: params.status }),
+      };
 
-  const handleConfirm = (confirm) => {
-    if (confirm) {
-      setRows((prevRows) =>
-        prevRows.map((row) =>
-          row.id === selectedRideId
-            ? { ...row, Status: row.Status === 'Active' ? 'Inactive' : 'Active' }
-            : row
-        )
-      );
+      const response = await getRideBookingsList(apiParams, token);
+
+      if (response?.data?.success) {
+        const bookings = response.data.data.rideBookings.map((booking) => ({
+          ...booking,
+          id: booking._id, // Required for table component
+        }));
+        setRows(bookings);
+      } else {
+        toast.error(response?.data?.message || "Failed to fetch ride bookings");
+      }
+    } catch (error) {
+      console.error("Error fetching ride bookings:", error);
+      toast.error("Error fetching ride bookings");
+    } finally {
+      setLoading(false);
     }
-    setShowConfirm(false);
   };
+
+  const handleSearch = (searchText) => {
+    setSearchInput(searchText);
+  };
+
+  const handleStatusChange = (statusValue) => {
+    fetchRideBookings({ status: statusValue, searchText: searchInput });
+  };
+
+  useEffect(() => {
+    fetchRideBookings({ searchText: debouncedSearchText });
+  }, [debouncedSearchText]);
 
   return (
-    <BoxComponent
-    backgroundColor="var(--light)"
-    >
+    <BoxComponent backgroundColor="var(--light)">
       <Head />
       <BoxComponent display="flex" justifyContent="space-between">
         <Sidebar />
-        <BoxComponent display="flex" flexDirection="column" width="82%" padding="20px">
-          <BoxComponent display="flex" justifyContent="space-between" width="100%">
+        <BoxComponent
+          display="flex"
+          flexDirection="column"
+          width="82%"
+          padding="20px"
+        >
+          <BoxComponent
+            display="flex"
+            justifyContent="space-between"
+            width="100%"
+          >
             <TypographyComponent
               fontSize="18px"
               fontFamily="var(--main)"
               color="var(--dark)"
               fontWeight="400"
             >
-              RIDE MANAGEMENT
+              RIDE BOOKINGS
             </TypographyComponent>
-           
           </BoxComponent>
-          <Find placeholder="Search a ride by ID" label="Status" status={status} />
+          <Find
+            placeholder="Search a booking by ID"
+            label="Status"
+            status={status}
+            onSearch={handleSearch}
+            onStatusChange={handleStatusChange}
+          />
           <Table
             rows={rows}
             headings={headings}
             icons={icons}
-            onDetailClick={(id) => {
-              const currentRow = rows.find((row) => row.id === id);
-              if (currentRow) {
-                handleDetailClick(id, currentRow.id);
-              }
-            }}
-            onStatusChange={(id) => {
-              const currentRow = rows.find((row) => row.id === id);
-              if (currentRow) {
-                handleToggleClick(id, currentRow.Status);
-              }
-            }}
+            loading={loading}
+            getRowId={(row) => row.id}
+            onDetailClick={handleDetailClick}
           />
-          {showConfirm && (
-            <BoxComponent style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vw',
-              height: '100vh',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              zIndex: 1000,
-            }}>
-              <Confirm message={confirmMessage} onConfirm={handleConfirm} />
-            </BoxComponent>
-          )}
         </BoxComponent>
       </BoxComponent>
     </BoxComponent>

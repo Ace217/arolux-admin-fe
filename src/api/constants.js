@@ -16,6 +16,8 @@ import {
   DRIVERS_LIST,
   DRIVER_DETAILS,
   GET_FILE,
+  RIDE_BOOKINGS_LIST,
+  RIDE_BOOKING_DETAILS,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -123,6 +125,22 @@ export const getDriverDetails = (driverId, token) => {
   const url = `${API_URL}${API_VERSION}${DRIVER_DETAILS.replace(
     ":driverId",
     driverId
+  )}`;
+  return doGet(url, token);
+};
+
+export const getRideBookingsList = (params, token) => {
+  const queryString = new URLSearchParams(params).toString();
+  return doGet(
+    `${API_URL}${API_VERSION}${RIDE_BOOKINGS_LIST}?${queryString}`,
+    token
+  );
+};
+
+export const getRideBookingDetails = (bookingId, token) => {
+  const url = `${API_URL}${API_VERSION}${RIDE_BOOKING_DETAILS.replace(
+    ":bookingId",
+    bookingId
   )}`;
   return doGet(url, token);
 };
