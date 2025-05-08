@@ -15,3 +15,4 @@ export const DRIVER_DETAILS = "admin/users/drivers/:driverId/details";
 export const GET_FILE = "file";
 export const RIDE_BOOKINGS_LIST = "admin/ride-bookings/list";
 export const RIDE_BOOKING_DETAILS = "admin/ride-bookings/:bookingId/details";
+export const CONFIGURATIONS = "admin/configurations";

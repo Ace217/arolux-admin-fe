@@ -18,6 +18,7 @@ import {
   GET_FILE,
   RIDE_BOOKINGS_LIST,
   RIDE_BOOKING_DETAILS,
+  CONFIGURATIONS,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -143,4 +144,16 @@ export const getRideBookingDetails = (bookingId, token) => {
     bookingId
   )}`;
   return doGet(url, token);
+};
+
+export const getConfigurations = (token) => {
+  return doGet(`${API_URL}${API_VERSION}${CONFIGURATIONS}`, token);
+};
+
+export const updateConfigurations = (requestData, token) => {
+  return doPut(
+    `${API_URL}${API_VERSION}${CONFIGURATIONS}`,
+    requestData,
+    getHeader(token)
+  );
 };
