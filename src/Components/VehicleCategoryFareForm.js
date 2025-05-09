@@ -11,7 +11,14 @@ import ButtonComponent from "./Button";
 import CancelIcon from "@mui/icons-material/Cancel";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { FormControlLabel, Switch, Divider } from "@mui/material";
+import {
+  FormControlLabel,
+  Switch,
+  Divider,
+  Autocomplete,
+  TextField,
+  FormHelperText,
+} from "@mui/material";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 
@@ -42,6 +49,8 @@ const VehicleCategoryFareForm = ({
   };
 
   const [formData, setFormData] = useState(initialFormState);
+  const [selectedVehicleCategory, setSelectedVehicleCategory] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => {
     if (fare) {
@@ -59,10 +68,22 @@ const VehicleCategoryFareForm = ({
         isActive: fare.isActive ?? true,
         extraCharges: fare.extraCharges || [],
       });
+
+      // Set the selected autocomplete values
+      setSelectedVehicleCategory(
+        vehicleCategories.find(
+          (cat) => cat._id === fare.vehicleCategoryId?._id
+        ) || null
+      );
+      setSelectedLocation(
+        geoLocations.find((loc) => loc._id === fare.geoLocationId?._id) || null
+      );
     } else {
       setFormData(initialFormState);
+      setSelectedVehicleCategory(null);
+      setSelectedLocation(null);
     }
-  }, [fare]);
+  }, [fare, vehicleCategories, geoLocations]);
 
   const handleChange = (field, value) => {
     setFormData({
@@ -75,6 +96,34 @@ const VehicleCategoryFareForm = ({
       setFormErrors({
         ...formErrors,
         [field]: "",
+      });
+    }
+  };
+
+  const handleVehicleCategoryChange = (event, newValue) => {
+    setSelectedVehicleCategory(newValue);
+    setFormData({
+      ...formData,
+      vehicleCategoryId: newValue?._id || "",
+    });
+    if (formErrors.vehicleCategoryId) {
+      setFormErrors({
+        ...formErrors,
+        vehicleCategoryId: "",
+      });
+    }
+  };
+
+  const handleLocationChange = (event, newValue) => {
+    setSelectedLocation(newValue);
+    setFormData({
+      ...formData,
+      geoLocationId: newValue?._id || "",
+    });
+    if (formErrors.geoLocationId) {
+      setFormErrors({
+        ...formErrors,
+        geoLocationId: "",
       });
     }
   };
@@ -157,16 +206,24 @@ const VehicleCategoryFareForm = ({
     try {
       setLoading(true);
       const payload = {
-        ...formData,
+        vehicleCategoryId: formData.vehicleCategoryId,
+        geoLocationId: formData.geoLocationId,
         baseFare: Number(formData.baseFare),
         chargesPerMile: Number(formData.chargesPerMile),
         chargesPerMinute: Number(formData.chargesPerMinute),
         chargesPerHour: Number(formData.chargesPerHour),
         minimumFare: Number(formData.minimumFare),
         suitedCharges: Number(formData.suitedCharges),
+        extraCharges: formData.extraCharges.map((charge) => ({
+          name: charge.name,
+          value: Number(charge.value),
+        })),
+        currencyCode: formData.currencyCode,
+        currencySymbol: formData.currencySymbol,
+        isActive: formData.isActive,
       };
 
-      // Get the token from cookies, this matches how the Categories page works
+      // Get the token from cookies
       const token = Cookies.get("token");
       console.log("Submitting form with token:", token);
 
@@ -271,33 +328,57 @@ const VehicleCategoryFareForm = ({
           </BoxComponent>
         ) : (
           <BoxComponent display="flex" flexDirection="column" gap="20px">
-            {/* Vehicle Category Dropdown */}
-            <InputComponent
-              label="Vehicle Category"
-              type="select"
-              value={formData.vehicleCategoryId}
-              onChange={(e) =>
-                handleChange("vehicleCategoryId", e.target.value)
-              }
-              options={vehicleCategories.map((cat) => ({
-                value: cat._id,
-                label: cat.name,
-              }))}
-              error={formErrors.vehicleCategoryId}
-            />
+            {/* Vehicle Category Autocomplete */}
+            <BoxComponent>
+              <Autocomplete
+                value={selectedVehicleCategory}
+                onChange={handleVehicleCategoryChange}
+                options={vehicleCategories}
+                getOptionLabel={(option) => option.name || ""}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Vehicle Category"
+                    error={!!formErrors.vehicleCategoryId}
+                  />
+                )}
+                fullWidth
+              />
+              {formErrors.vehicleCategoryId && (
+                <FormHelperText error>
+                  {formErrors.vehicleCategoryId}
+                </FormHelperText>
+              )}
+            </BoxComponent>
 
-            {/* Location Dropdown */}
-            <InputComponent
-              label="Location"
-              type="select"
-              value={formData.geoLocationId}
-              onChange={(e) => handleChange("geoLocationId", e.target.value)}
-              options={geoLocations.map((loc) => ({
-                value: loc._id,
-                label: loc.name,
-              }))}
-              error={formErrors.geoLocationId}
-            />
+            {/* Location Autocomplete */}
+            <BoxComponent>
+              <Autocomplete
+                value={selectedLocation}
+                onChange={handleLocationChange}
+                options={geoLocations}
+                getOptionLabel={(option) => option.name || ""}
+                isOptionEqualToValue={(option, value) =>
+                  option._id === value._id
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Location"
+                    error={!!formErrors.geoLocationId}
+                  />
+                )}
+                fullWidth
+              />
+              {formErrors.geoLocationId && (
+                <FormHelperText error>
+                  {formErrors.geoLocationId}
+                </FormHelperText>
+              )}
+            </BoxComponent>
 
             <TypographyComponent
               fontSize="16px"

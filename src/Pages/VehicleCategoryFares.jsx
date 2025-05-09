@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { AdminContext } from "../context/AdminContext";
 import {
   getVehicleCategoryFaresList,
-  getVehicleCategories,
-  getGeoLocationsList,
+  getVehicleCategoryFaresVehicleCategories,
+  getVehicleCategoryFaresGeoLocations,
 } from "../api/constants";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
@@ -48,11 +48,8 @@ const VehicleCategoryFares = () => {
       };
 
       console.log("Fetching fares with params:", apiParams);
-      console.log("Using token:", token);
 
       const response = await getVehicleCategoryFaresList(apiParams, token);
-
-      console.log("Fares API response:", response);
 
       if (response?.data?.success) {
         const formattedFares = response.data.data.fares.map((fare) => ({
@@ -77,9 +74,9 @@ const VehicleCategoryFares = () => {
   const fetchVehicleCategories = async () => {
     try {
       const token = Cookies.get("token");
-      console.log("Fetching vehicle categories with token:", token);
+      console.log("Fetching vehicle categories");
 
-      const response = await getVehicleCategories({}, token);
+      const response = await getVehicleCategoryFaresVehicleCategories(token);
 
       if (response?.data?.success) {
         setVehicleCategories(response.data.data.categories);
@@ -99,15 +96,15 @@ const VehicleCategoryFares = () => {
   const fetchGeoLocations = async () => {
     try {
       const token = Cookies.get("token");
-      console.log("Fetching geo locations with token:", token);
+      console.log("Fetching geo locations");
 
-      const response = await getGeoLocationsList({}, token);
+      const response = await getVehicleCategoryFaresGeoLocations(token);
 
       if (response?.data?.success) {
-        setGeoLocations(response.data.data.locations);
+        setGeoLocations(response.data.data.geoLocations);
         console.log(
           "Geo locations loaded:",
-          response.data.data.locations.length
+          response.data.data.geoLocations.length
         );
       } else {
         console.warn("Geo locations API didn't return a success status");

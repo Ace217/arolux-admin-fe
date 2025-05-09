@@ -27,6 +27,8 @@ import {
   VEHICLE_CATEGORY_FARE_DETAILS,
   CREATE_VEHICLE_CATEGORY_FARE,
   UPDATE_VEHICLE_CATEGORY_FARE,
+  VEHICLE_CATEGORY_FARES_GEO_LOCATIONS,
+  VEHICLE_CATEGORY_FARES_VEHICLE_CATEGORIES,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -228,4 +230,18 @@ export const updateVehicleCategoryFare = (fareId, requestData, token) => {
     fareId
   )}`;
   return doPut(url, requestData, getHeader(token));
+};
+
+export const getVehicleCategoryFaresGeoLocations = (token) => {
+  return doGet(
+    `${API_URL}${API_VERSION}${VEHICLE_CATEGORY_FARES_GEO_LOCATIONS}`,
+    token
+  );
+};
+
+export const getVehicleCategoryFaresVehicleCategories = (token) => {
+  return doGet(
+    `${API_URL}${API_VERSION}${VEHICLE_CATEGORY_FARES_VEHICLE_CATEGORIES}`,
+    token
+  );
 };
