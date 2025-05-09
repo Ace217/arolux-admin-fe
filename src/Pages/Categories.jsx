@@ -10,9 +10,13 @@ import Table from "../Components/Table";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Find from "../Components/Find";
-import { getVehicleCategories } from "../api/constants";
+import { getVehicleCategories, createVehicleCategory, updateVehicleCategory } from "../api/constants";
 import Cookies from "js-cookie";
 import { useDebounce } from "../hooks/useDebounce";
+import CancelIcon from "@mui/icons-material/Cancel";
+import InputComponent from "../Components/InputComponent";
+import ImageComponent from "../Components/ImageComponent";
+import { toast } from "react-toastify";
 
 export default function Categories() {
   const navigate = useNavigate();
@@ -24,30 +28,164 @@ export default function Categories() {
   const [isActive, setIsActive] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearchText = useDebounce(searchInput, 500);
+  
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState("Add Category");
+  const [categoryFormLoading, setCategoryFormLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    minSeatingCapacity: "",
+    maxSeatingCapacity: "",
+    iconURL: "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png",
+    isActive: true,
+  });
 
   const handleCategoryClick = (categoryName) => {
     navigate(`/vehicles?category=${categoryName}`);
   };
 
   const handleAddCategory = () => {
-    navigate("/vehicle-form", { state: { title: "Add Category" } });
+    setModalTitle("Add Category");
+    setSelectedCategoryId(null);
+    setFormData({
+      name: "",
+      description: "",
+      minSeatingCapacity: "",
+      maxSeatingCapacity: "",
+      iconURL: "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png",
+      isActive: true,
+    });
+    setIsModalOpen(true);
   };
 
   const handleEditCategory = (category) => {
-    navigate("/vehicle-form", {
-      state: {
-        title: "Update Category",
-        categoryId: category._id,
-        categoryData: {
-          name: category.name,
-          description: category.description,
-          iconURL: category.iconURL,
-          minSeatingCapacity: category.minSeatingCapacity,
-          maxSeatingCapacity: category.maxSeatingCapacity,
-          isActive: category.isActive,
-        },
-      },
+    setModalTitle("Update Category");
+    setSelectedCategoryId(category._id);
+    setCategoryFormLoading(true);
+    setIsModalOpen(true);
+    
+    try {
+      setFormData({
+        name: category.name || "",
+        description: category.description || "",
+        iconURL: category.iconURL || "",
+        minSeatingCapacity: category.minSeatingCapacity?.toString() || "",
+        maxSeatingCapacity: category.maxSeatingCapacity?.toString() || "",
+        isActive: category.isActive || false,
+      });
+    } catch (error) {
+      console.error("Error setting category data:", error);
+      toast.error("Error loading category data");
+    } finally {
+      setCategoryFormLoading(false);
+    }
+  };
+  
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedCategoryId(null);
+    setFormData({
+      name: "",
+      description: "",
+      minSeatingCapacity: "",
+      maxSeatingCapacity: "",
+      iconURL: "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png",
+      isActive: true,
     });
+  };
+
+  const handleFormChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleImageUpload = (url) => {
+    setFormData((prev) => ({
+      ...prev,
+      iconURL: url,
+    }));
+  };
+
+  const handleSubmitForm = async () => {
+    // Validate form fields
+    if (!formData.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    if (!formData.description.trim()) {
+      toast.error("Description is required");
+      return;
+    }
+    if (!formData.minSeatingCapacity) {
+      toast.error("Minimum seating capacity is required");
+      return;
+    }
+    if (!formData.maxSeatingCapacity) {
+      toast.error("Maximum seating capacity is required");
+      return;
+    }
+    if (
+      parseInt(formData.minSeatingCapacity) >
+      parseInt(formData.maxSeatingCapacity)
+    ) {
+      toast.error(
+        "Minimum seating capacity cannot be greater than maximum seating capacity"
+      );
+      return;
+    }
+    if (!formData.iconURL) {
+      toast.error("Category icon is required");
+      return;
+    }
+
+    try {
+      const token = Cookies.get("token");
+      const requestData = {
+        ...formData,
+        minSeatingCapacity: parseInt(formData.minSeatingCapacity),
+        maxSeatingCapacity: parseInt(formData.maxSeatingCapacity),
+      };
+
+      let response;
+      if (selectedCategoryId) {
+        response = await updateVehicleCategory(selectedCategoryId, requestData, token);
+      } else {
+        response = await createVehicleCategory(requestData, token);
+      }
+
+      if (response?.data?.success) {
+        toast.success(
+          selectedCategoryId
+            ? "Category updated successfully!"
+            : "Category created successfully!"
+        );
+        
+        // Refresh the categories list
+        fetchCategories({
+          searchText: debouncedSearchText,
+          isActive,
+        });
+        
+        handleCloseModal();
+      } else {
+        toast.error(
+          response?.data?.message ||
+            `Failed to ${selectedCategoryId ? "update" : "create"} category`
+        );
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          `An error occurred while ${
+            selectedCategoryId ? "updating" : "creating"
+          } the category`
+      );
+    }
   };
 
   const status = [
@@ -260,6 +398,144 @@ export default function Categories() {
             >
               <Confirm message={confirmMessage} onConfirm={handleConfirm} />
             </BoxComponent>
+          )}
+          {isModalOpen && (
+            <>
+              {/* Modal backdrop */}
+              <BoxComponent
+                position="fixed"
+                top="0"
+                left="0"
+                width="100vw"
+                height="100vh"
+                backgroundColor="rgba(0, 0, 0, 0.5)"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                zIndex="1200"
+              >
+                {/* Modal content */}
+                <BoxComponent
+                  backgroundColor="var(--light)"
+                  padding="20px"
+                  borderRadius="8px"
+                  width="600px"
+                  maxHeight="80vh"
+                  overflow="auto"
+                  boxShadow="0 0 10px rgba(0, 0, 0, 0.1)"
+                  sx={{
+                    '&::-webkit-scrollbar': {
+                      width: '6px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      background: '#f1f1f1',
+                      borderRadius: '10px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      background: '#888',
+                      borderRadius: '10px',
+                    },
+                    '&::-webkit-scrollbar-thumb:hover': {
+                      background: '#555',
+                    },
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: '#888 #f1f1f1',
+                  }}
+                >
+                  {/* Modal header */}
+                  <BoxComponent display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px">
+                    <TypographyComponent
+                      fontSize="22px"
+                      fontFamily="var(--main)"
+                      color="var(--dark)"
+                      fontWeight="600"
+                    >
+                      {modalTitle}
+                    </TypographyComponent>
+                    <CancelIcon
+                      onClick={handleCloseModal}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </BoxComponent>
+                  
+                  {/* Modal body */}
+                  {categoryFormLoading ? (
+                    <BoxComponent display="flex" justifyContent="center" padding="20px">
+                      <TypographyComponent>Loading...</TypographyComponent>
+                    </BoxComponent>
+                  ) : (
+                    <BoxComponent display="flex" flexDirection="column" gap="20px">
+                      <BoxComponent
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                        marginBottom="20px"
+                      >
+                        {formData.iconURL && (
+                          <img
+                            src={formData.iconURL}
+                            alt="Category Icon"
+                            style={{
+                              width: "120px",
+                              height: "120px",
+                              objectFit: "contain",
+                              marginBottom: "10px",
+                              borderRadius: "8px"
+                            }}
+                          />
+                        )}
+                      </BoxComponent>
+                      <InputComponent
+                        label="Name"
+                        value={formData.name}
+                        onChange={(e) => handleFormChange("name", e.target.value)}
+                      />
+                      <InputComponent
+                        label="Description"
+                        value={formData.description}
+                        onChange={(e) => handleFormChange("description", e.target.value)}
+                      />
+                      <InputComponent
+                        label="Minimum Seating Capacity"
+                        type="number"
+                        value={formData.minSeatingCapacity}
+                        onChange={(e) => handleFormChange("minSeatingCapacity", e.target.value)}
+                      />
+                      <InputComponent
+                        label="Maximum Seating Capacity"
+                        type="number"
+                        value={formData.maxSeatingCapacity}
+                        onChange={(e) => handleFormChange("maxSeatingCapacity", e.target.value)}
+                      />
+                      <ImageComponent
+                        label="Category Icon"
+                        imageUrl={formData.iconURL}
+                        onImageUpload={handleImageUpload}
+                        hidePreview={!!formData.iconURL}
+                      />
+                      <BoxComponent display="flex" gap="10px">
+                        <ButtonComponent 
+                          variant="contained"
+                          backgroundColor="var(--primary)"
+                          sx={{ color: "var(--light)", padding: "10px", flex: 1 }}
+                          onClick={handleSubmitForm}
+                        >
+                          {selectedCategoryId ? "Update" : "Submit"}
+                        </ButtonComponent>
+                        <ButtonComponent
+                          variant="contained"
+                          backgroundColor="var(--error)"
+                          sx={{ color: "var(--light)", padding: "10px", flex: 1 }}
+                          onClick={handleCloseModal}
+                        >
+                          Cancel
+                        </ButtonComponent>
+                      </BoxComponent>
+                    </BoxComponent>
+                  )}
+                </BoxComponent>
+              </BoxComponent>
+            </>
           )}
         </BoxComponent>
       </BoxComponent>

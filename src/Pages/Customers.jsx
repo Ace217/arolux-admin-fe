@@ -8,11 +8,20 @@ import { useNavigate } from "react-router-dom";
 import Table from "../Components/Table";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Find from "../Components/Find";
-import { getCustomersList, updateCustomerStatus } from "../api/constants";
+import {
+  getCustomersList,
+  updateCustomerStatus,
+  getCustomerDetails,
+  updateCustomer,
+} from "../api/constants";
 import Cookies from "js-cookie";
 import { useDebounce } from "../hooks/useDebounce";
 import { toast } from "react-toastify";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
+import CancelIcon from "@mui/icons-material/Cancel";
+import InputComponent from "../Components/InputComponent";
+import ButtonComponent from "../Components/Button";
+import ImageComponent from "../Components/ImageComponent";
 
 export default function Customers() {
   const navigate = useNavigate();
@@ -26,15 +35,135 @@ export default function Customers() {
   const debouncedSearchText = useDebounce(searchInput, 500);
   const [selectedCustomerData, setSelectedCustomerData] = useState(null);
 
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [customerFormLoading, setCustomerFormLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    profileImageURL: "",
+  });
+
   const handleDetailClick = (data) => {
     navigate("/details", { state: { ...data } });
   };
 
-  const handleEditClick = (data) => {
+  const handleEditClick = async (data) => {
+    setSelectedCustomerId(data.id);
     setSelectedCustomerData(data);
-    navigate("/customer-form", {
-      state: { title: "Edit Customer", customerData: data },
+    setCustomerFormLoading(true);
+    setIsModalOpen(true);
+
+    try {
+      const token = Cookies.get("token");
+      const response = await getCustomerDetails(data.id, token);
+      if (response?.data?.success) {
+        const details = response.data.data;
+        setFormData({
+          name: details.name || "",
+          email: details.email || "",
+          phone: `${details.countryCode || "+1"}${details.phoneNumber || ""}`,
+          profileImageURL: details.profileImageURL || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching customer details:", error);
+      toast.error("Error fetching customer details");
+    } finally {
+      setCustomerFormLoading(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedCustomerData(null);
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      profileImageURL: "",
     });
+  };
+
+  const handleFormChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleImageUpload = (url) => {
+    setFormData((prev) => ({
+      ...prev,
+      profileImageURL: url,
+    }));
+  };
+
+  const handleSubmitForm = async () => {
+    // Validate form fields
+    if (!formData.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    if (!formData.email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+    if (!formData.phone.trim()) {
+      toast.error("Phone number is required");
+      return;
+    }
+
+    // Split phone into country code and number
+    const phoneMatch = formData.phone.match(/^(\+\d{1,3})([\d\s-]+)$/);
+    if (!phoneMatch) {
+      toast.error(
+        "Please enter a valid phone number with country code (e.g. +1234567890)"
+      );
+      return;
+    }
+
+    try {
+      const token = Cookies.get("token");
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        countryCode: phoneMatch[1],
+        phoneNumber: phoneMatch[2].replace(/[\s-]/g, ""), // Remove spaces and dashes
+        profileImageURL: formData.profileImageURL,
+      };
+
+      const response = await updateCustomer(selectedCustomerId, payload, token);
+
+      if (response?.data?.success) {
+        toast.success("Customer updated successfully!");
+        // Update the row in the table
+        setRows((prevRows) =>
+          prevRows.map((row) =>
+            row.id === selectedCustomerId
+              ? {
+                  ...row,
+                  name: payload.name,
+                  email: payload.email,
+                  countryCode: payload.countryCode,
+                  phoneNumber: payload.phoneNumber,
+                  profileImageURL: payload.profileImageURL,
+                }
+              : row
+          )
+        );
+        handleCloseModal();
+      } else {
+        toast.error(response?.data?.message || "Failed to update customer");
+      }
+    } catch (error) {
+      console.error("Error updating customer:", error);
+      toast.error(
+        error?.response?.data?.message ||
+          "An error occurred while updating the customer"
+      );
+    }
   };
 
   const status = [
@@ -275,16 +404,157 @@ export default function Customers() {
                 top: 0,
                 left: 0,
                 width: "100vw",
-                height: "100vh",
+                height: "80vh",
                 backgroundColor: "rgba(0, 0, 0, 0.5)",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 zIndex: 1000,
+                overflow: "scroll",
               }}
             >
               <Confirm message={confirmMessage} onConfirm={handleConfirm} />
             </BoxComponent>
+          )}
+          {isModalOpen && (
+            <>
+              {/* Modal backdrop */}
+              <BoxComponent
+                position="fixed"
+                top="0"
+                left="0"
+                width="100vw"
+                height="100vh"
+                backgroundColor="rgba(0, 0, 0, 0.5)"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                zIndex="1200"
+              >
+                {/* Modal content */}
+                <BoxComponent
+                  backgroundColor="var(--light)"
+                  padding="20px"
+                  borderRadius="8px"
+                  width="600px"
+                  maxHeight="80vh"
+                  overflow="auto"
+                  boxShadow="0 0 10px rgba(0, 0, 0, 0.1)"
+                  sx={{
+                    "&::-webkit-scrollbar": {
+                      width: "6px",
+                    },
+                    "&::-webkit-scrollbar-track": {
+                      background: "#f1f1f1",
+                      borderRadius: "10px",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                      background: "#888",
+                      borderRadius: "10px",
+                    },
+                    "&::-webkit-scrollbar-thumb:hover": {
+                      background: "#555",
+                    },
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#888 #f1f1f1",
+                  }}
+                >
+                  {/* Modal header */}
+                  <BoxComponent
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    marginBottom="20px"
+                  >
+                    <TypographyComponent
+                      fontSize="22px"
+                      fontFamily="var(--main)"
+                      color="var(--dark)"
+                      fontWeight="600"
+                    >
+                      Edit Customer
+                    </TypographyComponent>
+                    <CancelIcon
+                      onClick={handleCloseModal}
+                      style={{ cursor: "pointer" }}
+                    />
+                  </BoxComponent>
+
+                  {/* Modal body */}
+                  {customerFormLoading ? (
+                    <BoxComponent
+                      display="flex"
+                      justifyContent="center"
+                      padding="20px"
+                    >
+                      <TypographyComponent>Loading...</TypographyComponent>
+                    </BoxComponent>
+                  ) : (
+                    <BoxComponent
+                      display="flex"
+                      flexDirection="column"
+                      gap="20px"
+                    >
+                      <BoxComponent
+                        display="flex"
+                        flexDirection="column"
+                        alignItems="center"
+                        marginBottom="20px"
+                      >
+                        {formData.profileImageURL && (
+                          <img
+                            src={formData.profileImageURL}
+                            alt="Profile"
+                            style={{
+                              width: "120px",
+                              height: "120px",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              marginBottom: "10px",
+                            }}
+                          />
+                        )}
+                      </BoxComponent>
+                      <InputComponent
+                        label="Name"
+                        value={formData.name}
+                        onChange={(e) =>
+                          handleFormChange("name", e.target.value)
+                        }
+                      />
+                      <InputComponent
+                        label="Email"
+                        value={formData.email}
+                        onChange={(e) =>
+                          handleFormChange("email", e.target.value)
+                        }
+                      />
+                      <InputComponent
+                        label="Phone"
+                        value={formData.phone}
+                        onChange={(e) =>
+                          handleFormChange("phone", e.target.value)
+                        }
+                      />
+                      <ImageComponent
+                        label="Profile Image"
+                        imageUrl={formData.profileImageURL}
+                        onImageUpload={handleImageUpload}
+                        hidePreview={!!formData.profileImageURL}
+                      />
+                      <ButtonComponent
+                        variant="contained"
+                        backgroundColor="var(--primary)"
+                        sx={{ color: "var(--light)", padding: "10px" }}
+                        onClick={handleSubmitForm}
+                      >
+                        Save Changes
+                      </ButtonComponent>
+                    </BoxComponent>
+                  )}
+                </BoxComponent>
+              </BoxComponent>
+            </>
           )}
         </BoxComponent>
       </BoxComponent>
