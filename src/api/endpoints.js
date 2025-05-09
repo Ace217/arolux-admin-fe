@@ -18,3 +18,4 @@ export const RIDE_BOOKING_DETAILS = "admin/ride-bookings/:bookingId/details";
 export const CONFIGURATIONS = "admin/configurations";
 export const GEO_LOCATIONS_LIST = "admin/geo-locations/list";
 export const GEO_LOCATION_DETAILS = "admin/geo-locations/:locationId/details";
+export const CREATE_GEO_LOCATION = "admin/geo-locations/record";

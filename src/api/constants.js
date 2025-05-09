@@ -21,6 +21,7 @@ import {
   CONFIGURATIONS,
   GEO_LOCATIONS_LIST,
   GEO_LOCATION_DETAILS,
+  CREATE_GEO_LOCATION,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -174,4 +175,12 @@ export const getGeoLocationDetails = (locationId, token) => {
     locationId
   )}`;
   return doGet(url, token);
+};
+
+export const createGeoLocation = (requestData, token) => {
+  return doPost(
+    `${API_URL}${API_VERSION}${CREATE_GEO_LOCATION}`,
+    requestData,
+    getHeader(token)
+  );
 };
