@@ -10,7 +10,11 @@ import Table from "../Components/Table";
 import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Find from "../Components/Find";
-import { getVehicleCategories, createVehicleCategory, updateVehicleCategory } from "../api/constants";
+import {
+  getVehicleCategories,
+  createVehicleCategory,
+  updateVehicleCategory,
+} from "../api/constants";
 import Cookies from "js-cookie";
 import { useDebounce } from "../hooks/useDebounce";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -28,7 +32,7 @@ export default function Categories() {
   const [isActive, setIsActive] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearchText = useDebounce(searchInput, 500);
-  
+
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("Add Category");
@@ -38,7 +42,8 @@ export default function Categories() {
     description: "",
     minSeatingCapacity: "",
     maxSeatingCapacity: "",
-    iconURL: "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png",
+    iconURL:
+      "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png",
     isActive: true,
   });
 
@@ -54,7 +59,8 @@ export default function Categories() {
       description: "",
       minSeatingCapacity: "",
       maxSeatingCapacity: "",
-      iconURL: "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png",
+      iconURL:
+        "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png",
       isActive: true,
     });
     setIsModalOpen(true);
@@ -65,7 +71,7 @@ export default function Categories() {
     setSelectedCategoryId(category._id);
     setCategoryFormLoading(true);
     setIsModalOpen(true);
-    
+
     try {
       setFormData({
         name: category.name || "",
@@ -82,7 +88,7 @@ export default function Categories() {
       setCategoryFormLoading(false);
     }
   };
-  
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedCategoryId(null);
@@ -91,7 +97,8 @@ export default function Categories() {
       description: "",
       minSeatingCapacity: "",
       maxSeatingCapacity: "",
-      iconURL: "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png",
+      iconURL:
+        "https://arolux-development.s3.us-east-2.amazonaws.com/vehicle-category-images/1000X1000/LEa8gL-1742942696.png",
       isActive: true,
     });
   };
@@ -152,7 +159,11 @@ export default function Categories() {
 
       let response;
       if (selectedCategoryId) {
-        response = await updateVehicleCategory(selectedCategoryId, requestData, token);
+        response = await updateVehicleCategory(
+          selectedCategoryId,
+          requestData,
+          token
+        );
       } else {
         response = await createVehicleCategory(requestData, token);
       }
@@ -163,13 +174,13 @@ export default function Categories() {
             ? "Category updated successfully!"
             : "Category created successfully!"
         );
-        
+
         // Refresh the categories list
         fetchCategories({
           searchText: debouncedSearchText,
           isActive,
         });
-        
+
         handleCloseModal();
       } else {
         toast.error(
@@ -424,26 +435,31 @@ export default function Categories() {
                   overflow="auto"
                   boxShadow="0 0 10px rgba(0, 0, 0, 0.1)"
                   sx={{
-                    '&::-webkit-scrollbar': {
-                      width: '6px',
+                    "&::-webkit-scrollbar": {
+                      width: "6px",
                     },
-                    '&::-webkit-scrollbar-track': {
-                      background: '#f1f1f1',
-                      borderRadius: '10px',
+                    "&::-webkit-scrollbar-track": {
+                      background: "#f1f1f1",
+                      borderRadius: "10px",
                     },
-                    '&::-webkit-scrollbar-thumb': {
-                      background: '#888',
-                      borderRadius: '10px',
+                    "&::-webkit-scrollbar-thumb": {
+                      background: "#888",
+                      borderRadius: "10px",
                     },
-                    '&::-webkit-scrollbar-thumb:hover': {
-                      background: '#555',
+                    "&::-webkit-scrollbar-thumb:hover": {
+                      background: "#555",
                     },
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: '#888 #f1f1f1',
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#888 #f1f1f1",
                   }}
                 >
                   {/* Modal header */}
-                  <BoxComponent display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px">
+                  <BoxComponent
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    marginBottom="20px"
+                  >
                     <TypographyComponent
                       fontSize="22px"
                       fontFamily="var(--main)"
@@ -457,14 +473,22 @@ export default function Categories() {
                       style={{ cursor: "pointer" }}
                     />
                   </BoxComponent>
-                  
+
                   {/* Modal body */}
                   {categoryFormLoading ? (
-                    <BoxComponent display="flex" justifyContent="center" padding="20px">
+                    <BoxComponent
+                      display="flex"
+                      justifyContent="center"
+                      padding="20px"
+                    >
                       <TypographyComponent>Loading...</TypographyComponent>
                     </BoxComponent>
                   ) : (
-                    <BoxComponent display="flex" flexDirection="column" gap="20px">
+                    <BoxComponent
+                      display="flex"
+                      flexDirection="column"
+                      gap="20px"
+                    >
                       <BoxComponent
                         display="flex"
                         flexDirection="column"
@@ -480,7 +504,7 @@ export default function Categories() {
                               height: "120px",
                               objectFit: "contain",
                               marginBottom: "10px",
-                              borderRadius: "8px"
+                              borderRadius: "8px",
                             }}
                           />
                         )}
@@ -488,24 +512,32 @@ export default function Categories() {
                       <InputComponent
                         label="Name"
                         value={formData.name}
-                        onChange={(e) => handleFormChange("name", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("name", e.target.value)
+                        }
                       />
                       <InputComponent
                         label="Description"
                         value={formData.description}
-                        onChange={(e) => handleFormChange("description", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("description", e.target.value)
+                        }
                       />
                       <InputComponent
                         label="Minimum Seating Capacity"
                         type="number"
                         value={formData.minSeatingCapacity}
-                        onChange={(e) => handleFormChange("minSeatingCapacity", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("minSeatingCapacity", e.target.value)
+                        }
                       />
                       <InputComponent
                         label="Maximum Seating Capacity"
                         type="number"
                         value={formData.maxSeatingCapacity}
-                        onChange={(e) => handleFormChange("maxSeatingCapacity", e.target.value)}
+                        onChange={(e) =>
+                          handleFormChange("maxSeatingCapacity", e.target.value)
+                        }
                       />
                       <ImageComponent
                         label="Category Icon"
@@ -514,10 +546,14 @@ export default function Categories() {
                         hidePreview={!!formData.iconURL}
                       />
                       <BoxComponent display="flex" gap="10px">
-                        <ButtonComponent 
+                        <ButtonComponent
                           variant="contained"
                           backgroundColor="var(--primary)"
-                          sx={{ color: "var(--light)", padding: "10px", flex: 1 }}
+                          sx={{
+                            color: "var(--light)",
+                            padding: "10px",
+                            flex: 1,
+                          }}
                           onClick={handleSubmitForm}
                         >
                           {selectedCategoryId ? "Update" : "Submit"}
@@ -525,7 +561,11 @@ export default function Categories() {
                         <ButtonComponent
                           variant="contained"
                           backgroundColor="var(--error)"
-                          sx={{ color: "var(--light)", padding: "10px", flex: 1 }}
+                          sx={{
+                            color: "var(--light)",
+                            padding: "10px",
+                            flex: 1,
+                          }}
                           onClick={handleCloseModal}
                         >
                           Cancel

@@ -53,7 +53,7 @@ export default function Table({
       renderCell: (params) =>
         icons.details ? (
           <IconButton
-            onClick={() => onDetailClick(params.row)}
+            onClick={() => onDetailClick(params.row.id)} // Fixed: Pass just the ID, not the whole row
             aria-label="details"
             sx={{ color: "var(--primary)" }}
           >

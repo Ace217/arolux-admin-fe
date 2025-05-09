@@ -16,3 +16,5 @@ export const GET_FILE = "file";
 export const RIDE_BOOKINGS_LIST = "admin/ride-bookings/list";
 export const RIDE_BOOKING_DETAILS = "admin/ride-bookings/:bookingId/details";
 export const CONFIGURATIONS = "admin/configurations";
+export const GEO_LOCATIONS_LIST = "admin/geo-locations/list";
+export const GEO_LOCATION_DETAILS = "admin/geo-locations/:locationId/details";

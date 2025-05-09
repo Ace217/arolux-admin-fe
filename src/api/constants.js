@@ -19,6 +19,8 @@ import {
   RIDE_BOOKINGS_LIST,
   RIDE_BOOKING_DETAILS,
   CONFIGURATIONS,
+  GEO_LOCATIONS_LIST,
+  GEO_LOCATION_DETAILS,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -156,4 +158,20 @@ export const updateConfigurations = (requestData, token) => {
     requestData,
     getHeader(token)
   );
+};
+
+export const getGeoLocationsList = (params, token) => {
+  const queryString = new URLSearchParams(params).toString();
+  return doGet(
+    `${API_URL}${API_VERSION}${GEO_LOCATIONS_LIST}?${queryString}`,
+    token
+  );
+};
+
+export const getGeoLocationDetails = (locationId, token) => {
+  const url = `${API_URL}${API_VERSION}${GEO_LOCATION_DETAILS.replace(
+    ":locationId",
+    locationId
+  )}`;
+  return doGet(url, token);
 };

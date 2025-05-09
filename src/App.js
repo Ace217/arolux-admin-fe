@@ -14,6 +14,7 @@ import Details from "./Components/Details";
 import Categories from "./Pages/Categories";
 import VehicleForm from "./Components/VehicleForm";
 import Locations from "./Pages/Locations";
+import LocationDetailsPage from "./Pages/LocationDetailsPage";
 import LocationForm from "./Components/LocationForm";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import Form from "./Components/Form"; // Import the Form component
@@ -123,6 +124,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Locations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="location-details"
+          element={
+            <ProtectedRoute>
+              <LocationDetailsPage />
             </ProtectedRoute>
           }
         />

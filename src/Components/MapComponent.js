@@ -8,7 +8,7 @@ import {
   Popup,
 } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
-import { Polyline } from "react-leaflet";
+import { Polyline, Polygon } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import BoxComponent from "./Box";
@@ -100,6 +100,8 @@ const MapComponent = ({
   boundaries,
   markers = [],
   polyline,
+  children, // Added children prop to accept additional elements
+  polygonPositions = [], // Added prop for polygon positions
 }) => {
   const mapRef = useRef();
   const [decodedPolyline, setDecodedPolyline] = React.useState([]);
@@ -248,6 +250,20 @@ const MapComponent = ({
                 opacity={0.7}
               />
             )}
+            {/* Display polygon if positions are provided */}
+            {polygonPositions.length > 0 && (
+              <Polygon
+                positions={polygonPositions}
+                pathOptions={{
+                  color: "#ff5722",
+                  weight: 3,
+                  fillColor: "#ff9800",
+                  fillOpacity: 0.3,
+                }}
+              />
+            )}
+            {/* Render children components (if any) */}
+            {children}
           </MapContainer>
         </BoxComponent>
       </BoxComponent>
