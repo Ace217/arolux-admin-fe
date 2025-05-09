@@ -20,3 +20,10 @@ export const GEO_LOCATIONS_LIST = "admin/geo-locations/list";
 export const GEO_LOCATION_DETAILS = "admin/geo-locations/:locationId/details";
 export const CREATE_GEO_LOCATION = "admin/geo-locations/record";
 export const UPDATE_GEO_LOCATION = "admin/geo-locations/:locationId";
+export const VEHICLE_CATEGORY_FARES_LIST = "admin/vehicle-category-fares/list";
+export const VEHICLE_CATEGORY_FARE_DETAILS =
+  "admin/vehicle-category-fares/:fareId/details";
+export const CREATE_VEHICLE_CATEGORY_FARE =
+  "admin/vehicle-category-fares/record";
+export const UPDATE_VEHICLE_CATEGORY_FARE =
+  "admin/vehicle-category-fares/:fareId";

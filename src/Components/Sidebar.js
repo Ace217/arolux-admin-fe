@@ -2,13 +2,14 @@ import React from "react";
 import MenuOption from "./MenuOption";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import GroupOutlinedIcon from "@mui/icons-material/GroupOutlined";
-import Diversity1OutlinedIcon from '@mui/icons-material/Diversity1Outlined';
-import EmojiTransportationOutlinedIcon from '@mui/icons-material/EmojiTransportationOutlined';
-import CommuteOutlinedIcon from '@mui/icons-material/CommuteOutlined';
-import SettingsSuggestOutlinedIcon from '@mui/icons-material/SettingsSuggestOutlined';
-import AdminPanelSettingsOutlinedIcon from '@mui/icons-material/AdminPanelSettingsOutlined';
+import Diversity1OutlinedIcon from "@mui/icons-material/Diversity1Outlined";
+import EmojiTransportationOutlinedIcon from "@mui/icons-material/EmojiTransportationOutlined";
+import CommuteOutlinedIcon from "@mui/icons-material/CommuteOutlined";
+import SettingsSuggestOutlinedIcon from "@mui/icons-material/SettingsSuggestOutlined";
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
-import PinDropOutlinedIcon from '@mui/icons-material/PinDropOutlined';
+import PinDropOutlinedIcon from "@mui/icons-material/PinDropOutlined";
+import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import BoxComponent from "./Box";
 import TypographyComponent from "./Typography";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -19,13 +20,12 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     // Clear token from localStorage/sessionStorage
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('token'); // if you're using sessionStorage
- 
-    // Redirect to login page
-    navigate('/'); // Requires useNavigate from react-router-dom
-};
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token"); // if you're using sessionStorage
 
+    // Redirect to login page
+    navigate("/"); // Requires useNavigate from react-router-dom
+  };
 
   const handleDashboard = () => {
     navigate("/dashboard");
@@ -51,6 +51,9 @@ export default function Sidebar() {
   const handleAdmin = () => {
     navigate("/admin");
   };
+  const handleVehicleCategoryFares = () => {
+    navigate("/vehicle-category-fares");
+  };
 
   // Check the current path
   const isActive = (path) => location.pathname === path;
@@ -65,11 +68,7 @@ export default function Sidebar() {
       justifyContent="space-between"
       backgroundColor="var(--dark)"
     >
-      <BoxComponent
-      display='flex'
-      flexDirection="column"
-      gap='3px'
-      >
+      <BoxComponent display="flex" flexDirection="column" gap="3px">
         <MenuOption
           onClick={handleDashboard}
           icon={DashboardOutlinedIcon}
@@ -96,9 +95,15 @@ export default function Sidebar() {
         />
         <MenuOption
           onClick={handleCategory}
-          icon={CommuteOutlinedIcon }
+          icon={CommuteOutlinedIcon}
           label="Vehicles"
           active={isActive("/vehicle-categories")} // Pass the active state
+        />
+        <MenuOption
+          onClick={handleVehicleCategoryFares}
+          icon={MonetizationOnOutlinedIcon}
+          label="Pricing"
+          active={isActive("/vehicle-category-fares")} // Pass the active state
         />
         <MenuOption
           onClick={handleConfig}
@@ -125,14 +130,16 @@ export default function Sidebar() {
         justifyContent="left"
         height="6vh"
         padding="5px 10px"
-        sx={{ "&:hover": {
+        sx={{
+          "&:hover": {
             cursor: "pointer",
-            color: 'var(--white)',
-            backgroundColor:"var(--primary)" 
-          }}}
+            color: "var(--white)",
+            backgroundColor: "var(--primary)",
+          },
+        }}
         onClick={handleLogout}
       >
-        <LogoutIcon sx={{color:"var(--white)"}}/>
+        <LogoutIcon sx={{ color: "var(--white)" }} />
         <TypographyComponent marginLeft="15px" color="var(--white)">
           Logout
         </TypographyComponent>

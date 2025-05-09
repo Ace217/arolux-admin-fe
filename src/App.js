@@ -19,6 +19,7 @@ import LocationForm from "./Components/LocationForm";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import Form from "./Components/Form"; // Import the Form component
 import CustomerForm from "./Components/CustomerForm";
+import VehicleCategoryFares from "./Pages/VehicleCategoryFares";
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -108,6 +109,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Categories />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="vehicle-category-fares"
+          element={
+            <ProtectedRoute>
+              <VehicleCategoryFares />
             </ProtectedRoute>
           }
         />

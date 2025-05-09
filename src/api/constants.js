@@ -23,6 +23,10 @@ import {
   GEO_LOCATION_DETAILS,
   CREATE_GEO_LOCATION,
   UPDATE_GEO_LOCATION,
+  VEHICLE_CATEGORY_FARES_LIST,
+  VEHICLE_CATEGORY_FARE_DETAILS,
+  CREATE_VEHICLE_CATEGORY_FARE,
+  UPDATE_VEHICLE_CATEGORY_FARE,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -190,6 +194,38 @@ export const updateGeoLocation = (locationId, requestData, token) => {
   const url = `${API_URL}${API_VERSION}${UPDATE_GEO_LOCATION.replace(
     ":locationId",
     locationId
+  )}`;
+  return doPut(url, requestData, getHeader(token));
+};
+
+export const getVehicleCategoryFaresList = (params, token) => {
+  const queryString = new URLSearchParams(params).toString();
+  return doGet(
+    `${API_URL}${API_VERSION}${VEHICLE_CATEGORY_FARES_LIST}?${queryString}`,
+    token
+  );
+};
+
+export const getVehicleCategoryFareDetails = (fareId, token) => {
+  const url = `${API_URL}${API_VERSION}${VEHICLE_CATEGORY_FARE_DETAILS.replace(
+    ":fareId",
+    fareId
+  )}`;
+  return doGet(url, token);
+};
+
+export const createVehicleCategoryFare = (requestData, token) => {
+  return doPost(
+    `${API_URL}${API_VERSION}${CREATE_VEHICLE_CATEGORY_FARE}`,
+    requestData,
+    getHeader(token)
+  );
+};
+
+export const updateVehicleCategoryFare = (fareId, requestData, token) => {
+  const url = `${API_URL}${API_VERSION}${UPDATE_VEHICLE_CATEGORY_FARE.replace(
+    ":fareId",
+    fareId
   )}`;
   return doPut(url, requestData, getHeader(token));
 };
