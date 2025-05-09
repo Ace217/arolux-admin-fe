@@ -22,6 +22,7 @@ import {
   GEO_LOCATIONS_LIST,
   GEO_LOCATION_DETAILS,
   CREATE_GEO_LOCATION,
+  UPDATE_GEO_LOCATION,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -183,4 +184,12 @@ export const createGeoLocation = (requestData, token) => {
     requestData,
     getHeader(token)
   );
+};
+
+export const updateGeoLocation = (locationId, requestData, token) => {
+  const url = `${API_URL}${API_VERSION}${UPDATE_GEO_LOCATION.replace(
+    ":locationId",
+    locationId
+  )}`;
+  return doPut(url, requestData, getHeader(token));
 };

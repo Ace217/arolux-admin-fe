@@ -212,10 +212,10 @@ export default function Locations() {
               rows={rows}
               headings={headings}
               icons={icons}
-              onEdit={(id) => {
-                const currentRow = rows.find((row) => row.id === id);
-                if (currentRow) {
-                  handleEditLocation(currentRow);
+              onEdit={(row) => {
+                // Updated to accept the row object directly instead of expecting an ID
+                if (row && row.id) {
+                  handleEditLocation(row);
                 }
               }}
               onDetailClick={(id) => {
