@@ -10,6 +10,7 @@ import Customers from "./Pages/Customers";
 import Drivers from "./Pages/Drivers";
 import Configurations from "./Pages/Configurations";
 import PromoCodes from "./Pages/PromoCodes";
+import PromoCodeDetailsPage from "./Pages/PromoCodeDetailsPage";
 import DriverForm from "./Components/DriverForm";
 import Details from "./Components/Details";
 import Categories from "./Pages/Categories";
@@ -151,7 +152,16 @@ const App = () => {
           path="promo-codes"
           element={
             <ProtectedRoute>
+              {" "}
               <PromoCodes />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="promo-code-details"
+          element={
+            <ProtectedRoute>
+              <PromoCodeDetailsPage />
             </ProtectedRoute>
           }
         />

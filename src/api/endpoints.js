@@ -31,7 +31,7 @@ export const VEHICLE_CATEGORY_FARES_GEO_LOCATIONS =
 export const VEHICLE_CATEGORY_FARES_VEHICLE_CATEGORIES =
   "admin/vehicle-category-fares/vehicle-categories";
 export const PROMO_CODES_LIST = "admin/promo-codes/list";
-export const PROMO_CODE_DETAILS = "admin/promo-codes/:promoCodeId/details";
+export const PROMO_CODE_DETAILS = "admin/promo-codes/:promoCodeId";
 export const CREATE_PROMO_CODE = "admin/promo-codes";
 export const UPDATE_PROMO_CODE = "admin/promo-codes/:promoCodeId";
 export const TOGGLE_PROMO_CODE_STATUS = "admin/promo-codes/:promoCodeId/status";

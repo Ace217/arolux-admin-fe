@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import BoxComponent from "../Components/Box";
 import Head from "../Components/Head";
@@ -21,6 +22,7 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import KeyIcon from "@mui/icons-material/Key";
 
 export default function PromoCodes() {
+  const navigate = useNavigate();
   const [promoCodes, setPromoCodes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("all");
@@ -159,10 +161,9 @@ export default function PromoCodes() {
     setSelectedPromoCode(promoCode);
     setIsFormOpen(true);
   };
-
   const handlePromoCodeDetails = (promoCode) => {
-    // You could implement a detailed view or just show a toast with info
-    toast.info(`Promo code details: ${JSON.stringify(promoCode)}`);
+    // Navigate to the details page with the promo code ID
+    navigate(`/promo-code-details?id=${promoCode.id}`);
   };
 
   const handleToggleStatus = async (id) => {
