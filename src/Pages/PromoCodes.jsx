@@ -19,7 +19,7 @@ import {
 // Icons for table
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import KeyIcon from "@mui/icons-material/Key";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 
 export default function PromoCodes() {
   const navigate = useNavigate();
@@ -68,12 +68,11 @@ export default function PromoCodes() {
     { field: "validityPeriod", headerName: "Validity Period", flex: 1.5 },
     { field: "Status", headerName: "Status", flex: 1 },
   ];
-
   // Icons for table actions
   const icons = {
     edit: <EditOutlinedIcon />,
     details: <VisibilityOutlinedIcon />,
-    key: <KeyIcon />,
+    key: <DeleteOutlineIcon />,
   };
 
   // Fetch promo codes

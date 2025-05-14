@@ -75,15 +75,15 @@ export default function Table({
         ) : null,
       sortable: false,
     },    {
-      field: "Key",
+      field: "Delete",
       headerName: "",
       flex: 0.5,
       renderCell: (params) =>
         icons.key ? (
           <IconButton 
             onClick={() => params.row.id && onDeleteClick && onDeleteClick(params.row.id)}
-            aria-label="key" 
-            sx={{ color: "var(--primary)" }}
+            aria-label="delete" 
+            sx={{ color: "var(--error)" }}
           >
             {icons.key}
           </IconButton>
