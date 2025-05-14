@@ -150,10 +150,47 @@ export default function PromoCodeForm({ open, onClose, promoCodeData }) {
       fetchData();
     }
   }, [open]);
-
-  // Set form data if editing an existing promo code
   useEffect(() => {
+    // Set form data if editing an existing promo code  useEffect(() => {
     if (promoCodeData) {
+      // Process vehicleCategoryIds to ensure they are strings
+      const processedVehicleCategoryIds = (
+        promoCodeData.vehicleCategoryIds || []
+      ).map((item) => {
+        // If the item is an object with an id property, return the id
+        if (typeof item === "object" && item !== null && item._id) {
+          return item._id;
+        }
+        // If the item is an object but stringified (like "[object Object]"), try to get its original ID
+        if (typeof item === "string" && vehicleCategories.length > 0) {
+          // Try to find a matching category by comparing properties
+          const matchingCategory = vehicleCategories.find(
+            (cat) => cat.id === item // Direct match
+          );
+          if (matchingCategory) {
+            return matchingCategory.id;
+          }
+        }
+        // Otherwise return the item as is (assuming it's already an ID)
+        return item;
+      });
+
+      // Similarly process geoLocationIds
+      const processedGeoLocationIds = (promoCodeData.geoLocationIds || []).map(
+        (item) => {
+          if (typeof item === "object" && item !== null && item._id) {
+            return item._id;
+          }
+          if (typeof item === "string" && locations.length > 0) {
+            const matchingLocation = locations.find((loc) => loc.id === item);
+            if (matchingLocation) {
+              return matchingLocation.id;
+            }
+          }
+          return item;
+        }
+      );
+
       setFormData({
         title: promoCodeData.title || "",
         code: promoCodeData.code || "",
@@ -169,8 +206,8 @@ export default function PromoCodeForm({ open, onClose, promoCodeData }) {
           : new Date(new Date().setMonth(new Date().getMonth() + 1)),
         isActive:
           promoCodeData.isActive !== undefined ? promoCodeData.isActive : true,
-        vehicleCategoryIds: promoCodeData.vehicleCategoryIds || [],
-        geoLocationIds: promoCodeData.geoLocationIds || [],
+        vehicleCategoryIds: processedVehicleCategoryIds,
+        geoLocationIds: processedGeoLocationIds,
       });
     } else {
       // Reset form if adding a new promo code
@@ -218,7 +255,11 @@ export default function PromoCodeForm({ open, onClose, promoCodeData }) {
       toast.error("Percentage value must be between 0 and 100");
       return;
     }
-    if (formData.type === "percentage" && formData.maximumDiscount && isNaN(formData.maximumDiscount)) {
+    if (
+      formData.type === "percentage" &&
+      formData.maximumDiscount &&
+      isNaN(formData.maximumDiscount)
+    ) {
       toast.error("Maximum discount must be a valid number");
       return;
     }
@@ -238,10 +279,11 @@ export default function PromoCodeForm({ open, onClose, promoCodeData }) {
     try {
       setLoading(true);
       const token = Cookies.get("token");
-      
+
       // Map 'percentage' type to 'percent' for the API payload
-      const typeForAPI = formData.type === "percentage" ? "percent" : formData.type;
-      
+      const typeForAPI =
+        formData.type === "percentage" ? "percent" : formData.type;
+
       // Create API payload with exact structure required
       const payload = {
         title: formData.title,
@@ -249,14 +291,23 @@ export default function PromoCodeForm({ open, onClose, promoCodeData }) {
         type: typeForAPI,
         value: Number(formData.value),
         // For fixed type, maximumDiscount should be 0
-        maximumDiscount: typeForAPI === "fixed" ? 0 : (formData.maximumDiscount ? Number(formData.maximumDiscount) : null),
-        minimumAmount: formData.minimumAmount ? Number(formData.minimumAmount) : null,
+        maximumDiscount:
+          typeForAPI === "fixed"
+            ? 0
+            : formData.maximumDiscount
+            ? Number(formData.maximumDiscount)
+            : null,
+        minimumAmount: formData.minimumAmount
+          ? Number(formData.minimumAmount)
+          : null,
         startDate: formData.startDate.toISOString().split("T")[0],
         endDate: formData.endDate.toISOString().split("T")[0],
         isActive: formData.isActive,
         // Ensure all IDs are strings
-        vehicleCategoryIds: (formData.vehicleCategoryIds || []).map(id => String(id)),
-        geoLocationIds: (formData.geoLocationIds || []).map(id => String(id))
+        vehicleCategoryIds: (formData.vehicleCategoryIds || []).map((id) =>
+          String(id)
+        ),
+        geoLocationIds: (formData.geoLocationIds || []).map((id) => String(id)),
       };
 
       // Log the payload for debugging
@@ -440,7 +491,7 @@ export default function PromoCodeForm({ open, onClose, promoCodeData }) {
                 getOptionLabel={(option) => option.name}
                 isOptionEqualToValue={(option, value) => {
                   // Handle both object and string ID comparisons
-                  if (typeof value === 'object' && value !== null) {
+                  if (typeof value === "object" && value !== null) {
                     return option.id === value.id;
                   }
                   return option.id === value;
@@ -484,7 +535,7 @@ export default function PromoCodeForm({ open, onClose, promoCodeData }) {
                 getOptionLabel={(option) => option.name}
                 isOptionEqualToValue={(option, value) => {
                   // Handle both object and string ID comparisons
-                  if (typeof value === 'object' && value !== null) {
+                  if (typeof value === "object" && value !== null) {
                     return option.id === value.id;
                   }
                   return option.id === value;
