@@ -23,6 +23,17 @@ export default function Locations() {
   const [rows, setRows] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  // Pagination state
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 20,
+  });
+  const [totalLocations, setTotalLocations] = useState(0);
+
+  // Handle pagination model change
+  const handlePaginationModelChange = (newModel) => {
+    setPaginationModel(newModel);
+  };
 
   // Function to fetch locations from the API
   const fetchLocations = async () => {
@@ -31,8 +42,8 @@ export default function Locations() {
       const token = Cookies.get("token");
       const params = {
         searchText: searchText,
-        limit: 20,
-        offset: 0,
+        limit: paginationModel.pageSize,
+        offset: paginationModel.page * paginationModel.pageSize,
         status: statusFilter,
       };
 
@@ -52,6 +63,11 @@ export default function Locations() {
         }));
 
         setRows(transformedLocations);
+
+        // Set total count for pagination
+        setTotalLocations(
+          response.data.data.totalGeoLocations || transformedLocations.length
+        );
       } else {
         toast.error("Failed to fetch locations");
       }
@@ -66,7 +82,12 @@ export default function Locations() {
   // Fetch locations when component mounts or when filters change
   useEffect(() => {
     fetchLocations();
-  }, [searchText, statusFilter]); // Re-fetch when search text or status filter changes
+  }, [
+    searchText,
+    statusFilter,
+    paginationModel.page,
+    paginationModel.pageSize,
+  ]); // Re-fetch when pagination or filters change
 
   const handleDetailClick = (id) => {
     // Navigate to the location details page with the location ID
@@ -227,6 +248,11 @@ export default function Locations() {
                   handleToggleClick(id, currentRow.Status);
                 }
               }}
+              paginationModel={paginationModel}
+              onPaginationModelChange={handlePaginationModelChange}
+              rowCount={totalLocations}
+              pageSizeOptions={[10, 20, 50, 100]}
+              passIdOnly={true} // Set to true for location details view
             />
           )}
           {showConfirm && (

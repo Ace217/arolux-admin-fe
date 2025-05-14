@@ -10,6 +10,7 @@ import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettin
 import LogoutIcon from "@mui/icons-material/Logout";
 import PinDropOutlinedIcon from "@mui/icons-material/PinDropOutlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
+import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 import BoxComponent from "./Box";
 import TypographyComponent from "./Typography";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -53,6 +54,9 @@ export default function Sidebar() {
   };
   const handleVehicleCategoryFares = () => {
     navigate("/vehicle-category-fares");
+  };
+  const handlePromoCodes = () => {
+    navigate("/promo-codes");
   };
 
   // Check the current path
@@ -104,6 +108,12 @@ export default function Sidebar() {
           icon={MonetizationOnOutlinedIcon}
           label="Pricing"
           active={isActive("/vehicle-category-fares")} // Pass the active state
+        />
+        <MenuOption
+          onClick={handlePromoCodes}
+          icon={LocalOfferOutlinedIcon}
+          label="Promo Codes"
+          active={isActive("/promo-codes")} // Pass the active state
         />
         <MenuOption
           onClick={handleConfig}

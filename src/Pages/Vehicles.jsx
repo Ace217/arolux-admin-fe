@@ -25,6 +25,19 @@ export default function Vehicles() {
   const [confirmMessage, setConfirmMessage] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [filteredVehicles, setFilteredVehicles] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  // Pagination state
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
+  const [totalVehicles, setTotalVehicles] = useState(0);
+
+  // Handle pagination model change
+  const handlePaginationModelChange = (newModel) => {
+    setPaginationModel(newModel);
+  };
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,7 +54,7 @@ export default function Vehicles() {
   });
 
   const handleDetailClick = (id) => {
-    navigate(`/details?id=${id}`);
+    navigate(`/vehicle-details?id=${id}`);
   };
 
   const handleVehicle = (id) => {
@@ -374,19 +387,68 @@ export default function Vehicles() {
     setShowConfirm(false);
   };
 
-  // Filter vehicles based on selected category from URL query
+  // Filter vehicles based on pagination, search, status, and selected category
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const category = queryParams.get("category");
 
-    if (category) {
-      setFilteredVehicles(
-        rows.filter((vehicle) => vehicle.category === category)
+    // First filter by category if specified
+    let filtered = category
+      ? rows.filter((vehicle) => vehicle.category === category)
+      : rows;
+
+    // Then filter by search text if provided
+    if (searchInput) {
+      filtered = filtered.filter(
+        (vehicle) =>
+          vehicle.category.toLowerCase().includes(searchInput.toLowerCase()) ||
+          vehicle.id.toString().includes(searchInput)
       );
-    } else {
-      setFilteredVehicles(rows); // Show all vehicles if no category filter is applied
     }
-  }, [location.search, rows]); // Re-run effect when location.search or rows changes
+
+    // Then filter by status if provided
+    if (statusFilter) {
+      filtered = filtered.filter((vehicle) => {
+        if (statusFilter === "Active") return vehicle.Status === "Active";
+        if (statusFilter === "Inactive") return vehicle.Status === "Inactive";
+        return true; // "All" case
+      });
+    }
+
+    // Store total count before pagination
+    setTotalVehicles(filtered.length);
+
+    // Apply pagination
+    const startIndex = paginationModel.page * paginationModel.pageSize;
+    const paginatedRows = filtered.slice(
+      startIndex,
+      startIndex + paginationModel.pageSize
+    );
+
+    setFilteredVehicles(paginatedRows);
+  }, [location.search, rows, searchInput, statusFilter, paginationModel]);
+
+  // Handle search input
+  const handleSearch = (value) => {
+    setSearchInput(value);
+  };
+
+  // Handle status filter change
+  const handleStatusChange = (value) => {
+    switch (value) {
+      case 1: // All
+        setStatusFilter("");
+        break;
+      case 2: // Active
+        setStatusFilter("Active");
+        break;
+      case 3: // Inactive
+        setStatusFilter("Inactive");
+        break;
+      default:
+        setStatusFilter("");
+    }
+  };
 
   useEffect(() => {
     console.log("Coming here");
@@ -457,6 +519,8 @@ export default function Vehicles() {
             placeholder="Search a Vehicle by ID"
             label="Status"
             status={status}
+            onSearch={handleSearch}
+            onStatusChange={handleStatusChange}
           />
           <Table
             rows={filteredVehicles} // Display filtered vehicles here
@@ -475,6 +539,10 @@ export default function Vehicles() {
                 handleToggleClick(id, currentRow.Status);
               }
             }}
+            paginationModel={paginationModel}
+            onPaginationModelChange={handlePaginationModelChange}
+            rowCount={totalVehicles}
+            pageSizeOptions={[5, 10, 20, 50]}
           />
           {showConfirm && (
             <BoxComponent

@@ -32,6 +32,12 @@ export default function Categories() {
   const [isActive, setIsActive] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearchText = useDebounce(searchInput, 500);
+  // Pagination state
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
+  const [totalCategories, setTotalCategories] = useState(0);
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -277,8 +283,11 @@ export default function Categories() {
       const token = Cookies.get("token");
       // Only include isActive in params if it's not an empty string (All option)
       const apiParams = {
-        limit: 10,
-        offset: 0,
+        limit: params.pageSize || paginationModel.pageSize,
+        offset:
+          params.page !== undefined
+            ? params.page * (params.pageSize || paginationModel.pageSize)
+            : paginationModel.page * paginationModel.pageSize,
         searchText: params.searchText || "",
         ...(params.isActive !== "" && { isActive: params.isActive }),
       };
@@ -294,6 +303,10 @@ export default function Categories() {
           image: category.iconURL,
         }));
         setRows(formattedRows);
+        // Set total count for pagination
+        setTotalCategories(
+          response.data.data.totalCategories || formattedRows.length
+        );
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -306,8 +319,15 @@ export default function Categories() {
     fetchCategories({
       searchText: debouncedSearchText,
       isActive,
+      page: paginationModel.page,
+      pageSize: paginationModel.pageSize,
     });
-  }, [debouncedSearchText, isActive]);
+  }, [
+    debouncedSearchText,
+    isActive,
+    paginationModel.page,
+    paginationModel.pageSize,
+  ]);
 
   const handleSearch = (value) => {
     setSearchInput(value);
@@ -330,6 +350,11 @@ export default function Categories() {
         activeStatus = "";
     }
     setIsActive(activeStatus);
+  };
+
+  // Handle pagination model change
+  const handlePaginationModelChange = (newModel) => {
+    setPaginationModel(newModel);
   };
 
   return (
@@ -391,6 +416,10 @@ export default function Categories() {
                 handleToggleClick(id, currentRow.Status);
               }
             }}
+            paginationModel={paginationModel}
+            onPaginationModelChange={handlePaginationModelChange}
+            rowCount={totalCategories}
+            pageSizeOptions={[5, 10, 20, 50]}
           />
           {showConfirm && (
             <BoxComponent

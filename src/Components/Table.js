@@ -6,14 +6,23 @@ import Switch from "@mui/material/Switch";
 import TypographyComponent from "./Typography";
 
 export default function Table({
-  rows = [], // Ensure rows default to an empty array
-  headings = [], // Ensure headings default to an empty array
-  icons = {}, // Ensure icons default to an empty object
-  onStatusChange = () => {}, // Default to an empty function
+  rows = [],
+  headings = [],
+  icons = {},
+  onStatusChange = () => {},
   onDetailClick = () => {},
-  onEdit = () => {}, // Add onEdit prop
-  getRowId = (row) => row.id, // Default getRowId to avoid errors
-  loading = false, // Add loading prop
+  onEdit = () => {},
+  getRowId = (row) => row.id,
+  loading = false,
+  // Pagination props
+  paginationModel = { page: 0, pageSize: 10 },
+  onPaginationModelChange = () => {},
+  rowCount = 0,
+  pageSizeOptions = [5, 10, 20, 50],
+  // Height prop with default value
+  height = 400,
+  // New prop to determine what to pass to onDetailClick
+  passIdOnly = false,
 }) {
   // Create columns based on the headings prop
   const columns = headings
@@ -26,6 +35,7 @@ export default function Table({
       renderCell: heading.renderCell || undefined,
       headerClassName: "center-header",
       cellClassName: "center-cell",
+      width: heading.width,
     }));
 
   // Add edit, details, and key columns with safe checks for icons
@@ -53,7 +63,9 @@ export default function Table({
       renderCell: (params) =>
         icons.details ? (
           <IconButton
-            onClick={() => onDetailClick(params.row.id)} // Fixed: Pass just the ID, not the whole row
+            onClick={() =>
+              onDetailClick(passIdOnly ? params.row.id : params.row)
+            }
             aria-label="details"
             sx={{ color: "var(--primary)" }}
           >
@@ -80,7 +92,9 @@ export default function Table({
       flex: 1,
       renderCell: (params) => (
         <Switch
-          checked={params.row.Status === "Active"}
+          checked={
+            params.row.Status === "Active" || params.row.isActive === true
+          }
           onChange={() => onStatusChange(params.row.id)}
           style={{ color: "var(--primary)" }}
         />
@@ -89,13 +103,11 @@ export default function Table({
     }
   );
 
-  const paginationModel = { page: 0, pageSize: 5 };
-
   if (loading) {
     return (
       <Paper
         sx={{
-          height: 400,
+          height: height,
           width: "100%",
           display: "flex",
           justifyContent: "center",
@@ -110,15 +122,24 @@ export default function Table({
   }
 
   return (
-    <Paper sx={{ height: 400, width: "100%" }}>
+    <Paper
+      sx={{
+        height: height,
+        width: "100%",
+      }}
+    >
       <DataGrid
         rows={rows}
         columns={columns}
         getRowId={getRowId}
-        initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={onPaginationModelChange}
+        pageSizeOptions={pageSizeOptions}
+        rowCount={rowCount}
+        paginationMode="server"
         sx={{
           border: 0,
+          height: "100%",
           "& .MuiDataGrid-columnHeaderTitle": { fontWeight: "bold" },
           "& .center-header": {
             justifyContent: "center",
@@ -127,7 +148,7 @@ export default function Table({
           "& .center-cell": { padding: "5px" },
         }}
         disableColumnMenu
-        autoHeight
+        autoHeight={false}
       />
     </Paper>
   );
