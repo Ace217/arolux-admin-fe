@@ -34,6 +34,12 @@ export default function Customers() {
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearchText = useDebounce(searchInput, 500);
   const [selectedCustomerData, setSelectedCustomerData] = useState(null);
+  // Pagination state
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 20,
+  });
+  const [totalCustomers, setTotalCustomers] = useState(0);
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,7 +52,7 @@ export default function Customers() {
   });
 
   const handleDetailClick = (data) => {
-    navigate("/details", { state: { ...data } });
+    navigate("/customer-details", { state: { ...data } });
   };
 
   const handleEditClick = async (data) => {
@@ -300,8 +306,11 @@ export default function Customers() {
     try {
       const token = Cookies.get("token");
       const apiParams = {
-        limit: 20,
-        offset: 0,
+        limit: params.pageSize || paginationModel.pageSize,
+        offset:
+          params.page !== undefined
+            ? params.page * (params.pageSize || paginationModel.pageSize)
+            : paginationModel.page * paginationModel.pageSize,
         searchText: params.searchText || "",
         ...(params.isActive !== "" && { status: params.isActive }),
       };
@@ -316,6 +325,8 @@ export default function Customers() {
           phone: user.phoneNumber, // For consistency in rendering
         }));
         setRows(customers);
+        // Set total count for pagination
+        setTotalCustomers(response.data.data.totalUsers || customers.length);
       }
     } catch (error) {
       console.error("Error fetching customers:", error);
@@ -328,8 +339,15 @@ export default function Customers() {
     fetchCustomers({
       searchText: debouncedSearchText,
       isActive,
+      page: paginationModel.page,
+      pageSize: paginationModel.pageSize,
     });
-  }, [debouncedSearchText, isActive]);
+  }, [
+    debouncedSearchText,
+    isActive,
+    paginationModel.page,
+    paginationModel.pageSize,
+  ]);
 
   const handleSearch = (value) => {
     setSearchInput(value);
@@ -351,6 +369,11 @@ export default function Customers() {
         activeStatus = "";
     }
     setIsActive(activeStatus);
+  };
+
+  // Handle pagination model change
+  const handlePaginationModelChange = (newModel) => {
+    setPaginationModel(newModel);
   };
 
   return (
@@ -396,6 +419,10 @@ export default function Customers() {
                 handleToggleClick(id, currentRow.status);
               }
             }}
+            paginationModel={paginationModel}
+            onPaginationModelChange={handlePaginationModelChange}
+            rowCount={totalCustomers}
+            pageSizeOptions={[10, 20, 50, 100]}
           />
           {showConfirm && (
             <BoxComponent

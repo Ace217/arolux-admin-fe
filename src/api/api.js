@@ -107,6 +107,25 @@ export const doPut = async (endPoint, body, customHeaders) => {
   }
 };
 
+// Function to handle DELETE requests
+export const doDelete = async (endPoint, customHeaders = {}) => {
+  try {
+    const result = await axios.delete(endPoint, {
+      headers: { ...getHeader(), ...customHeaders },
+    });
+    return result;
+  } catch (e) {
+    const status = e?.response?.status;
+    if (status === 401) {
+      handleUnauthorized();
+    }
+    if (status === 403) {
+      toast.error("Not Authorized");
+    }
+    return e.response;
+  }
+};
+
 // Function to handle 401 Unauthorized - Clear cookies and reload the page if needed
 const handleUnauthorized = () => {
   Cookies.remove("token");

@@ -1,5 +1,5 @@
 // Integrate the login and account methods
-import { doPut, doGet, doPost, doPatch, getHeader } from "./api";
+import { doPut, doGet, doPost, doPatch, doDelete, getHeader } from "./api";
 import {
   LOGIN,
   ACCOUNT,
@@ -29,6 +29,15 @@ import {
   UPDATE_VEHICLE_CATEGORY_FARE,
   VEHICLE_CATEGORY_FARES_GEO_LOCATIONS,
   VEHICLE_CATEGORY_FARES_VEHICLE_CATEGORIES,
+  PROMO_CODES_LIST,
+  PROMO_CODE_DETAILS,
+  CREATE_PROMO_CODE,
+  UPDATE_PROMO_CODE,
+  TOGGLE_PROMO_CODE_STATUS,
+  DELETE_PROMO_CODE,
+  LOCATIONS,
+  PROMO_CODES_GEO_LOCATIONS,
+  PROMO_CODES_VEHICLE_CATEGORIES,
 } from "./endpoints"; // Import the endpoints
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -242,6 +251,73 @@ export const getVehicleCategoryFaresGeoLocations = (token) => {
 export const getVehicleCategoryFaresVehicleCategories = (token) => {
   return doGet(
     `${API_URL}${API_VERSION}${VEHICLE_CATEGORY_FARES_VEHICLE_CATEGORIES}`,
+    token
+  );
+};
+
+export const getPromoCodesList = (params, token) => {
+  const queryString = params ? new URLSearchParams(params).toString() : "";
+  const url = queryString
+    ? `${API_URL}${API_VERSION}${PROMO_CODES_LIST}?${queryString}`
+    : `${API_URL}${API_VERSION}${PROMO_CODES_LIST}`;
+  return doGet(url, token);
+};
+
+export const getPromoCodeDetails = (promoCodeId, token) => {
+  const url = `${API_URL}${API_VERSION}${PROMO_CODE_DETAILS.replace(
+    ":promoCodeId",
+    promoCodeId
+  )}`;
+  return doGet(url, token);
+};
+
+export const createPromoCode = (requestData, token) => {
+  return doPost(
+    `${API_URL}${API_VERSION}${CREATE_PROMO_CODE}`,
+    requestData,
+    getHeader(token)
+  );
+};
+
+export const updatePromoCode = (promoCodeId, requestData, token) => {
+  const url = `${API_URL}${API_VERSION}${UPDATE_PROMO_CODE.replace(
+    ":promoCodeId",
+    promoCodeId
+  )}`;
+  return doPut(url, requestData, getHeader(token));
+};
+
+export const togglePromoCodeStatus = (promoCodeId, isActive, token) => {
+  const url = `${API_URL}${API_VERSION}${TOGGLE_PROMO_CODE_STATUS.replace(
+    ":promoCodeId",
+    promoCodeId
+  )}`;
+  return doPatch(url, { isActive }, getHeader(token));
+};
+
+export const deletePromoCode = (promoCodeId, token) => {
+  const url = `${API_URL}${API_VERSION}${DELETE_PROMO_CODE.replace(
+    ":promoCodeId",
+    promoCodeId
+  )}`;
+  return doDelete(url, getHeader(token));
+};
+
+export const getLocations = (params, token) => {
+  const queryString = params ? new URLSearchParams(params).toString() : "";
+  const url = queryString
+    ? `${API_URL}${API_VERSION}${LOCATIONS}?${queryString}`
+    : `${API_URL}${API_VERSION}${LOCATIONS}`;
+  return doGet(url, token);
+};
+
+export const getPromoCodesGeoLocations = (token) => {
+  return doGet(`${API_URL}${API_VERSION}${PROMO_CODES_GEO_LOCATIONS}`, token);
+};
+
+export const getPromoCodesVehicleCategories = (token) => {
+  return doGet(
+    `${API_URL}${API_VERSION}${PROMO_CODES_VEHICLE_CATEGORIES}`,
     token
   );
 };

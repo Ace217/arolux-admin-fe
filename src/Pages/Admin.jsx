@@ -11,7 +11,7 @@ import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import Find from "../Components/Find";
 import Update from "../Components/Update";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import { accounts } from "../api/constants";
 
 export default function Admin({ token: receivedToken }) {
@@ -26,28 +26,33 @@ export default function Admin({ token: receivedToken }) {
     const fetchAdmins = async () => {
       try {
         const token = receivedToken || localStorage.getItem("token");
-  
+
         if (!token) {
-          console.error("Authentication token is missing. Please log in again.");
+          console.error(
+            "Authentication token is missing. Please log in again."
+          );
           return;
         }
-  
+
         console.log("Token being used:", token); // Debugging
-  
+
         const response = await accounts(token);
-  
+
         console.log("Fetched Data:", response?.data); // Debugging
-  
+
         if (response && Array.isArray(response.data.data.adminAccounts)) {
           setRows(response.data.data.adminAccounts);
         } else {
           console.error("Unexpected API response format:", response);
         }
       } catch (error) {
-        console.error("Error fetching admin data:", error?.response?.data || error.message);
+        console.error(
+          "Error fetching admin data:",
+          error?.response?.data || error.message
+        );
       }
     };
-  
+
     fetchAdmins();
   }, [receivedToken]);
 
@@ -56,12 +61,11 @@ export default function Admin({ token: receivedToken }) {
   const handleDetailClick = (data) => {
     navigate("/details", { state: { ...data } }); // Ensure full row data is passed
   };
-  
 
   const handleOpenModal = (mode, adminData = null) => {
     setIsModalOpen(true);
     setModalTitle(mode === "edit" ? "Update Admin" : "Add Admin");
-    
+
     if (mode === "edit" && adminData) {
       setSelectedAdmin(adminData); // Store admin data for editing
     } else {
@@ -89,34 +93,35 @@ export default function Admin({ token: receivedToken }) {
   const handleCloseUpdateModal = () => {
     setIsUpdateModalOpen(false);
   };
-  
-  
+
   const headings = [
     { field: "name", headerName: "Name" },
     { field: "adminType", headerName: "Admin Type" },
     { field: "email", headerName: "Email" },
     { field: "phoneNumber", headerName: "Phone No", type: "number" },
     {
-      field: 'createdBy',
-      headerName: 'Created By',
+      field: "createdBy",
+      headerName: "Created By",
       width: 150,
       renderCell: (params) => (
         <TypographyComponent>
           {params.value ? params.value.name : "N/A"}
         </TypographyComponent>
       ),
-    },    
+    },
     { field: "lastLoginTime", headerName: "Last Login" },
     {
-      field: 'isActive',
-      headerName: 'Status',
+      field: "isActive",
+      headerName: "Status",
       width: 100,
       renderCell: (params) => (
-        <TypographyComponent sx={{ color: params.value===true ? 'green' : 'red' }}>
-          {params.value===true ? 'Active' : 'In-Active'}
+        <TypographyComponent
+          sx={{ color: params.value === true ? "green" : "red" }}
+        >
+          {params.value === true ? "Active" : "In-Active"}
         </TypographyComponent>
       ),
-    }, 
+    },
     {
       field: "edit",
       headerName: "Edit",
@@ -126,7 +131,7 @@ export default function Admin({ token: receivedToken }) {
           style={{ cursor: "pointer" }}
         />
       ),
-    },       
+    },
     {
       field: "view",
       headerName: "View",
@@ -155,7 +160,11 @@ export default function Admin({ token: receivedToken }) {
       <BoxComponent display="flex" justifyContent="space-between">
         <Sidebar />
         <BoxComponent width="82%" padding="20px">
-          <BoxComponent display="flex" justifyContent="space-between" width="100%">
+          <BoxComponent
+            display="flex"
+            justifyContent="space-between"
+            width="100%"
+          >
             <TypographyComponent
               fontSize="18px"
               fontFamily="var(--main)"
@@ -189,9 +198,9 @@ export default function Admin({ token: receivedToken }) {
             rows={rows}
             headings={headings}
             // icons={icons}
-            onDetailClick={(row) => handleDetailClick(row)
-            }
+            onDetailClick={(row) => handleDetailClick(row)}
             onStatusChange={handleStatusChange}
+            passIdOnly={false}
           />
         </BoxComponent>
       </BoxComponent>
@@ -219,7 +228,11 @@ export default function Admin({ token: receivedToken }) {
             padding="20px"
             zIndex="1200"
           >
-            <Form onCancel={handleCancelClick} title={modalTitle} adminData={selectedAdmin} />
+            <Form
+              onCancel={handleCancelClick}
+              title={modalTitle}
+              adminData={selectedAdmin}
+            />
           </BoxComponent>
         </>
       )}

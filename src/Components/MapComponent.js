@@ -100,6 +100,7 @@ const MapComponent = ({
   boundaries,
   markers = [],
   polyline,
+  directLine = null, // Add directLine prop to handle direct lines between two points
   children, // Added children prop to accept additional elements
   polygonPositions = [], // Added prop for polygon positions
 }) => {
@@ -248,6 +249,16 @@ const MapComponent = ({
                 color="#0066ff"
                 weight={4}
                 opacity={0.7}
+              />
+            )}
+            {/* Display direct line between two points if polyline isn't available */}
+            {directLine && (
+              <Polyline
+                positions={directLine}
+                color="#0066ff"
+                weight={4}
+                opacity={0.7}
+                dashArray="10, 10" // Add dashed pattern to distinguish from encoded polyline
               />
             )}
             {/* Display polygon if positions are provided */}
