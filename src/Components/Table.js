@@ -12,6 +12,7 @@ export default function Table({
   onStatusChange = () => {},
   onDetailClick = () => {},
   onEdit = () => {},
+  onDeleteClick = () => {},
   getRowId = (row) => row.id,
   loading = false,
   // Pagination props
@@ -73,14 +74,17 @@ export default function Table({
           </IconButton>
         ) : null,
       sortable: false,
-    },
-    {
+    },    {
       field: "Key",
       headerName: "",
       flex: 0.5,
       renderCell: (params) =>
         icons.key ? (
-          <IconButton aria-label="key" sx={{ color: "var(--primary)" }}>
+          <IconButton 
+            onClick={() => params.row.id && onDeleteClick && onDeleteClick(params.row.id)}
+            aria-label="key" 
+            sx={{ color: "var(--primary)" }}
+          >
             {icons.key}
           </IconButton>
         ) : null,

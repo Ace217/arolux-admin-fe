@@ -194,6 +194,25 @@ export default function PromoCodes() {
     }
   };
 
+  const handleDeletePromoCode = async (id) => {
+    if (window.confirm("Are you sure you want to delete this promo code?")) {
+      try {
+        const token = Cookies.get("token");
+        const response = await deletePromoCode(id, token);
+
+        if (response?.data?.success) {
+          toast.success("Promo code deleted successfully");
+          fetchPromoCodes(); // Refresh the list
+        } else {
+          toast.error(response?.data?.message || "Failed to delete promo code");
+        }
+      } catch (error) {
+        console.error("Error deleting promo code:", error);
+        toast.error("Error deleting promo code");
+      }
+    }
+  };
+
   const handleFormClose = (refresh = false) => {
     setIsFormOpen(false);
     setSelectedPromoCode(null);
@@ -242,8 +261,7 @@ export default function PromoCodes() {
             status={status}
             onSearch={handleSearch}
             onStatusChange={handleStatusChange}
-          />
-          <Table
+          />          <Table
             rows={promoCodes}
             headings={headings}
             icons={icons}
@@ -251,6 +269,7 @@ export default function PromoCodes() {
             onEdit={handleEditPromoCode}
             onDetailClick={handlePromoCodeDetails}
             onStatusChange={handleToggleStatus}
+            onDeleteClick={handleDeletePromoCode}
             paginationModel={paginationModel}
             onPaginationModelChange={handlePaginationModelChange}
             rowCount={totalPromoCodes}
