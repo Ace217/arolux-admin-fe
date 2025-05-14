@@ -12,15 +12,79 @@ import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import { useDebounce } from "../hooks/useDebounce";
 
+// Utility function to format timestamps correctly
+const formatDateTime = (timestamp) => {
+  // Check if timestamp is a valid number
+  if (!timestamp || isNaN(Number(timestamp))) {
+    return "N/A";
+  }
+
+  // Handle different timestamp formats
+  let milliseconds;
+
+  // If timestamp is too large, it might be in microseconds or nanoseconds
+  if (String(timestamp).length >= 13) {
+    // For microseconds (16 digits) or nanoseconds (19 digits), convert to milliseconds
+    if (String(timestamp).length > 13) {
+      const divisor = Math.pow(10, String(timestamp).length - 13);
+      milliseconds = Math.floor(Number(timestamp) / divisor);
+    } else {
+      // Already in milliseconds (13 digits)
+      milliseconds = Number(timestamp);
+    }
+  } else {
+    // Convert from seconds to milliseconds (10 digits or less)
+    milliseconds = Number(timestamp) * 1000;
+  }
+
+  // Check if the date is reasonable (between 2020 and 2050)
+  const year = new Date(milliseconds).getFullYear();
+  if (year < 2020 || year > 2050) {
+    // If unreasonable, assume timestamp is in seconds, not milliseconds
+    if (String(timestamp).length >= 13) {
+      milliseconds = Math.floor(Number(timestamp) / 1000);
+    }
+  }
+
+  // Create a date object and format it
+  const date = new Date(milliseconds);
+
+  // Check if date is valid
+  if (isNaN(date.getTime())) {
+    return "Invalid Date";
+  }
+
+  // Format date
+  return date.toLocaleString();
+};
+
 export default function Rides() {
   const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearchText = useDebounce(searchInput, 500);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  // Pagination state
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 20,
+  });
+  const [totalRides, setTotalRides] = useState(0);
+
+  // Handle pagination model change
+  const handlePaginationModelChange = (newModel) => {
+    setPaginationModel(newModel);
+  };
 
   const handleDetailClick = (data) => {
-    navigate(`/details`, { state: { ...data } });
+    console.log("Ride details before navigation:", data);
+    navigate(`/ride-details`, {
+      state: {
+        ...data,
+        isRideBooking: true, // Explicit flag to identify as ride booking
+      },
+    });
   };
 
   const status = [
@@ -68,7 +132,7 @@ export default function Rides() {
       field: "scheduledTime",
       headerName: "Scheduled Time",
       width: 160,
-      renderCell: (params) => new Date(params.value * 1000).toLocaleString(),
+      renderCell: (params) => formatDateTime(params.value),
     },
     { field: "userName", headerName: "Customer", width: 150 },
     {
@@ -88,8 +152,11 @@ export default function Rides() {
     try {
       const token = Cookies.get("token");
       const apiParams = {
-        limit: 20,
-        offset: 0,
+        limit: params.pageSize || paginationModel.pageSize,
+        offset:
+          params.page !== undefined
+            ? params.page * (params.pageSize || paginationModel.pageSize)
+            : paginationModel.page * paginationModel.pageSize,
         searchText: params.searchText || "",
         ...(params.status && { status: params.status }),
       };
@@ -102,6 +169,8 @@ export default function Rides() {
           id: booking._id, // Required for table component
         }));
         setRows(bookings);
+        // Use totalRideBookingsCount specifically for accurate pagination
+        setTotalRides(response.data.data.totalRideBookingsCount || 0);
       } else {
         toast.error(response?.data?.message || "Failed to fetch ride bookings");
       }
@@ -118,12 +187,22 @@ export default function Rides() {
   };
 
   const handleStatusChange = (statusValue) => {
-    fetchRideBookings({ status: statusValue, searchText: searchInput });
+    setSelectedStatus(statusValue);
   };
 
   useEffect(() => {
-    fetchRideBookings({ searchText: debouncedSearchText });
-  }, [debouncedSearchText]);
+    fetchRideBookings({
+      searchText: debouncedSearchText,
+      status: selectedStatus,
+      page: paginationModel.page,
+      pageSize: paginationModel.pageSize,
+    });
+  }, [
+    debouncedSearchText,
+    selectedStatus,
+    paginationModel.page,
+    paginationModel.pageSize,
+  ]);
 
   return (
     <BoxComponent backgroundColor="var(--light)">
@@ -164,6 +243,11 @@ export default function Rides() {
             loading={loading}
             getRowId={(row) => row.id}
             onDetailClick={handleDetailClick}
+            paginationModel={paginationModel}
+            onPaginationModelChange={handlePaginationModelChange}
+            rowCount={totalRides}
+            pageSizeOptions={[10, 20, 50, 100]}
+            passIdOnly={false}
           />
         </BoxComponent>
       </BoxComponent>

@@ -9,6 +9,7 @@ import Vehicles from "./Pages/Vehicles";
 import Customers from "./Pages/Customers";
 import Drivers from "./Pages/Drivers";
 import Configurations from "./Pages/Configurations";
+import PromoCodes from "./Pages/PromoCodes";
 import DriverForm from "./Components/DriverForm";
 import Details from "./Components/Details";
 import Categories from "./Pages/Categories";
@@ -96,11 +97,37 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        {/* Generic details route (kept for backward compatibility) */}
         <Route
           path="details"
           element={
             <ProtectedRoute>
               <Details />
+            </ProtectedRoute>
+          }
+        />
+        {/* Specific details routes for different entities */}
+        <Route
+          path="ride-details"
+          element={
+            <ProtectedRoute>
+              <Details entityType="ride" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="customer-details"
+          element={
+            <ProtectedRoute>
+              <Details entityType="customer" />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="vehicle-details"
+          element={
+            <ProtectedRoute>
+              <Details entityType="vehicle" />
             </ProtectedRoute>
           }
         />
@@ -117,6 +144,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <VehicleCategoryFares />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="promo-codes"
+          element={
+            <ProtectedRoute>
+              <PromoCodes />
             </ProtectedRoute>
           }
         />

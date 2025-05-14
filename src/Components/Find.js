@@ -10,6 +10,13 @@ export default function Find({
   onSearch,
   onStatusChange,
 }) {
+  // Create the menu items array for the dropdown
+  const statusOptions = [
+    { value: "all", label: "All" },
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+  ];
+
   return (
     <BoxComponent
       display="flex"
@@ -24,7 +31,8 @@ export default function Find({
       <BoxComponent marginLeft="10px">
         <Dropdown
           label={label}
-          menuItems={status}
+          menuItems={statusOptions}
+          value={status}
           onChange={(value) => onStatusChange && onStatusChange(value)}
         />
       </BoxComponent>
